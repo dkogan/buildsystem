@@ -1,0 +1,82 @@
+# -*- Makefile -*-
+DIRHERE = $(subst $(realpath $(ROOT))/,,$(realpath .))
+
+LIB_OBJECTS = $(patsubst %.C, %.o, $(patsubst %.c, %.o, $(LIB_SOURCES)))
+ALLFLAGS += -MMD -I$(ROOT)
+FPIC_FLAGS = -fPIC
+
+CFLAGS   += -std=gnu99 $(ALLFLAGS)
+CXXFLAGS += $(ALLFLAGS)
+
+
+BIN_TARGET_ANYINST = $(BIN_TARGET) $(BIN_TARGET_NOINST)
+LIB_TARGET_ANY = $(LIB_TARGET_SO) $(LIB_TARGET_A)
+
+# each bin_target depends on bin_target.o
+define BIN_TARGET_template
+$(1): $(1).o
+endef
+$(foreach target,$(BIN_TARGET_ANYINST),$(eval $(call BIN_TARGET_template,$(target))))
+
+
+# make each depended project library. There are 2 targets:
+# BIN_LDLIBS_PROJECT and BIN_LDLIBS_PROJECT_BUILD
+#
+# BIN_LDLIBS_PROJECT is the actual .so I depend
+# on. BIN_LDLIBS_PROJECT_BUILD is a virtual prerequesite used to ALWAYS
+# run the recursive make to build the .so (if needed). Here I always run
+# the recursive make, and if the .so was updated, I rebuild my
+# dependencies.
+BIN_LDLIBS_PROJECT_BUILD = $(BIN_LDLIBS_PROJECT:%=%_BUILD)
+define LDLIB_BUILD_template
+$(1):
+	$(MAKE) -C $(dir $(1)) $(subst $(notdir $(1)),_BUILD,)
+
+.PHONY: $(1)
+endef
+$(foreach lib,$(BIN_LDLIBS_PROJECT_BUILD),$(eval $(call LDLIB_BUILD_template,$(lib))))
+
+
+
+.DEFAULT_GOAL := all
+
+
+
+all: $(LIB_TARGET_ANY) $(BIN_TARGET_ANYINST)
+
+$(LIB_OBJECTS): ALLFLAGS += $(FPIC_FLAGS)
+
+$(LIB_TARGET_A): $(LIB_OBJECTS)
+	ar rcvu $@ $^
+
+$(LIB_TARGET_SO): LDFLAGS += -shared $(FPIC_FLAGS)
+$(LIB_TARGET_SO): $(LIB_OBJECTS)
+	$(LINK.o) $^ -o $@
+
+
+
+# see comment about BIN_LDLIBS_PROJECT_BUILD above
+$(BIN_TARGET_ANYINST): $(LIB_TARGET_SO) $(BIN_LDLIBS_PROJECT) | $(BIN_LDLIBS_PROJECT_BUILD)
+	$(LINK.o) $^ $(BIN_LDLIBS) -o $@
+
+
+
+install: $(LIB_TARGET_SO)
+	mkdir -p $(DESTDIR)/usr/include/$(DIRHERE)
+	mkdir -p $(DESTDIR)/usr/bin
+	mkdir -p $(DESTDIR)/usr/lib
+	install $(INC_INSTALL) $(DESTDIR)/usr/include/$(DIRHERE)
+	install -s $(BIN_TARGET) $(DESTDIR)/usr/bin
+	install -s $(LIB_TARGET_SO) $(DESTDIR)/usr/lib
+
+clean:
+	rm -rf *.a *.o *.so *.d $(BIN_TARGET_ANYINST)
+
+-include *.d
+
+
+# include the system-dependent variables
+$(ROOT) ?= .
+include $(ROOT)/Makefile.sys
+
+.PHONY: all install clean
