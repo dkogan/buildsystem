@@ -2,6 +2,9 @@
 DIRHERE = $(subst $(realpath $(ROOT))/,,$(realpath .))
 
 LIB_OBJECTS = $(patsubst %.C, %.o, $(patsubst %.c, %.o, $(LIB_SOURCES)))
+LIB_TARGET_SO = $(TARGET_NAME:%=%.so)
+LIB_TARGET_A = $(TARGET_NAME:%=%.a)
+
 ALLFLAGS += -MMD -I$(ROOT)
 FPIC_FLAGS = -fPIC
 
