@@ -70,7 +70,7 @@ install: $(LIB_TARGET_SO)
 	install -s $(LIB_TARGET_SO) $(DESTDIR)/usr/lib
 
 clean:
-	rm -rf *.a *.o *.so *.d $(BIN_TARGET_ANYINST)
+	rm -rf *.a *.o *.so *.d $(BIN_TARGET_ANYINST) $(EXTRACLEAN)
 
 -include *.d
 
