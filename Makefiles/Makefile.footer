@@ -72,8 +72,13 @@ install: $(LIB_TARGET_SO)
 	install -s $(BIN_TARGET) $(DESTDIR)/usr/bin
 	install -s $(LIB_TARGET_SO) $(DESTDIR)/usr/lib
 
+
+ALLCLEAN := *.a *.o *.so *.d
+ALLCLEAN += $(ALLCLEAN:%=tests/%)
+ALLCLEAN += $(BIN_TARGET_ALL) $(EXTRACLEAN)
+
 clean:
-	rm -rf *.a *.o *.so *.d $(BIN_TARGET_ANYINST) $(EXTRACLEAN)
+	rm -rf $(ALLCLEAN)
 
 -include *.d
 
