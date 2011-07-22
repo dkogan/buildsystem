@@ -75,7 +75,7 @@ clean:
 -include *.d
 
 
-# include the system-dependent variables
+# include the system-dependent variables and anything oblong-specific
 $(ROOT) ?= .
 include $(ROOT)/Makefile.sys
 
