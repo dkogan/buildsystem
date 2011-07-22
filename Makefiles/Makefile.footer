@@ -20,21 +20,21 @@ $(foreach target,$(BIN_TARGET_ANYINST),$(eval $(call BIN_TARGET_template,$(targe
 
 
 # make each depended project library. There are 2 targets:
-# BIN_LDLIBS_PROJECT and BIN_LDLIBS_PROJECT_BUILD
+# LDLIBS_PROJECT and LDLIBS_PROJECT_BUILD
 #
-# BIN_LDLIBS_PROJECT is the actual .so I depend
-# on. BIN_LDLIBS_PROJECT_BUILD is a virtual prerequesite used to ALWAYS
+# LDLIBS_PROJECT is the actual .so I depend
+# on. LDLIBS_PROJECT_BUILD is a virtual prerequesite used to ALWAYS
 # run the recursive make to build the .so (if needed). Here I always run
 # the recursive make, and if the .so was updated, I rebuild my
 # dependencies.
-BIN_LDLIBS_PROJECT_BUILD = $(BIN_LDLIBS_PROJECT:%=%_BUILD)
+LDLIBS_PROJECT_BUILD = $(LDLIBS_PROJECT:%=%_BUILD)
 define LDLIB_BUILD_template
 $(1):
 	$(MAKE) -C $(dir $(1)) $(subst $(notdir $(1)),_BUILD,)
 
 .PHONY: $(1)
 endef
-$(foreach lib,$(BIN_LDLIBS_PROJECT_BUILD),$(eval $(call LDLIB_BUILD_template,$(lib))))
+$(foreach lib,$(LDLIBS_PROJECT_BUILD),$(eval $(call LDLIB_BUILD_template,$(lib))))
 
 
 
@@ -55,9 +55,9 @@ $(LIB_TARGET_SO): $(LIB_OBJECTS)
 
 
 
-# see comment about BIN_LDLIBS_PROJECT_BUILD above
-$(BIN_TARGET_ANYINST): $(LIB_TARGET_SO) $(BIN_LDLIBS_PROJECT) | $(BIN_LDLIBS_PROJECT_BUILD)
-	$(LINK.o) $^ $(BIN_LDLIBS) -o $@
+# see comment about LDLIBS_PROJECT_BUILD above
+$(BIN_TARGET_ANYINST): $(LIB_TARGET_SO) $(LDLIBS_PROJECT) | $(LDLIBS_PROJECT_BUILD)
+	$(LINK.o) $^ $(LDLIBS) -o $@
 
 
 
