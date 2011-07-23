@@ -40,6 +40,35 @@ endef
 $(foreach lib,$(LDLIBS_PROJECT_BUILD),$(eval $(call LDLIB_BUILD_template,$(lib))))
 
 
+# If TESTS is defined, run the tests when making 'check';
+# Else if there's a 'tests' subdirectory, make 'check' there when making 'check' here;
+# Else do nothing
+ifneq ($(TESTS),)
+
+check: $(TESTS:%=%_DOCHECK)
+define RUNTEST_template
+$(1)_DOCHECK: $(BIN_TARGET_NOINST)
+	./$(1)
+
+.PHONY: $(1)_DOCHECK
+endef
+$(foreach test,$(TESTS),$(eval $(call RUNTEST_template,$(test))))
+
+else
+
+# not in 'tests'. Is there a tests/Makefile?
+ifneq ($(wildcard tests/Makefile),)
+check:
+	$(MAKE) -C tests check
+
+else
+check:
+	@echo "No testing Makefile found"
+endif
+endif
+
+
+
 
 .DEFAULT_GOAL := all
 
