@@ -44,16 +44,10 @@ $(foreach lib,$(LDLIBS_PROJECT_BUILD),$(eval $(call LDLIB_BUILD_template,$(lib))
 # Else if there's a 'tests' subdirectory, make 'check' there when making 'check' here;
 # Else do nothing
 ifneq ($(TESTS),)
-
-check: $(TESTS:%=%_DOCHECK)
-define RUNTEST_template
-$(1)_DOCHECK: $(BIN_TARGET_NOINST)
-	./$(1)
-
-.PHONY: $(1)_DOCHECK
-endef
-$(foreach test,$(TESTS),$(eval $(call RUNTEST_template,$(test))))
-
+check:
+	for thistest in $(TESTS); do \
+		./$$thistest || break; \
+	done
 else
 
 # not in 'tests'. Is there a tests/Makefile?
@@ -115,4 +109,5 @@ clean:
 $(ROOT) ?= .
 include $(ROOT)/Makefile.sys
 
-.PHONY: all install clean
+.PHONY: all install clean check
+
