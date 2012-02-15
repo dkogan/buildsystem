@@ -93,7 +93,7 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 # see comment about LDLIBS_PROJECT_BUILD above
 $(BIN_TARGET_ALL): $(LIB_TARGET_SO) $(LDLIBS_PROJECT) | $(LDLIBS_PROJECT_BUILD)
-	$(LINK.o) $^ $(LDLIBS) -o $@
+	$(CXX) $^ $(LDLIBS) -o $@
 
 
 
