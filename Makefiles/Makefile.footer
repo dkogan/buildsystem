@@ -1,6 +1,4 @@
 # -*- Makefile -*-
-DIRHERE = $(subst $(realpath $(ROOT))/,,$(realpath .))
-
 LIB_OBJECTS = $(patsubst %.C, %.o, $(patsubst %.c, %.o, $(LIB_SOURCES)))
 LIB_TARGET_SO = $(TARGET_NAME:%=%.so)
 LIB_TARGET_A = $(TARGET_NAME:%=%.a)
@@ -86,6 +84,8 @@ $(BIN_TARGET_ANYINST): $(LIB_TARGET_SO) $(LDLIBS_PROJECT) | $(LDLIBS_PROJECT_BUI
 	$(LINK.o) $^ $(LDLIBS) -o $@
 
 
+
+DIRHERE = $(subst $(realpath $(ROOT))/,,$(realpath .))
 
 install: $(LIB_TARGET_SO)
 	mkdir -p $(DESTDIR)/usr/include/$(DIRHERE)
