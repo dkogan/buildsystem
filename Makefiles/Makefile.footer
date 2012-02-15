@@ -4,8 +4,8 @@
 # the libRetro directory would produce libRetro.so and libRetro.a
 TARGET_NAME ?= $(notdir $(realpath .))
 
-LIB_TARGET_SO = $(TARGET_NAME:%=%.so)
-LIB_TARGET_A = $(TARGET_NAME:%=%.a)
+LIB_TARGET_SO = $(TARGET_NAME).so
+LIB_TARGET_A  = $(TARGET_NAME).a
 
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
