@@ -1,5 +1,10 @@
 # -*- Makefile -*-
 
+# if we don't already have a target name, use the directory. So code in
+# the libRetro directory would produce libRetro.so and libRetro.a
+TARGET_NAME ?= $(notdir $(realpath .))
+
+
 LIB_OBJECTS = $(patsubst %.C, %.o, $(patsubst %.c, %.o, $(LIB_SOURCES)))
 LIB_TARGET_SO = $(TARGET_NAME:%=%.so)
 LIB_TARGET_A = $(TARGET_NAME:%=%.a)
