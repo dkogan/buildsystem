@@ -1,33 +1,32 @@
 # -*- Makefile -*-
+
 LIB_OBJECTS = $(patsubst %.C, %.o, $(patsubst %.c, %.o, $(LIB_SOURCES)))
 LIB_TARGET_SO = $(TARGET_NAME:%=%.so)
 LIB_TARGET_A = $(TARGET_NAME:%=%.a)
 
+# used to make gcc output header dependency information. All source
+# files generated .d dependency definitions that are included at the
+# bottom of this file
 ALLCFLAGS += -MMD -I$(ROOT)
-FPIC_FLAGS = -fPIC
 
 CFLAGS   += $(ALLCFLAGS)
 CXXFLAGS += $(ALLCFLAGS)
 
+BIN_TARGET_ALL = $(BIN_TARGET) $(BIN_TARGET_NOINST)
+LIB_TARGET_ALL = $(LIB_TARGET_SO) $(LIB_TARGET_A)
 
-BIN_TARGET_ANYINST = $(BIN_TARGET) $(BIN_TARGET_NOINST)
-LIB_TARGET_ANY = $(LIB_TARGET_SO) $(LIB_TARGET_A)
-
-# each bin_target depends on bin_target.o
-define BIN_TARGET_template
-$(1): $(1).o
-endef
-$(foreach target,$(BIN_TARGET_ANYINST),$(eval $(call BIN_TARGET_template,$(target))))
-
-
-# make each depended project library. There are 2 targets:
+# make each depended project library. A Makefile can debine
+# LDLIBS_PROJECT to contain all the .so files IN THIS REPO that we
+# depend on here. Here I make sure that those are built before I try to
+# build THIS library.
+#
+# There are 2 targets:
 # LDLIBS_PROJECT and LDLIBS_PROJECT_BUILD
 #
-# LDLIBS_PROJECT is the actual .so I depend
-# on. LDLIBS_PROJECT_BUILD is a virtual prerequesite used to ALWAYS
-# run the recursive make to build the .so (if needed). Here I always run
-# the recursive make, and if the .so was updated, I rebuild my
-# dependencies.
+# LDLIBS_PROJECT is the actual .so I depend on. LDLIBS_PROJECT_BUILD is
+# a virtual prerequesite used to ALWAYS run the recursive make to build
+# the .so (if needed). Here I always run the recursive make, and if the
+# .so was updated, I rebuild my dependencies.
 LDLIBS_PROJECT_BUILD = $(LDLIBS_PROJECT:%=%_BUILD)
 define LDLIB_BUILD_template
 $(1):
@@ -66,22 +65,31 @@ endif
 
 
 
-all: $(LIB_TARGET_ANY) $(BIN_TARGET_ANYINST)
+all: $(LIB_TARGET_ALL) $(BIN_TARGET_ALL)
 
-$(LIB_OBJECTS): ALLFLAGS += $(FPIC_FLAGS)
+$(LIB_OBJECTS): ALLFLAGS += -fPIC
 
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
 
-$(LIB_TARGET_SO): LDFLAGS += -shared $(FPIC_FLAGS)
+$(LIB_TARGET_SO): LDFLAGS += -shared -fPIC
 $(LIB_TARGET_SO): $(LIB_OBJECTS)
 	$(LINK.o) $^ -o $@
 
 
 
+# each BIN_TARGET depends on its own .c file and on the LIB_TARGET_SO
+# shared object. Here I generate lots of rules like blah: blah.o to get
+# the former. The latter is included in the following rule
+define BIN_TARGET_template
+$(1): $(1).o
+endef
+$(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target))))
+
 # see comment about LDLIBS_PROJECT_BUILD above
-$(BIN_TARGET_ANYINST): $(LIB_TARGET_SO) $(LDLIBS_PROJECT) | $(LDLIBS_PROJECT_BUILD)
+$(BIN_TARGET_ALL): $(LIB_TARGET_SO) $(LDLIBS_PROJECT) | $(LDLIBS_PROJECT_BUILD)
 	$(LINK.o) $^ $(LDLIBS) -o $@
+
 
 
 
@@ -97,7 +105,7 @@ install: $(LIB_TARGET_SO)
 
 
 ALLCLEAN := *.a *.o *.so *.d
-ALLCLEAN += $(BIN_TARGET_ANYINST) $(EXTRACLEAN)
+ALLCLEAN += $(BIN_TARGET_ALL) $(EXTRACLEAN)
 
 clean:
 	rm -rf $(ALLCLEAN)
