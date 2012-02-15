@@ -72,7 +72,7 @@ endif
 
 all: $(LIB_TARGET_ALL) $(BIN_TARGET_ALL)
 
-$(LIB_OBJECTS): ALLFLAGS += -fPIC
+$(LIB_OBJECTS): ALLCFLAGS += -fPIC
 
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
