@@ -84,16 +84,23 @@ $(LIB_TARGET_SO): $(LIB_OBJECTS)
 
 
 # each BIN_TARGET depends on its own .c file and on the LIB_TARGET_SO
-# shared object. Here I generate lots of rules like blah: blah.o to get
-# the former. The latter is included in the following rule
+# shared object. Here I generate lots of rules like
+# blah: blah.o libs
+#       g++ blah.o libs -o blah
+# see comment about LDLIBS_PROJECT_BUILD above
+#
+# I'm using $$ here to delay the variable expansion until later, so that
+# the rules are generated keeping the variable references intact.
 define BIN_TARGET_template
-$(1): $(1).o
+$(1): $(1).o $$(LIB_TARGET_SO) $$(LDLIBS_PROJECT) | $$(LDLIBS_PROJECT_BUILD)
+	$$(CXX) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
 endef
 $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target))))
 
-# see comment about LDLIBS_PROJECT_BUILD above
-$(BIN_TARGET_ALL): $(LIB_TARGET_SO) $(LDLIBS_PROJECT) | $(LDLIBS_PROJECT_BUILD)
-	$(CXX) $^ $(LDLIBS) -o $@
+
+
+
+
 
 
 
