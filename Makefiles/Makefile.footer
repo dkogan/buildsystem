@@ -173,10 +173,17 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 ########################## installation ###############################
 
-# now the install rules. For each library I have 3 packages:
+# now the install rules. If the TARGET_NAME starts with 'lib', it's a
+# library. Otherwise it's binaries. Libraries have -dev versions of
+# their packages, have API_VERSIONs, and are allowed to have headers,
+# .so, .a, etc. For each library I have 3 packages:
+#
 # liboblong-blahN    : main library, N is a number that gets bumped up with each API chage
 # liboblong-blah-dev : devel files (.a, .h, .pc)
 # liboblong-blahN-dbg: just the debug symbols
+
+ifeq ($(TARGET_NAME:lib%=lib),lib)
+# library
 PACKAGENAME_BASE:=liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
 DESTDIR_LIB=$(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
 DESTDIR_DEV=$(ROOT)/debian/$(PACKAGENAME_BASE)-dev
@@ -191,8 +198,24 @@ install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic)
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_DEV)/usr/lib/$(LIB_TARGET_SO_BARE)
 	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install -s {}.dynamic $(DESTDIR_LIB)/usr/bin/{}
-
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
+
+else
+
+# binary package
+ifneq ($(LIB_OBJECTS),)
+ $(error Binary package $(TARGET_NAME) has lib objects $(LIB_OBJECTS))
+endif
+# add a similar test for headers here
+
+
+PACKAGENAME_BASE:=oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
+DESTDIR_BIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
+
+install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic)
+	mkdir -p $(DESTDIR_BIN)/usr/bin
+	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install -s {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
+endif
 
 #######################################################################
 
