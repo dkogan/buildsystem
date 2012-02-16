@@ -52,7 +52,9 @@
 # BIN_TARGET and BIN_TARGET_NOINST. The former are installed into the
 # final package, while the latter are not.
 
-
+# The library and package by default will be named for the directory
+# they are in. If we want this to NOT be the case, we should define
+# TARGET_NAME.
 
 # if we don't already have a target name, use the directory. So code in
 # the libRetro directory would produce libRetro.so and libRetro.a
