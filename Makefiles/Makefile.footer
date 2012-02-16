@@ -177,7 +177,7 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 ########################## installation ###############################
 
-DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS)
+DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG)
 
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
 # library. Otherwise it's binaries. Libraries have -dev versions of
@@ -207,6 +207,10 @@ install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
 ifneq ($(DIST_BINS),)
 	install -m 0755 $(DIST_BINS) $(DESTDIR_LIB)/usr/bin/
 endif
+ifneq ($(DIST_ETC_OBLONG),)
+	mkdir -p $(DESTDIR_LIB)/etc/oblong
+	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_LIB)/etc/oblong
+endif
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
 else
@@ -227,6 +231,11 @@ install: $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
 ifneq ($(DIST_BINS),)
 	install -m 0755 $(DIST_BINS) $(DESTDIR_BIN)/usr/bin/
 endif
+ifneq ($(DIST_ETC_OBLONG),)
+	mkdir -p $(DESTDIR_BIN)/etc/oblong
+	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_BIN)/etc/oblong
+endif
+
 endif
 
 #######################################################################
