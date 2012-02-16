@@ -1,4 +1,58 @@
 # -*- Makefile -*-
+#
+# This is a general makefile to support builds of multi-directory
+# subprojects in a single repo. Each directory would generate one .so
+# library for dynamic linking, one .a library for static linking, and
+# possibly some executable binaries.
+#
+# Two versions of the executables are built: ones using static linking
+# and others using dynamic linking. In the project tree, the executable
+# names specified in the Makefile are the statically-linked executables.
+# Dynamically-linked ones are called binaryname.dynamic. When the debian
+# packager runs the install rule, it grabs the dynamically-linked
+# executables, so that the installed package can use the shared objects.
+#
+# There is one package generated per directory
+
+# A project in a particular directory
+# would define a Makefile that includes this one. Example:
+#
+# LIB_OBJECTS = \
+#   gs_bmpmask.o \
+#   gs_calibopt.o \
+#   ...
+#   gs_wanddesign.o \
+#   gs_wandtracker.o
+#
+# BIN_TARGET = \
+#   GScp2xcp \
+#   GSxcp2cp \
+#   #
+#
+# BIN_TARGET_NOINST = \
+#   BatchTagDesignCmd \
+#   ...
+#   TestCalibration \
+#   #
+#
+# LDLIBS  += -lm -llbfgs -lLoam++ $(RTLIBS)
+# LDFLAGS += --no-undefined
+#
+#
+# BatchTagDesignCmd: LDLIBS += -lyaml -lpng
+#
+# ROOT   = ..
+# include $(ROOT)/Makefile.footer
+
+# This is the libRetro Makefile. The user MUST define the ROOT path to
+# this Makefile.footer file. The user should define the LDLIBS and
+# LDFLAGS as with any Makefile. Objects that generate the library .so or
+# .a must be given in LIB_OBJECTS. These are generally named xxx.o built
+# from xxx.{C,c,cc,cpp,....}. The binaries that are built are defined in
+# BIN_TARGET and BIN_TARGET_NOINST. The former are installed into the
+# final package, while the latter are not.
+
+
 
 # if we don't already have a target name, use the directory. So code in
 # the libRetro directory would produce libRetro.so and libRetro.a
