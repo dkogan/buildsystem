@@ -175,7 +175,8 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 PACKAGENAME_BASE:=liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
 DESTDIR_LIB=$(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
 DESTDIR_DEV=$(ROOT)/debian/$(PACKAGENAME_BASE)-dev
-install: $(LIB_TARGET_SO) $(LIB_TARGET_SO)
+
+install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic)
 	mkdir -p $(DESTDIR_LIB)/usr/bin
 	mkdir -p $(DESTDIR_LIB)/usr/lib
 	mkdir -p $(DESTDIR_DEV)/usr/include
@@ -184,9 +185,7 @@ install: $(LIB_TARGET_SO) $(LIB_TARGET_SO)
 	install -m 0644 $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_DEV)/usr/lib/$(LIB_TARGET_SO_BARE)
-ifneq ($(BIN_TARGET),)
-	install -s $(BIN_TARGET) $(DESTDIR_LIB)/usr/bin
-endif
+	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install -s {}.dynamic $(DESTDIR_LIB)/usr/bin/{}
 
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
