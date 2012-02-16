@@ -79,27 +79,6 @@ CXXFLAGS += $(ALLCFLAGS)
 BIN_TARGET_ALL = $(BIN_TARGET) $(BIN_TARGET_NOINST)
 LIB_TARGET_ALL = $(LIB_TARGET_SO) $(LIB_TARGET_A)
 
-# make each depended project library. A Makefile can debine
-# LDLIBS_PROJECT to contain all the .so files IN THIS REPO that we
-# depend on here. Here I make sure that those are built before I try to
-# build THIS library.
-#
-# There are 2 targets:
-# LDLIBS_PROJECT and LDLIBS_PROJECT_BUILD
-#
-# LDLIBS_PROJECT is the actual .so I depend on. LDLIBS_PROJECT_BUILD is
-# a virtual prerequesite used to ALWAYS run the recursive make to build
-# the .so (if needed). Here I always run the recursive make, and if the
-# .so was updated, I rebuild my dependencies.
-LDLIBS_PROJECT_BUILD = $(LDLIBS_PROJECT)_BUILD
-define LDLIB_BUILD_template
-$(1):
-	$(MAKE) -C $(dir $(1)) $(subst $(notdir $(1)),_BUILD,)
-
-.PHONY: $(1)
-endef
-$(foreach lib,$(LDLIBS_PROJECT_BUILD),$(eval $(call LDLIB_BUILD_template,$(lib))))
-
 
 # If TESTS is defined, run the tests when making 'check';
 # Else if there's a 'tests' subdirectory, make 'check' there when making 'check' here;
@@ -141,30 +120,39 @@ $(LIB_TARGET_SO): $(LIB_OBJECTS)
 
 
 
-# each BIN_TARGET depends on its own .c file and on the LIB_TARGET_SO
+
+# make each depended project library. A Makefile can define
+# LDLIBS_PROJECT to contain all the .so files IN THIS REPO that we
+# depend on here. Here I define a rule to run the recursive make to
+# build the dependent librar(y|ies). I want to ALWAYS run this rule,
+# since the dependencies of those libraries are defined in their
+# respective Makefiles that are not loaded here. I thus set these
+# targets to be PHONY
+define LDLIB_PROJECT_template
+$$(basename $(1)).so:
+	$(MAKE) -C $$(dir $$@) $$(notdir $$@)
+$$(basename $(1)).a:
+	$(MAKE) -C $$(dir $$@) $$(notdir $$@)
+.PHONY: $$(basename $(1)).so $$(basename $(1)).a
+endef
+$(foreach lib,$(LDLIBS_PROJECT),$(eval $(call LDLIB_PROJECT_template,$(lib))))
+
+# each BIN_TARGET depends on its own .c file and on the LIB_TARGET_(SO|A)
 # shared object. Here I generate lots of rules like
-# blah: blah.o libs
-#       g++ blah.o thislib.a libs -o blah
-# blah.dynamic: blah.o libs
-#       g++ blah.o thislib.so libs -o blah
-# see comment about LDLIBS_PROJECT_BUILD above
-#
+# blah: blah.o thislib.a otherlibs_project.a libs
+#       $(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
+# blah.dynamic: blah.o thislib.so otherlibs_project.so libs
+#       $(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
+
 # I'm using $$ here to delay the variable expansion until later, so that
 # the rules are generated keeping the variable references intact.
 define BIN_TARGET_template
-$(1): $(1).o $$(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%) | $$(LDLIBS_PROJECT_BUILD)
+$(1):         $(1).o $$(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
 	$$(CXX) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
-
-$(1).dynamic: $(1).o $$(LIB_TARGET_SO) $$(LDLIBS_PROJECT) | $$(LDLIBS_PROJECT_BUILD)
+$(1).dynamic: $(1).o $$(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
 	$$(CXX) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
 endef
 $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target))))
-
-
-
-
-
-
 
 
 
