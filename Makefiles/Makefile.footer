@@ -191,25 +191,25 @@ DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG)
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 # library
 PACKAGENAME_BASE:=liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
-DESTDIR_LIB=$(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
+DESTDIR_MAIN=$(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
 DESTDIR_DEV=$(ROOT)/debian/$(PACKAGENAME_BASE)-dev
 
 install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
-	mkdir -p $(DESTDIR_LIB)/usr/bin
-	mkdir -p $(DESTDIR_LIB)/usr/lib
+	mkdir -p $(DESTDIR_MAIN)/usr/bin
+	mkdir -p $(DESTDIR_MAIN)/usr/lib
 	mkdir -p $(DESTDIR_DEV)/usr/include
 	mkdir -p $(DESTDIR_DEV)/usr/lib
 
-	install -m 0644 $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib
-	ln -fs $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
+	install -m 0644 $(LIB_TARGET_SO) $(DESTDIR_MAIN)/usr/lib
+	ln -fs $(LIB_TARGET_SO) $(DESTDIR_MAIN)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_DEV)/usr/lib/$(LIB_TARGET_SO_BARE)
-	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_LIB)/usr/bin/{}
+	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_MAIN)/usr/bin/{}
 ifneq ($(DIST_BINS),)
-	install -m 0755 $(DIST_BINS) $(DESTDIR_LIB)/usr/bin/
+	install -m 0755 $(DIST_BINS) $(DESTDIR_MAIN)/usr/bin/
 endif
 ifneq ($(DIST_ETC_OBLONG),)
-	mkdir -p $(DESTDIR_LIB)/etc/oblong
-	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_LIB)/etc/oblong
+	mkdir -p $(DESTDIR_MAIN)/etc/oblong
+	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
 endif
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
@@ -223,17 +223,17 @@ endif
 
 
 PACKAGENAME_BASE:=oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
-DESTDIR_BIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
+DESTDIR_MAIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
 
 install: $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
-	mkdir -p $(DESTDIR_BIN)/usr/bin
-	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
+	mkdir -p $(DESTDIR_MAIN)/usr/bin
+	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_MAIN)/usr/bin/{}
 ifneq ($(DIST_BINS),)
-	install -m 0755 $(DIST_BINS) $(DESTDIR_BIN)/usr/bin/
+	install -m 0755 $(DIST_BINS) $(DESTDIR_MAIN)/usr/bin/
 endif
 ifneq ($(DIST_ETC_OBLONG),)
-	mkdir -p $(DESTDIR_BIN)/etc/oblong
-	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_BIN)/etc/oblong
+	mkdir -p $(DESTDIR_MAIN)/etc/oblong
+	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
 endif
 
 endif
