@@ -225,7 +225,7 @@ install: $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
 	mkdir -p $(DESTDIR_BIN)/usr/bin
 	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
 ifneq ($(DIST_BINS),)
-	install -m 0755 $(DIST_BINS) $(DESTDIR_LIB)/usr/bin/
+	install -m 0755 $(DIST_BINS) $(DESTDIR_BIN)/usr/bin/
 endif
 endif
 
