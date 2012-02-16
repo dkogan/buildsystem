@@ -51,10 +51,15 @@
 # from xxx.{C,c,cc,cpp,....}. The binaries that are built are defined in
 # BIN_TARGET and BIN_TARGET_NOINST. The former are installed into the
 # final package, while the latter are not.
-
+#
 # The library and package by default will be named for the directory
 # they are in. If we want this to NOT be the case, we should define
 # TARGET_NAME.
+#
+# If a directory depends on other directories IN THIS REPO, add those
+# .so files to the LDLIBS_PROJECT variable. This library will then be
+# built and linked in
+
 
 # if we don't already have a target name, use the directory. So code in
 # the libRetro directory would produce libRetro.so and libRetro.a
