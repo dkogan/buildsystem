@@ -71,7 +71,7 @@ LIB_TARGET_A  = $(TARGET_NAME).a
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
 # bottom of this file
-ALLCFLAGS += -MMD -I$(ROOT)
+ALLCFLAGS += -MMD
 
 CFLAGS   += $(ALLCFLAGS)
 CXXFLAGS += $(ALLCFLAGS)
