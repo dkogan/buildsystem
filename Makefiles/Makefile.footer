@@ -80,24 +80,12 @@ BIN_TARGET_ALL = $(BIN_TARGET) $(BIN_TARGET_NOINST)
 LIB_TARGET_ALL = $(LIB_TARGET_SO) $(LIB_TARGET_A)
 
 
-# If TESTS is defined, run the tests when making 'check';
-# Else if there's a 'tests' subdirectory, make 'check' there when making 'check' here;
+# If there's a 'tests' subdirectory, make 'check' there; otherwise make 'check' here;
 # Else do nothing
-ifneq ($(TESTS),)
-check:
-	for thistest in $(TESTS); do \
-		./$$thistest || break; \
-	done
-else
-
-# not in 'tests'. Is there a tests/Makefile?
+# Is there a tests/Makefile?
 ifneq ($(wildcard tests/Makefile),)
 check:
 	$(MAKE) -C tests check
-else
-check:
-	@echo "No testing Makefile found"
-endif
 endif
 
 
