@@ -223,10 +223,6 @@ else
 ifneq ($(LIB_OBJECTS),)
  $(error Binary package $(TARGET_NAME) has lib objects $(LIB_OBJECTS))
 endif
-ifneq ($(DIST_UPSTART),)
-	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
-	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
-endif
 # add a similar test for headers here
 
 
@@ -242,6 +238,10 @@ endif
 ifneq ($(DIST_ETC_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong
 	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
+endif
+ifneq ($(DIST_UPSTART),)
+	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
+	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
 endif
 
 endif
