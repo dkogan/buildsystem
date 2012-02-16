@@ -165,15 +165,32 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 
 
-DIRHERE = $(subst $(realpath $(ROOT))/,,$(realpath .))
 
-install: $(LIB_TARGET_SO)
-	mkdir -p $(DESTDIR)/usr/include/$(DIRHERE)
-	mkdir -p $(DESTDIR)/usr/bin
-	mkdir -p $(DESTDIR)/usr/lib
-	install $(INC_INSTALL) $(DESTDIR)/usr/include/$(DIRHERE)
-	install -s $(BIN_TARGET) $(DESTDIR)/usr/bin
-	install -s $(LIB_TARGET_SO) $(DESTDIR)/usr/lib
+########################## installation ###############################
+
+# now the install rules. For each library I have 3 packages:
+# liboblong-blahN    : main library, N is a number that gets bumped up with each API chage
+# liboblong-blah-dev : devel files (.a, .h, .pc)
+# liboblong-blahN-dbg: just the debug symbols
+PACKAGENAME_BASE:=liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
+DESTDIR_LIB=$(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
+DESTDIR_DEV=$(ROOT)/debian/$(PACKAGENAME_BASE)-dev
+install: $(LIB_TARGET_SO) $(LIB_TARGET_SO)
+	mkdir -p $(DESTDIR_LIB)/usr/bin
+	mkdir -p $(DESTDIR_LIB)/usr/lib
+	mkdir -p $(DESTDIR_DEV)/usr/include
+	mkdir -p $(DESTDIR_DEV)/usr/lib
+
+	install -m 0644 $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib
+	ln -fs $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
+	ln -fs $(LIB_TARGET_SO) $(DESTDIR_DEV)/usr/lib/$(LIB_TARGET_SO_BARE)
+ifneq ($(BIN_TARGET),)
+	install -s $(BIN_TARGET) $(DESTDIR_LIB)/usr/bin
+endif
+
+# install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
+
+#######################################################################
 
 
 ALLCLEAN := *.a *.o *.so *.d
