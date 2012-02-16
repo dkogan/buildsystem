@@ -202,7 +202,9 @@ install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic)
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_DEV)/usr/lib/$(LIB_TARGET_SO_BARE)
 	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_LIB)/usr/bin/{}
-
+ifneq ($(DIST_BINS),)
+	install -m 0755 $(DIST_BINS) $(DESTDIR_LIB)/usr/bin/
+endif
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
 else
@@ -220,6 +222,9 @@ DESTDIR_BIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
 install: $(BIN_TARGET:%=%.dynamic)
 	mkdir -p $(DESTDIR_BIN)/usr/bin
 	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
+ifneq ($(DIST_BINS),)
+	install -m 0755 $(DIST_BINS) $(DESTDIR_LIB)/usr/bin/
+endif
 endif
 
 #######################################################################
