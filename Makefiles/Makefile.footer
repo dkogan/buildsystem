@@ -66,9 +66,9 @@ endif
 .DEFAULT_GOAL := all
 
 
+all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
-all: $(LIB_TARGET_ALL) $(BIN_TARGET_ALL)
-
+# needed for the dynamically-linked object
 $(LIB_OBJECTS): ALLCFLAGS += -fPIC
 
 $(LIB_TARGET_A): $(LIB_OBJECTS)
@@ -83,13 +83,18 @@ $(LIB_TARGET_SO): $(LIB_OBJECTS)
 # each BIN_TARGET depends on its own .c file and on the LIB_TARGET_SO
 # shared object. Here I generate lots of rules like
 # blah: blah.o libs
-#       g++ blah.o libs -o blah
+#       g++ blah.o thislib.a libs -o blah
+# blah.dynamic: blah.o libs
+#       g++ blah.o thislib.so libs -o blah
 # see comment about LDLIBS_PROJECT_BUILD above
 #
 # I'm using $$ here to delay the variable expansion until later, so that
 # the rules are generated keeping the variable references intact.
 define BIN_TARGET_template
-$(1): $(1).o $$(LIB_TARGET_SO) $$(LDLIBS_PROJECT) | $$(LDLIBS_PROJECT_BUILD)
+$(1): $(1).o $$(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%) | $$(LDLIBS_PROJECT_BUILD)
+	$$(CXX) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
+
+$(1).dynamic: $(1).o $$(LIB_TARGET_SO) $$(LDLIBS_PROJECT) | $$(LDLIBS_PROJECT_BUILD)
 	$$(CXX) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
 endef
 $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target))))
