@@ -65,8 +65,33 @@
 # the libRetro directory would produce libRetro.so and libRetro.a
 TARGET_NAME ?= $(notdir $(realpath .))
 
-LIB_TARGET_SO = $(TARGET_NAME).so
-LIB_TARGET_A  = $(TARGET_NAME).a
+
+
+
+
+#################### Shared object versioning #########################
+
+API_VERSION ?= 0
+
+# I parse the version from debian/changelog. This version is generally something
+# like 0.04-1 Here 0.04 is the main version and 1 is the debian package
+# version. I only use the main version and strip leading 0s, so the above
+# becomes 0.4
+VERSION := $(shell dpkg-parsechangelog -l$(ROOT)/debian/changelog | awk '/^Version/{ gsub("-.*","",$$2); print $$2}' | perl -pe 's/\.0*([1-9])/.$$1/g')
+
+ifeq ($(strip $(VERSION)),)
+$(error "Couldn't parse version from debian/changelog")
+endif
+
+SO_VERSION=$(API_VERSION).$(VERSION)
+
+#######################################################################
+
+
+
+LIB_TARGET_SO_BARE = $(TARGET_NAME).so
+LIB_TARGET_SO	   = $(LIB_TARGET_SO_BARE).$(SO_VERSION)
+LIB_TARGET_A       = $(TARGET_NAME).a
 
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
@@ -101,12 +126,9 @@ $(LIB_OBJECTS): ALLCFLAGS += -fPIC
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
 
-$(LIB_TARGET_SO): LDFLAGS += -shared -fPIC
+$(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname -Wl,$(LIB_TARGET_SO_BARE).$(API_VERSION)
 $(LIB_TARGET_SO): $(LIB_OBJECTS)
-	$(LINK.o) $^ -o $@
-
-
-
+	$(LINK.o) $(LDLIBS) $^ -o $@
 
 # make each depended project library. A Makefile can define
 # LDLIBS_PROJECT to contain all the .so files IN THIS REPO that we
