@@ -88,6 +88,8 @@ SO_VERSION=$(API_VERSION).$(VERSION)
 #######################################################################
 
 
+# if we have libraries, define their names and targets
+ifneq ($(LIB_OBJECTS),)
 
 LIB_TARGET_SO_BARE = $(TARGET_NAME).so
 LIB_TARGET_SO	   = $(LIB_TARGET_SO_BARE).$(SO_VERSION)
@@ -95,6 +97,8 @@ LIB_TARGET_A       = $(TARGET_NAME).a
 
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
 	ln -fs $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE)
+endif
+
 
 
 
@@ -212,7 +216,7 @@ endif
 PACKAGENAME_BASE:=oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
 DESTDIR_BIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
 
-install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic)
+install: $(BIN_TARGET:%=%.dynamic)
 	mkdir -p $(DESTDIR_BIN)/usr/bin
 	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install -s {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
 endif
