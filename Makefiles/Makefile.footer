@@ -221,7 +221,7 @@ endif
 
 
 ALLCLEAN := *.a *.o *.so *.so.* *.d
-ALLCLEAN += $(BIN_TARGET_ALL) $(EXTRACLEAN)
+ALLCLEAN += $(BIN_TARGET_ALL) $(BIN_TARGET_ALL:%=%.dynamic) $(EXTRACLEAN)
 
 clean:
 	rm -rf $(ALLCLEAN)
