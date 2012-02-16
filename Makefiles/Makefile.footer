@@ -201,7 +201,8 @@ install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic)
 	install -m 0644 $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_LIB)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
 	ln -fs $(LIB_TARGET_SO) $(DESTDIR_DEV)/usr/lib/$(LIB_TARGET_SO_BARE)
-	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install -s {}.dynamic $(DESTDIR_LIB)/usr/bin/{}
+	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_LIB)/usr/bin/{}
+
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
 else
@@ -218,7 +219,7 @@ DESTDIR_BIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
 
 install: $(BIN_TARGET:%=%.dynamic)
 	mkdir -p $(DESTDIR_BIN)/usr/bin
-	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install -s {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
+	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
 endif
 
 #######################################################################
