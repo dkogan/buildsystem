@@ -177,7 +177,7 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 ########################## installation ###############################
 
-DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG)
+DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPSTART)
 
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
 # library. Otherwise it's binaries. Libraries have -dev versions of
@@ -211,6 +211,10 @@ ifneq ($(DIST_ETC_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong
 	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
 endif
+ifneq ($(DIST_UPSTART),)
+	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
+	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
+endif
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
 else
@@ -218,6 +222,10 @@ else
 # binary package
 ifneq ($(LIB_OBJECTS),)
  $(error Binary package $(TARGET_NAME) has lib objects $(LIB_OBJECTS))
+endif
+ifneq ($(DIST_UPSTART),)
+	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
+	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
 endif
 # add a similar test for headers here
 
