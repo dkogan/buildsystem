@@ -220,7 +220,7 @@ endif
 #######################################################################
 
 
-ALLCLEAN := *.a *.o *.so *.d
+ALLCLEAN := *.a *.o *.so *.so.* *.d
 ALLCLEAN += $(BIN_TARGET_ALL) $(EXTRACLEAN)
 
 clean:
