@@ -77,7 +77,6 @@ CFLAGS   += $(ALLCFLAGS)
 CXXFLAGS += $(ALLCFLAGS)
 
 BIN_TARGET_ALL = $(BIN_TARGET) $(BIN_TARGET_NOINST)
-LIB_TARGET_ALL = $(LIB_TARGET_SO) $(LIB_TARGET_A)
 
 
 # If there's a 'tests' subdirectory, make 'check' there; otherwise make 'check' here;
