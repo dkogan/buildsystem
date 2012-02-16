@@ -54,7 +54,6 @@ else
 ifneq ($(wildcard tests/Makefile),)
 check:
 	$(MAKE) -C tests check
-
 else
 check:
 	@echo "No testing Makefile found"
