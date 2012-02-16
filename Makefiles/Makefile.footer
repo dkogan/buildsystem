@@ -93,6 +93,11 @@ LIB_TARGET_SO_BARE = $(TARGET_NAME).so
 LIB_TARGET_SO	   = $(LIB_TARGET_SO_BARE).$(SO_VERSION)
 LIB_TARGET_A       = $(TARGET_NAME).a
 
+$(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
+	ln -fs $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE)
+
+
+
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
 # bottom of this file
