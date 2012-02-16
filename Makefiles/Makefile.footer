@@ -91,7 +91,7 @@ LIB_TARGET_ALL = $(LIB_TARGET_SO) $(LIB_TARGET_A)
 # a virtual prerequesite used to ALWAYS run the recursive make to build
 # the .so (if needed). Here I always run the recursive make, and if the
 # .so was updated, I rebuild my dependencies.
-LDLIBS_PROJECT_BUILD = $(LDLIBS_PROJECT:%=%_BUILD)
+LDLIBS_PROJECT_BUILD = $(LDLIBS_PROJECT)_BUILD
 define LDLIB_BUILD_template
 $(1):
 	$(MAKE) -C $(dir $(1)) $(subst $(notdir $(1)),_BUILD,)
