@@ -130,9 +130,9 @@ $(LIB_TARGET_SO): $(LIB_OBJECTS)
 # targets to be PHONY
 define LDLIB_PROJECT_template
 $$(basename $(1)).so:
-	$(MAKE) -C $$(dir $$@) $$(notdir $$@)
+	$$(MAKE) -C $$(dir $$@) $$(notdir $$@)
 $$(basename $(1)).a:
-	$(MAKE) -C $$(dir $$@) $$(notdir $$@)
+	$$(MAKE) -C $$(dir $$@) $$(notdir $$@)
 .PHONY: $$(basename $(1)).so $$(basename $(1)).a
 endef
 $(foreach lib,$(LDLIBS_PROJECT),$(eval $(call LDLIB_PROJECT_template,$(lib))))
