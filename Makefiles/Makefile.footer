@@ -177,6 +177,8 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 ########################## installation ###############################
 
+DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS)
+
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
 # library. Otherwise it's binaries. Libraries have -dev versions of
 # their packages, have API_VERSIONs, and are allowed to have headers,
@@ -192,7 +194,7 @@ PACKAGENAME_BASE:=liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-
 DESTDIR_LIB=$(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
 DESTDIR_DEV=$(ROOT)/debian/$(PACKAGENAME_BASE)-dev
 
-install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic)
+install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
 	mkdir -p $(DESTDIR_LIB)/usr/bin
 	mkdir -p $(DESTDIR_LIB)/usr/lib
 	mkdir -p $(DESTDIR_DEV)/usr/include
@@ -219,7 +221,7 @@ endif
 PACKAGENAME_BASE:=oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
 DESTDIR_BIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
 
-install: $(BIN_TARGET:%=%.dynamic)
+install: $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
 	mkdir -p $(DESTDIR_BIN)/usr/bin
 	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_BIN)/usr/bin/{}
 ifneq ($(DIST_BINS),)
