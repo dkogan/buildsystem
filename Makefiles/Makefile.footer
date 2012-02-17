@@ -104,6 +104,9 @@ endif
 # bottom of this file
 ALLCFLAGS += -MMD
 
+# if we don't care how we link the code, use plain cc
+CC_LINKER ?= $(CC)
+
 CFLAGS   += $(ALLCFLAGS)
 CXXFLAGS += $(ALLCFLAGS)
 
@@ -134,7 +137,7 @@ $(LIB_TARGET_A): $(LIB_OBJECTS)
 
 $(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(LIB_TARGET_SO_BARE).$(API_VERSION)
 $(LIB_TARGET_SO): $(LIB_OBJECTS) $(LDLIBS_PROJECT)
-	$(LINK.o) $(LDLIBS) $(LDLIBS_PROJECT) $^ -o $@
+	$(CC_LINKER) $(LDFLAGS) $(LDLIBS) $(LDLIBS_PROJECT) $^ -o $@
 
 # make each depended project library. A Makefile can define
 # LDLIBS_PROJECT to contain all the .so files IN THIS REPO that we
@@ -163,9 +166,9 @@ $(foreach lib,$(LDLIBS_PROJECT),$(eval $(call LDLIB_PROJECT_template,$(lib))))
 # the rules are generated keeping the variable references intact.
 define BIN_TARGET_template
 $(1):         $(1).o $$(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
-	$$(CXX) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
+	$$(CC_LINKER) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
 $(1).dynamic: $(1).o $$(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
-	$$(CXX) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
+	$$(CC_LINKER) $$(LDFLAGS) $$^ $$(LDLIBS) -o $$@
 endef
 $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target))))
 
