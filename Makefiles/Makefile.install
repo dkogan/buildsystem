@@ -1,0 +1,111 @@
+# -*- Makefile -*-
+
+
+DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPSTART)
+
+
+
+# when I have a rule such as
+# target: dependency
+#	recipe
+#
+# the target and dependency are evaluated immediately, but the recipe is
+# evaluated deferred. This means that any variables referenced in the recipe
+# MUST have a single value throughout the build. They must have a unique name,
+# and must be referenced as such. I resolve it thusly: my main install target is
+# called $(dir)/INSTALL. This clearly is tied to a $(dir), thus the name is
+# unique. Furthermore the target is evaluated immediately so the $(dir) is
+# expanded right away. If I want to use $(var) in the recipe, I can NOT just do
+# this directly because it wouldn't get expanded until it's used, but at that
+# point $(var) could come from some other directory's makefile. I define a new
+# immediate variable
+#
+# $(dir)/INSTALL_var := $(var)
+#
+# using the EXPORT_template. This gives the unique name. Since the target is
+# $(dir)/INSTALL, I can reference the new variables using the name of the target
+# $@. So in the recipe, I use $($@_var) to access my copy of $(var). All
+# variables in $(VARS_TO_EXPORT) are exported in this way
+
+define EXPORT_template
+$(dir)/INSTALL_$(1) := $($(1))
+endef
+
+VARS_TO_EXPORT := \
+	DESTDIR_MAIN DESTDIR_DEV LIB_TARGET_A \
+	LIB_TARGET_SO LIB_TARGET_SO_BARE \
+	DIST_ALL DIST_BINS DIST_ETC_OBLONG DIST_UPSTART \
+	BIN_TARGET API_VERSION dir
+
+
+
+# now the install rules. If the TARGET_NAME starts with 'lib', it's a
+# library. Otherwise it's binaries. Libraries have -dev versions of
+# their packages, have API_VERSIONs, and are allowed to have headers,
+# .so, .a, etc. For each library I have 3 packages:
+#
+# liboblong-blahN    : main library, N is a number that gets bumped up with each API chage
+# liboblong-blah-dev : devel files (.a, .h, .pc)
+# liboblong-blahN-dbg: just the debug symbols
+
+
+
+ifeq ($(TARGET_NAME:lib%=lib),lib)
+#{{{{{{{{{{{{{{ library
+
+PACKAGENAME_BASE := liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
+DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)$(API_VERSION)
+
+#}}}}}}}}}}}}}}
+else
+#{{{{{{{{{{{{{{ binary package
+
+ifneq ($(LIB_OBJECTS),)
+ $(error Binary package $(TARGET_NAME) has lib objects $(LIB_OBJECTS))
+endif
+# add a similar test for headers here
+
+PACKAGENAME_BASE := oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
+DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)
+#}}}}}}}}}}}}}}
+endif
+
+
+DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
+
+# all my variables are now defined. ready to export
+$(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
+
+
+
+
+$(dir)/INSTALL: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
+	mkdir -p $($@_DESTDIR_MAIN)/usr/lib
+	mkdir -p $($@_DESTDIR_DEV)/usr/lib
+
+	install -m 0644 $($@_LIB_TARGET_SO) $($@_DESTDIR_MAIN)/usr/lib
+	install -m 0644 $($@_LIB_TARGET_A)  $($@_DESTDIR_DEV)/usr/lib
+	ln -fs $($@_LIB_TARGET_SO) $($@_DESTDIR_MAIN)/usr/lib/$(notdir $($@_LIB_TARGET_SO_BARE)).$($@_API_VERSION)
+	ln -fs $($@_LIB_TARGET_SO) $($@_DESTDIR_DEV)/usr/lib/$(notdir $($@_LIB_TARGET_SO_BARE))
+
+ifneq ($(BIN_TARGET),)
+	mkdir -p $($@_DESTDIR_MAIN)/usr/bin
+	echo $($@_BIN_TARGET) | xargs -n1 basename | xargs -I{} install -m 0755 $($@_dir)/{}.dynamic $($@_DESTDIR_MAIN)/usr/bin/{}
+endif
+ifneq ($(DIST_BINS),)
+	mkdir -p $($@_DESTDIR_MAIN)/usr/bin
+	install -m 0755 $($@_DIST_BINS) $($@_DESTDIR_MAIN)/usr/bin/
+endif
+ifneq ($(DIST_ETC_OBLONG),)
+	mkdir -p $($@_DESTDIR_MAIN)/etc/oblong
+	install -m 0644 $($@_DIST_ETC_OBLONG) $($@_DESTDIR_MAIN)/etc/oblong
+endif
+ifneq ($(DIST_UPSTART),)
+	mkdir -p $($@_DESTDIR_MAIN)/etc/init/oblong
+	install -m 0644 $($@_DIST_UPSTART) $($@_DESTDIR_MAIN)/etc/init/oblong
+endif
+# install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
+
+
+.PHONY: $(dir)/INSTALL
+

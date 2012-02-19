@@ -1,71 +1,12 @@
 # -*- Makefile -*-
-#
-# This is a general makefile to support builds of multi-directory
-# subprojects in a single repo. Each directory would generate one .so
-# library for dynamic linking, one .a library for static linking, and
-# possibly some executable binaries.
-#
-# Two versions of the executables are built: ones using static linking
-# and others using dynamic linking. In the project tree, the executable
-# names specified in the Makefile are the statically-linked executables.
-# Dynamically-linked ones are called binaryname.dynamic. When the debian
-# packager runs the install rule, it grabs the dynamically-linked
-# executables, so that the installed package can use the shared objects.
-#
-# There is one package generated per directory
 
-# A project in a particular directory
-# would define a Makefile that includes this one. Example:
-#
-# LIB_OBJECTS = \
-#   gs_bmpmask.o \
-#   gs_calibopt.o \
-#   ...
-#   gs_wanddesign.o \
-#   gs_wandtracker.o
-#
-# BIN_TARGET = \
-#   GScp2xcp \
-#   GSxcp2cp \
-#   #
-#
-# BIN_TARGET_NOINST = \
-#   BatchTagDesignCmd \
-#   ...
-#   TestCalibration \
-#   #
-#
-# LDLIBS  += -lm -llbfgs -lLoam++ $(RTLIBS)
-# LDFLAGS += --no-undefined
-#
-#
-# BatchTagDesignCmd: LDLIBS += -lyaml -lpng
-#
-# ROOT   = ..
-# include $(ROOT)/Makefile.footer
-
-# This is the libRetro Makefile. The user MUST define the ROOT path to
-# this Makefile.footer file. The user should define the LDLIBS and
-# LDFLAGS as with any Makefile. Objects that generate the library .so or
-# .a must be given in LIB_OBJECTS. These are generally named xxx.o built
-# from xxx.{C,c,cc,cpp,....}. The binaries that are built are defined in
-# BIN_TARGET and BIN_TARGET_NOINST. The former are installed into the
-# final package, while the latter are not.
-#
-# The library and package by default will be named for the directory
-# they are in. If we want this to NOT be the case, we should define
-# TARGET_NAME.
-#
-# If a directory depends on other directories IN THIS REPO, add those
-# .so files to the LDLIBS_PROJECT variable. This library will then be
-# built and linked in
+# include the system-dependent variables and anything oblong-specific
+include Makefile.sys
 
 
 # if we don't already have a target name, use the directory. So code in
 # the libRetro directory would produce libRetro.so and libRetro.a
-TARGET_NAME ?= $(notdir $(realpath .))
-
-
+TARGET_NAME ?= $(notdir $(realpath $(dir)))
 
 
 
@@ -74,26 +15,42 @@ TARGET_NAME ?= $(notdir $(realpath .))
 API_VERSION ?= 0
 
 # I parse the version from debian/changelog
-VERSION := $(shell dpkg-parsechangelog -l$(ROOT)/debian/changelog | awk '/^Version/{ gsub("-.*","",$$2); print $$2}')
+VERSION := $(shell dpkg-parsechangelog -ldebian/changelog | awk '/^Version/{ gsub("-.*","",$$2); print $$2}')
 
 ifeq ($(strip $(VERSION)),)
 $(error "Couldn't parse version from debian/changelog")
 endif
 
-SO_VERSION=$(API_VERSION).$(VERSION)
+SO_VERSION := $(API_VERSION).$(VERSION)
 
 #######################################################################
+
+
+
+
+
+DIST_BINS		:= $(addprefix $(dir)/,$(DIST_BINS))
+DIST_MANS		:= $(addprefix $(dir)/,$(DIST_MANS))
+DIST_DOCS		:= $(addprefix $(dir)/,$(DIST_DOCS))
+DIST_ETC_OBLONG		:= $(addprefix $(dir)/,$(DIST_ETC_OBLONG))
+DIST_UPSTART		:= $(addprefix $(dir)/,$(DIST_UPSTART))
+LIB_OBJECTS		:= $(addprefix $(dir)/,$(LIB_OBJECTS))
+BIN_TARGET		:= $(addprefix $(dir)/,$(BIN_TARGET))
+BIN_TARGET_NOINST	:= $(addprefix $(dir)/,$(BIN_TARGET_NOINST))
+EXTRACLEAN              := $(addprefix $(dir)/,$(EXTRACLEAN))
+
+
 
 
 # if we have libraries, define their names and targets
 ifneq ($(LIB_OBJECTS),)
 
-LIB_TARGET_SO_BARE = $(TARGET_NAME).so
-LIB_TARGET_SO	   = $(LIB_TARGET_SO_BARE).$(SO_VERSION)
-LIB_TARGET_A       = $(TARGET_NAME).a
+LIB_TARGET_SO_BARE := $(dir)/$(TARGET_NAME).so
+LIB_TARGET_SO	   := $(LIB_TARGET_SO_BARE).$(SO_VERSION)
+LIB_TARGET_A       := $(dir)/$(TARGET_NAME).a
 
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
-	ln -fs $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE)
+	ln -fs $< $@
 endif
 
 
@@ -110,57 +67,20 @@ CC_LINKER ?= $(CC)
 CFLAGS   += $(ALLCFLAGS)
 CXXFLAGS += $(ALLCFLAGS)
 
-BIN_TARGET_ALL = $(BIN_TARGET) $(BIN_TARGET_NOINST)
-
-
-# If there's a 'tests' subdirectory, make 'check' there; otherwise make 'check' here;
-# Else do nothing
-# Is there a tests/Makefile?
-ifneq ($(wildcard tests/Makefile),)
-check:
-	$(MAKE) -C tests check
-endif
-
-
-
-
-.DEFAULT_GOAL := all
-
+BIN_TARGET_ALL := $(BIN_TARGET) $(BIN_TARGET_NOINST)
 
 all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
 # needed for the dynamically-linked object
-$(LIB_OBJECTS): ALLCFLAGS += -fPIC
+$(LIB_OBJECTS): CXXFLAGS += -fPIC
+$(LIB_OBJECTS): CFLAGS   += -fPIC
 
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
 
-$(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(LIB_TARGET_SO_BARE).$(API_VERSION)
-$(LIB_TARGET_SO): $(LIB_OBJECTS) $(LDLIBS_PROJECT)
-	$(CC_LINKER) $(LDFLAGS) $(LDLIBS) $(LDLIBS_PROJECT) $^ -o $@
-
-# make each depended project library. A Makefile can define
-# LDLIBS_PROJECT to contain all the .so files IN THIS REPO that we
-# depend on here. Here I define a rule to run the recursive make to
-# build the dependent librar(y|ies). I want to ALWAYS run this rule,
-# since the dependencies of those libraries are defined in their
-# respective Makefiles that are not loaded here. I thus set these
-# targets to be PHONY
-define LDLIB_PROJECT_template
-$$(basename $(1)).so:
-	$$(MAKE) -C $$(dir $$@) $$(notdir $$@)
-$$(basename $(1)).a:
-	$$(MAKE) -C $$(dir $$@) $$(notdir $$@)
-.PHONY: $$(basename $(1)).so $$(basename $(1)).a
-endef
-$(foreach lib,$(LDLIBS_PROJECT),$(eval $(call LDLIB_PROJECT_template,$(lib))))
-
-# each BIN_TARGET depends on its own .c file and on the LIB_TARGET_(SO|A)
-# shared object. Here I generate lots of rules like
-# blah: blah.o thislib.a otherlibs_project.a libs
-#       $(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
-# blah.dynamic: blah.o thislib.so otherlibs_project.so libs
-#       $(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
+$(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(basename $(LIB_TARGET_SO_BARE)).$(API_VERSION)
+$(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
+	$(CC_LINKER) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
 # I'm using $$ here to delay the variable expansion until later, so that
 # the rules are generated keeping the variable references intact.
@@ -174,93 +94,15 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 
 
+include Makefile.install
 
-########################## installation ###############################
+$(dir)/CLEAN_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
+$(dir)/CLEAN_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
 
-DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPSTART)
+$(dir)/CLEAN:
+	rm -rf $($@_FILES)
 
-# now the install rules. If the TARGET_NAME starts with 'lib', it's a
-# library. Otherwise it's binaries. Libraries have -dev versions of
-# their packages, have API_VERSIONs, and are allowed to have headers,
-# .so, .a, etc. For each library I have 3 packages:
-#
-# liboblong-blahN    : main library, N is a number that gets bumped up with each API chage
-# liboblong-blah-dev : devel files (.a, .h, .pc)
-# liboblong-blahN-dbg: just the debug symbols
+-include $(dir)/*.d
 
-ifeq ($(TARGET_NAME:lib%=lib),lib)
-# library
-PACKAGENAME_BASE:=liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
-DESTDIR_MAIN=$(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
-DESTDIR_DEV=$(ROOT)/debian/$(PACKAGENAME_BASE)-dev
-
-install: $(LIB_TARGET_SO) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
-	mkdir -p $(DESTDIR_MAIN)/usr/bin
-	mkdir -p $(DESTDIR_MAIN)/usr/lib
-	mkdir -p $(DESTDIR_DEV)/usr/include
-	mkdir -p $(DESTDIR_DEV)/usr/lib
-
-	install -m 0644 $(LIB_TARGET_SO) $(DESTDIR_MAIN)/usr/lib
-	ln -fs $(LIB_TARGET_SO) $(DESTDIR_MAIN)/usr/lib/$(LIB_TARGET_SO_BARE).$(API_VERSION)
-	ln -fs $(LIB_TARGET_SO) $(DESTDIR_DEV)/usr/lib/$(LIB_TARGET_SO_BARE)
-	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_MAIN)/usr/bin/{}
-ifneq ($(DIST_BINS),)
-	install -m 0755 $(DIST_BINS) $(DESTDIR_MAIN)/usr/bin/
-endif
-ifneq ($(DIST_ETC_OBLONG),)
-	mkdir -p $(DESTDIR_MAIN)/etc/oblong
-	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
-endif
-ifneq ($(DIST_UPSTART),)
-	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
-	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
-endif
-# install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
-
-else
-
-# binary package
-ifneq ($(LIB_OBJECTS),)
- $(error Binary package $(TARGET_NAME) has lib objects $(LIB_OBJECTS))
-endif
-# add a similar test for headers here
-
-
-PACKAGENAME_BASE:=oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
-DESTDIR_MAIN=$(ROOT)/debian/$(PACKAGENAME_BASE)
-
-install: $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
-	mkdir -p $(DESTDIR_MAIN)/usr/bin
-	echo $(BIN_TARGET) | xargs -n1 | xargs -I{} install {}.dynamic $(DESTDIR_MAIN)/usr/bin/{}
-ifneq ($(DIST_BINS),)
-	install -m 0755 $(DIST_BINS) $(DESTDIR_MAIN)/usr/bin/
-endif
-ifneq ($(DIST_ETC_OBLONG),)
-	mkdir -p $(DESTDIR_MAIN)/etc/oblong
-	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
-endif
-ifneq ($(DIST_UPSTART),)
-	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
-	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
-endif
-
-endif
-
-#######################################################################
-
-
-ALLCLEAN := *.a *.o *.so *.so.* *.d
-ALLCLEAN += $(BIN_TARGET_ALL) $(BIN_TARGET_ALL:%=%.dynamic) $(EXTRACLEAN)
-
-clean:
-	rm -rf $(ALLCLEAN)
-
--include *.d
-
-
-# include the system-dependent variables and anything oblong-specific
-$(ROOT) ?= .
-include $(ROOT)/Makefile.sys
-
-.PHONY: all install clean check
+.PHONY: all $(dir)/CLEAN check
 

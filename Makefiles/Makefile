@@ -1,23 +1,44 @@
-# top level Makefile. I simply relay whatever I'm asked to do to the lower levels
+DIRS =
 
-DIRS=libRetro libAttic libPipeline devices/isense
-RULES=clean all check install
 
-.DEFAULT_GOAL := all
-
-# This looks convoluted, but really, it just relays any listed rule to
-# ALL the listed directories
 define DIRS_template
 
-define RULES_template
-$(1)_$$(1)_BUILD:
-	$$$$(MAKE) -C $(1) $$(1)
-.PHONY: $$(1)_$(1)_BUILD $$(1)
-$$(1): $(1)_$$(1)_BUILD
-endef
+CFLAGS                  :=
+CXXFLAGS                :=
+LDFLAGS                 :=
+LDLIBS                  :=
+DIST_BINS		:=
+DIST_MANS		:=
+DIST_DOCS		:=
+DIST_ETC_OBLONG		:=
+DIST_UPSTART		:=
+LIB_OBJECTS		:=
+BIN_TARGET		:=
+BIN_TARGET_NOINST	:=
+EXTRACLEAN              :=
 
-$$(foreach rule,$$(RULES),$$(eval $$(call RULES_template,$$(rule))))
+
+
+include $(1)/Makefile
+
+$(dir)/%.o: CXXFLAGS := -I$(1) $$(CXXFLAGS)
+$(dir)/%.o: CFLAGS   := -I$(1) $$(CFLAGS)
+
+$$(BIN_TARGET_ALL): LDFLAGS := $$(LDFLAGS)
+$$(BIN_TARGET_ALL): LDLIBS  := $$(LDLIBS)
+$$(LIB_TARGET_SO):  LDFLAGS := $$(LDFLAGS)
+$$(LIB_TARGET_SO):  LDLIBS  := $$(LDLIBS)
+
+
+
+clean: $(1)/CLEAN
+install: $(1)/INSTALL
 
 endef
 
 $(foreach dir,$(DIRS),$(eval $(call DIRS_template,$(dir))))
+
+
+
+
+.DEFAULT_GOAL := all
