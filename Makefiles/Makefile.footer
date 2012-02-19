@@ -50,7 +50,7 @@ LIB_TARGET_SO	   := $(LIB_TARGET_SO_BARE).$(SO_VERSION)
 LIB_TARGET_A       := $(dir)/$(TARGET_NAME).a
 
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
-	ln -fs $< $@
+	ln -fs $(notdir $<) $@
 endif
 
 
@@ -78,7 +78,7 @@ $(LIB_OBJECTS): CFLAGS   += -fPIC
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
 
-$(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(basename $(LIB_TARGET_SO_BARE)).$(API_VERSION)
+$(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
 $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 	$(CC_LINKER) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
