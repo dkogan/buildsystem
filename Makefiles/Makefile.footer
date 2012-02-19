@@ -1,5 +1,7 @@
 # -*- Makefile -*-
 
+fulldir := $(realpath $(dir))
+
 # include the system-dependent variables and anything oblong-specific
 include Makefile.sys
 
@@ -96,13 +98,13 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 include Makefile.install
 
-$(dir)/CLEAN_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
-$(dir)/CLEAN_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
+$(fulldir)/CLEAN_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
+$(fulldir)/CLEAN_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
 
-$(dir)/CLEAN:
+$(fulldir)/CLEAN:
 	rm -rf $($@_FILES)
 
--include $(dir)/*.d
+.PHONY: all $(fulldir)/CLEAN check
 
-.PHONY: all $(dir)/CLEAN check
+-include $(dir)/*.d
 
