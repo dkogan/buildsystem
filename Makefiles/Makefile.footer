@@ -98,13 +98,13 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 include Makefile.install
 
-$(fulldir)/CLEAN_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
-$(fulldir)/CLEAN_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
+$(fulldir)/clean_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
+$(fulldir)/clean_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
 
-$(fulldir)/CLEAN:
+$(fulldir)/clean:
 	rm -rf $($@_FILES)
 
-.PHONY: all $(fulldir)/CLEAN check
+.PHONY: all $(fulldir)/clean check
 
 -include $(dir)/*.d
 
