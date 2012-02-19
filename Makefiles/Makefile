@@ -3,6 +3,7 @@ DIRS =
 
 define DIRS_template
 
+ALLCFLAGS               :=
 CFLAGS                  :=
 CXXFLAGS                :=
 LDFLAGS                 :=
