@@ -109,6 +109,10 @@ $(fulldir)/clean:
 -include $(dir)/*.d
 
 
+# The recipes used to build targets are evaluated deferred (when needed), so by
+# default, the current values of CFLAGS, etc will NOT be used when the recipe is
+# evaluated. Here I save these variables on a per-target basis. This makes
+# current variables "persist"
 $(dir)/%.o: CXXFLAGS := -I$(dir) $(CXXFLAGS)
 $(dir)/%.o: CFLAGS   := -I$(dir) $(CFLAGS)
 
