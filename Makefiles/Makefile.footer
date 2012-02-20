@@ -40,6 +40,11 @@ ifneq ($(LIB_OBJECTS),)
 PACKAGENAME_BASE := liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
 API_VERSION := $(shell awk '/Package:[ 	]*$(PACKAGENAME_BASE)[0-9]+[ 	]*$$/ { sub("Package:[ 	]*$(PACKAGENAME_BASE)",""); print; exit;}' $(ROOT)/debian/control)
 
+ifndef API_VERSION
+$(error "Couldn't parse API version for $(TARGET_NAME)")
+endif
+
+
 endif
 
 SO_VERSION := $(API_VERSION).$(VERSION)
