@@ -12,7 +12,6 @@ CFLAGS                  :=
 CXXFLAGS                :=
 LDFLAGS                 :=
 LDLIBS                  :=
-LDLIBS_PROJECT          :=
 DIST_BINS		:=
 DIST_MANS		:=
 DIST_DOCS		:=

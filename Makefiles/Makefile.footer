@@ -52,6 +52,12 @@ SO_VERSION := $(API_VERSION).$(VERSION)
 #######################################################################
 
 
+# I separate LDLIBS into those that are a part of this repo and those that
+# aren't. If it's ../%.so, I assume that it's in this project. This logic may
+# need to be improved in the future
+LDLIBS_PROJECT := $(filter     ../%.so,$(LDLIBS))
+LDLIBS         := $(filter-out ../%.so,$(LDLIBS))
+
 
 
 # the user's makefile gives all the targets in reference to $(dir), so I locate
