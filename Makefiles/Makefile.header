@@ -1,0 +1,4 @@
+# -*- Makefile -*-
+
+# used if we're building NOT from the root
+dir ?= .
