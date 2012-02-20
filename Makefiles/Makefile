@@ -1,9 +1,14 @@
 ROOT ?= .
 
-DIRS = $(addprefix $(ROOT)/, )
-
+# if we don't yet know whether this is a local build or not, it is NOT. This
+# Makefile must have been seen first, which implies that we're starting at the
+# root
+LOCALDIR_BUILD ?= 0
 
 TOPLEVEL_INCLUDED := 1
+
+
+DIRS = $(addprefix $(ROOT)/, )
 
 define DIRS_template
 
@@ -35,6 +40,15 @@ endef
 $(foreach dir,$(DIRS),$(eval $(call DIRS_template,$(dir))))
 
 
+ifeq ($(LOCALDIR_BUILD),1)
+clean: clean_local
+else
+clean: clean_world
+endif
+.PHONY: clean
 
 
+
+ifeq ($(LOCALDIR_BUILD),0)
 .DEFAULT_GOAL := all
+endif

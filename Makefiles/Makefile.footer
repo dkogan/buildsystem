@@ -10,6 +10,9 @@ include $(ROOT)/Makefile.sys
 # the libRetro directory would produce libRetro.so and libRetro.a
 TARGET_NAME ?= $(notdir $(abspath $(dir)))
 
+# if we don't yet know whether this is a local build or not, it IS.
+# LOCALDIR_BUILD not set implies that we haven't seen the top level yet
+LOCALDIR_BUILD ?= 1
 
 
 #################### Shared object versioning #########################
@@ -108,7 +111,6 @@ CXXFLAGS += $(ALLCFLAGS)
 
 BIN_TARGET_ALL := $(BIN_TARGET) $(BIN_TARGET_NOINST)
 
-all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
 # needed for the dynamically-linked object
 $(LIB_OBJECTS): CXXFLAGS += -fPIC
@@ -135,14 +137,37 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 include $(ROOT)/Makefile.install
 
+
+#################### clean and all rules ##############################
+
 $(fulldir)/clean_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
 $(fulldir)/clean_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
 
 $(fulldir)/clean:
 	rm -rf $($@_FILES)
 
-.PHONY: all $(fulldir)/clean check
+$(fulldir)/all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
+clean_world: $(fulldir)/clean
+all:         $(fulldir)/all
+
+# clean_local just cleans out the current directory in a local build
+ifndef TOPLEVEL_INCLUDED
+clean_local: $(fulldir)/clean
+endif
+
+
+.PHONY: clean_local clean_world all $(fulldir)/clean $(fulldir)/all
+
+ifeq ($(LOCALDIR_BUILD),1)
+.DEFAULT_GOAL:= $(fulldir)/all
+endif
+
+#######################################################################
+
+
+
+# the header dependencies
 -include $(dir)/*.d
 
 
@@ -158,9 +183,6 @@ $(BIN_TARGET_ALL): LDLIBS  := $(LDLIBS)
 $(LIB_TARGET_SO):  LDFLAGS := $(LDFLAGS)
 $(LIB_TARGET_SO):  LDLIBS  := $(LDLIBS)
 
-clean: $(fulldir)/clean
-
-.PHONY: clean
 
 
 
