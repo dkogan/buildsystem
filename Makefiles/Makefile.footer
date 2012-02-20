@@ -157,14 +157,11 @@ all:         $(fulldir)/all
 # clean_local just cleans out the current directory in a local build
 ifndef TOPLEVEL_INCLUDED
 clean_local: $(fulldir)/clean
+.DEFAULT_GOAL := $(fulldir)/all
 endif
 
 
 .PHONY: clean_local clean_world all $(fulldir)/clean $(fulldir)/all
-
-ifeq ($(LOCALDIR_BUILD),1)
-.DEFAULT_GOAL:= $(fulldir)/all
-endif
 
 #######################################################################
 
