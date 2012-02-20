@@ -6,9 +6,12 @@ fulldir := $(abspath $(dir))
 include $(ROOT)/Makefile.sys
 
 
-# if we don't already have a target name, use the directory. So code in
-# the libRetro directory would produce libRetro.so and libRetro.a
-TARGET_NAME ?= $(notdir $(abspath $(dir)))
+# if we don't already have a target name, use the directory. So code in the
+# libRetro directory would produce libRetro.so and libRetro.a. I can't use ?=
+# here because it checks for definedness, not truth
+ifeq ($(strip $(TARGET_NAME)),)
+TARGET_NAME := $(notdir $(abspath $(dir)))
+endif
 
 # if we don't yet know whether this is a local build or not, it IS.
 # LOCALDIR_BUILD not set implies that we haven't seen the top level yet
