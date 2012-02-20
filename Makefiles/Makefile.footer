@@ -76,6 +76,7 @@ LIB_TARGET_SO_BARE := $(dir)/$(TARGET_NAME).so
 LIB_TARGET_SO	   := $(LIB_TARGET_SO_BARE).$(SO_VERSION)
 LIB_TARGET_A       := $(dir)/$(TARGET_NAME).a
 
+
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
 	ln -fs $(notdir $<) $@
 endif
