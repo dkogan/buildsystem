@@ -54,7 +54,8 @@ SO_VERSION := $(API_VERSION).$(VERSION)
 
 
 
-
+# the user's makefile gives all the targets in reference to $(dir), so I locate
+# them absolutely in the tree
 DIST_BINS		:= $(addprefix $(dir)/,$(DIST_BINS))
 DIST_MANS		:= $(addprefix $(dir)/,$(DIST_MANS))
 DIST_DOCS		:= $(addprefix $(dir)/,$(DIST_DOCS))
