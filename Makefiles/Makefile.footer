@@ -17,7 +17,7 @@ TARGET_NAME ?= $(notdir $(realpath $(dir)))
 API_VERSION ?= 0
 
 # I parse the version from debian/changelog
-VERSION := $(shell dpkg-parsechangelog -ldebian/changelog | awk '/^Version/{ gsub("-.*","",$$2); print $$2}')
+VERSION := $(shell dpkg-parsechangelog -l$(ROOT)/debian/changelog | awk '/^Version/{ gsub("-.*","",$$2); print $$2}')
 
 ifeq ($(strip $(VERSION)),)
 $(error "Couldn't parse version from debian/changelog")
