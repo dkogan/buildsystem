@@ -24,9 +24,9 @@ EXTRACLEAN              :=
 
 
 # I include the lower-level Makefile if it's not already marked as processed
-ifndef $$(realpath $(1))/INCLUDED
+ifndef $$(abspath $(1))/INCLUDED
 include $(1)/Makefile
-$$(realpath $(1))/INCLUDED := 1
+$$(abspath $(1))/INCLUDED := 1
 endif
 
 

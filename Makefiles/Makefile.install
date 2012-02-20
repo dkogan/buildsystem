@@ -24,7 +24,7 @@ DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPST
 #
 # using the EXPORT_template. This gives the unique name. Since the target is
 # $(fulldir)/INSTALL, I can reference the new variables using the name of the
-# target $@. So in the recipe, I use $($(realpath $@)_var) to access my copy of
+# target $@. So in the recipe, I use $($(abspath $@)_var) to access my copy of
 # $(var). All variables in $(VARS_TO_EXPORT) are exported in this way
 
 define EXPORT_template
@@ -77,8 +77,8 @@ DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
 $(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
 
 
-# this is simply shorthand, so I can say $~_LIB_TARGET_SO instead of $(realpath $@)_LIB_TARGET_SO
-~ = $(realpath $@)
+# this is simply shorthand, so I can say $~_LIB_TARGET_SO instead of $(abspath $@)_LIB_TARGET_SO
+~ = $(abspath $@)
 
 $(fulldir)/INSTALL: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
 	mkdir -p $($~_DESTDIR_MAIN)/usr/lib

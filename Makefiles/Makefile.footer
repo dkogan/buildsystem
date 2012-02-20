@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-fulldir := $(realpath $(dir))
+fulldir := $(abspath $(dir))
 
 # include the system-dependent variables and anything oblong-specific
 include $(ROOT)/Makefile.sys
@@ -8,7 +8,7 @@ include $(ROOT)/Makefile.sys
 
 # if we don't already have a target name, use the directory. So code in
 # the libRetro directory would produce libRetro.so and libRetro.a
-TARGET_NAME ?= $(notdir $(realpath $(dir)))
+TARGET_NAME ?= $(notdir $(abspath $(dir)))
 
 
 
