@@ -77,33 +77,34 @@ DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
 $(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
 
 
-
+# this is simply shorthand, so I can say $~_LIB_TARGET_SO instead of $(realpath $@)_LIB_TARGET_SO
+~ = $(realpath $@)
 
 $(fulldir)/INSTALL: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
-	mkdir -p $($(realpath $@)_DESTDIR_MAIN)/usr/lib
-	mkdir -p $($(realpath $@)_DESTDIR_DEV)/usr/lib
+	mkdir -p $($~_DESTDIR_MAIN)/usr/lib
+	mkdir -p $($~_DESTDIR_DEV)/usr/lib
 
-	install -m 0644 $($(realpath $@)_LIB_TARGET_SO)  $($(realpath $@)_DESTDIR_MAIN)/usr/lib
-	install -m 0644 $($(realpath $@)_LIB_TARGET_A)   $($(realpath $@)_DESTDIR_DEV)/usr/lib
-	ln -fs $(notdir $($(realpath $@)_LIB_TARGET_SO)) $($(realpath $@)_DESTDIR_MAIN)/usr/lib/$(notdir $($(realpath $@)_LIB_TARGET_SO_BARE)).$($(realpath $@)_API_VERSION)
-	ln -fs $(notdir $($(realpath $@)_LIB_TARGET_SO)) $($(realpath $@)_DESTDIR_DEV)/usr/lib/$(notdir $($(realpath $@)_LIB_TARGET_SO_BARE))
+	install -m 0644 $($~_LIB_TARGET_SO)  $($~_DESTDIR_MAIN)/usr/lib
+	install -m 0644 $($~_LIB_TARGET_A)   $($~_DESTDIR_DEV)/usr/lib
+	ln -fs $(notdir $($~_LIB_TARGET_SO)) $($~_DESTDIR_MAIN)/usr/lib/$(notdir $($~_LIB_TARGET_SO_BARE)).$($~_API_VERSION)
+	ln -fs $(notdir $($~_LIB_TARGET_SO)) $($~_DESTDIR_DEV)/usr/lib/$(notdir $($~_LIB_TARGET_SO_BARE))
 
 ifneq ($(BIN_TARGET),)
-	mkdir -p $($(realpath $@)_DESTDIR_MAIN)/usr/bin
-	echo $($(realpath $@)_BIN_TARGET) | xargs -n1 basename | \
-		xargs -I{} install -m 0755 $($(realpath $@)_dir)/{}.dynamic $($(realpath $@)_DESTDIR_MAIN)/usr/bin/{}
+	mkdir -p $($~_DESTDIR_MAIN)/usr/bin
+	echo $($~_BIN_TARGET) | xargs -n1 basename | \
+		xargs -I{} install -m 0755 $($~_dir)/{}.dynamic $($~_DESTDIR_MAIN)/usr/bin/{}
 endif
 ifneq ($(DIST_BINS),)
-	mkdir -p $($(realpath $@)_DESTDIR_MAIN)/usr/bin
-	install -m 0755 $($(realpath $@)_DIST_BINS) $($(realpath $@)_DESTDIR_MAIN)/usr/bin/
+	mkdir -p $($~_DESTDIR_MAIN)/usr/bin
+	install -m 0755 $($~_DIST_BINS) $($~_DESTDIR_MAIN)/usr/bin/
 endif
 ifneq ($(DIST_ETC_OBLONG),)
-	mkdir -p $($(realpath $@)_DESTDIR_MAIN)/etc/oblong
-	install -m 0644 $($(realpath $@)_DIST_ETC_OBLONG) $($(realpath $@)_DESTDIR_MAIN)/etc/oblong
+	mkdir -p $($~_DESTDIR_MAIN)/etc/oblong
+	install -m 0644 $($~_DIST_ETC_OBLONG) $($~_DESTDIR_MAIN)/etc/oblong
 endif
 ifneq ($(DIST_UPSTART),)
-	mkdir -p $($(realpath $@)_DESTDIR_MAIN)/etc/init/oblong
-	install -m 0644 $($(realpath $@)_DIST_UPSTART) $($(realpath $@)_DESTDIR_MAIN)/etc/init/oblong
+	mkdir -p $($~_DESTDIR_MAIN)/etc/init/oblong
+	install -m 0644 $($~_DIST_UPSTART) $($~_DESTDIR_MAIN)/etc/init/oblong
 endif
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
