@@ -85,18 +85,22 @@ LDLIBS_PROJECT          := $(addprefix $(dir)/,$(LDLIBS_PROJECT))
 # if we have libraries, define their names and targets
 ifneq ($(LIB_OBJECTS),)
 
-# make gets confused when I refer to the same file from different paths, so I
-# here absolute paths here to remove the confusion. For instance it doesn't know
-# to make libRetro/libRetro.so if libAttic/../libRetro/libRetro.so is asked for
-LIB_TARGET_SO_BARE := $(abspath $(dir)/$(TARGET_NAME).so)
-LIB_TARGET_SO	   := $(abspath $(LIB_TARGET_SO_BARE).$(SO_VERSION))
-LIB_TARGET_A       := $(abspath $(dir)/$(TARGET_NAME).a)
-LDLIBS_PROJECT     := $(abspath $(LDLIBS_PROJECT))
-
+LIB_TARGET_SO_BARE := $(dir)/$(TARGET_NAME).so
+LIB_TARGET_SO	   := $(LIB_TARGET_SO_BARE).$(SO_VERSION)
+LIB_TARGET_A       := $(dir)/$(TARGET_NAME).a
 
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
 	ln -fs $(notdir $<) $@
 endif
+
+
+# make gets confused when I refer to the same file from different paths, so I
+# here absolute paths here to remove the confusion. For instance it doesn't know
+# to make libRetro/libRetro.so if libAttic/../libRetro/libRetro.so is asked for
+LIB_TARGET_SO_BARE := $(abspath $(LIB_TARGET_SO_BARE))
+LIB_TARGET_SO	   := $(abspath $(LIB_TARGET_SO))
+LIB_TARGET_A       := $(abspath $(LIB_TARGET_A))
+LDLIBS_PROJECT     := $(abspath $(LDLIBS_PROJECT))
 
 
 
