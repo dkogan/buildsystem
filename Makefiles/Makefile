@@ -1,5 +1,9 @@
-DIRS =
+ROOT ?= .
 
+DIRS = $(addprefix $(ROOT)/, )
+
+
+TOPLEVEL_INCLUDED := 1
 
 define DIRS_template
 
@@ -19,8 +23,11 @@ BIN_TARGET_NOINST	:=
 EXTRACLEAN              :=
 
 
-
+# I include the lower-level Makefile if it's not already marked as processed
+ifndef $$(realpath $(1))/INCLUDED
 include $(1)/Makefile
+$$(realpath $(1))/INCLUDED := 1
+endif
 
 
 endef

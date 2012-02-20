@@ -3,7 +3,7 @@
 fulldir := $(realpath $(dir))
 
 # include the system-dependent variables and anything oblong-specific
-include Makefile.sys
+include $(ROOT)/Makefile.sys
 
 
 # if we don't already have a target name, use the directory. So code in
@@ -96,7 +96,7 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 
 
-include Makefile.install
+include $(ROOT)/Makefile.install
 
 $(fulldir)/clean_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
 $(fulldir)/clean_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
@@ -124,3 +124,16 @@ $(LIB_TARGET_SO):  LDLIBS  := $(LDLIBS)
 clean: $(fulldir)/clean
 
 .PHONY: clean
+
+
+
+
+ifndef TOPLEVEL_INCLUDED
+
+# top-level makefile not yet included. This simply means that we're doing a make
+# that originated in the middle of our tree. I mark this file as included, and
+# include the top-level Makefile to get the others
+$(fulldir)/INCLUDED := 1
+include $(ROOT)/Makefile
+
+endif
