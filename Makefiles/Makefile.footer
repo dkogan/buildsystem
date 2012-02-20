@@ -14,8 +14,6 @@ TARGET_NAME ?= $(notdir $(realpath $(dir)))
 
 #################### Shared object versioning #########################
 
-API_VERSION ?= 0
-
 # I parse the version from debian/changelog. I look at the first line of that
 # file and get everything betwee '(' and the first '-'. These lines look like
 #
@@ -30,6 +28,18 @@ endif
 
 ifeq ($(strip $(VERSION)),)
 $(error "Couldn't parse version from debian/changelog")
+endif
+
+
+# If I'm building a library, I grab its API version from the name of its debian
+# package. So for instance, if debian/control says that I'm building the
+# liboblong-retro1 package then the API version for libRetro is 1.
+ifneq ($(LIB_OBJECTS),)
+
+# duplicated from Makefile.install. Should break out into a template or something
+PACKAGENAME_BASE := liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
+API_VERSION := $(shell awk '/Package:[ 	]*$(PACKAGENAME_BASE)[0-9]+[ 	]*$$/ { sub("Package:[ 	]*$(PACKAGENAME_BASE)",""); print; exit;}' $(ROOT)/debian/control)
+
 endif
 
 SO_VERSION := $(API_VERSION).$(VERSION)
