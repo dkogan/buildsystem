@@ -198,8 +198,8 @@ endif
 $(dir)/%.o: CXXFLAGS := -I$(dir) $(CXXFLAGS)
 $(dir)/%.o: CFLAGS   := -I$(dir) $(CFLAGS)
 
-$(BIN_TARGET_ALL): LDFLAGS := $(LDFLAGS)
-$(BIN_TARGET_ALL): LDLIBS  := $(LDLIBS)
+$(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)): LDFLAGS := $(LDFLAGS)
+$(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)): LDLIBS  := $(LDLIBS)
 $(LIB_TARGET_SO):  LDFLAGS := $(LDFLAGS)
 $(LIB_TARGET_SO):  LDLIBS  := $(LDLIBS)
 
