@@ -12,23 +12,23 @@ DIRS = $(addprefix $(ROOT)/, )
 
 define DIRS_template
 
-ALLCFLAGS               :=
-CFLAGS                  :=
-CXXFLAGS                :=
-LDFLAGS                 :=
-LDLIBS                  :=
-DIST_BINS		:=
-DIST_MANS		:=
-DIST_DOCS		:=
-DIST_ETC_OBLONG		:=
-DIST_UPSTART		:=
-LIB_OBJECTS		:=
-BIN_TARGET		:=
-BIN_TARGET_NOINST	:=
-EXTRACLEAN              :=
-TARGET_NAME             :=
+ALLCFLAGS          :=
+CFLAGS             :=
+CXXFLAGS           :=
+LDFLAGS            :=
+LDLIBS             :=
+DIST_BINS          :=
+DIST_MANS          :=
+DIST_DOCS          :=
+DIST_ETC_OBLONG    :=
+DIST_UPSTART       :=
+LIB_OBJECTS        :=
+BIN_TARGET         :=
+BIN_TARGET_NOINST  :=
+EXTRACLEAN         :=
+TARGET_NAME        :=
 LIB_TARGET_SO_BARE :=
-LIB_TARGET_SO	   :=
+LIB_TARGET_SO      :=
 LIB_TARGET_A       :=
 
 
