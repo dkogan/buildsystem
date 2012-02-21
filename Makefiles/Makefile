@@ -27,6 +27,9 @@ BIN_TARGET		:=
 BIN_TARGET_NOINST	:=
 EXTRACLEAN              :=
 TARGET_NAME             :=
+LIB_TARGET_SO_BARE :=
+LIB_TARGET_SO	   :=
+LIB_TARGET_A       :=
 
 
 # I include the lower-level Makefile if it's not already marked as processed
