@@ -52,7 +52,7 @@ ifeq ($(TARGET_NAME:lib%=lib),lib)
 #{{{{{{{{{{{{{{ library
 
 PACKAGENAME_BASE := liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
-DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)$(API_VERSION)
+DESTDIR_MAIN     := $(ROOT)/debian/$(PACKAGENAME_BASE)$(API_VERSION)
 
 #}}}}}}}}}}}}}}
 else
@@ -64,12 +64,12 @@ endif
 # add a similar test for headers here
 
 PACKAGENAME_BASE := oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
-DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)
+DESTDIR_MAIN     := $(ROOT)/debian/$(PACKAGENAME_BASE)
 #}}}}}}}}}}}}}}
 endif
 
 
-DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
+DESTDIR_DEV      := $(ROOT)/debian/$(PACKAGENAME_BASE)-dev
 
 # all my variables are now defined. ready to export
 $(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
