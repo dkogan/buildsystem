@@ -31,8 +31,15 @@ TARGET_NAME             :=
 
 # I include the lower-level Makefile if it's not already marked as processed
 ifndef $$(abspath $(1))/INCLUDED
+
+ifneq ($(MAKE_DEBUG),)
+$$(info Including $(1)/Makefile)
+endif
+
 include $(1)/Makefile
 $$(abspath $(1))/INCLUDED := 1
+
+
 endif
 
 

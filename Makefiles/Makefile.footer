@@ -131,6 +131,10 @@ BIN_TARGET_ALL := $(BIN_TARGET) $(BIN_TARGET_NOINST)
 $(LIB_OBJECTS): CXXFLAGS += -fPIC
 $(LIB_OBJECTS): CFLAGS   += -fPIC
 
+ifneq ($(MAKE_DEBUG),)
+$(info Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A))
+endif
+
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
 
