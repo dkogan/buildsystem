@@ -82,7 +82,7 @@ LDLIBS_PROJECT          := $(addprefix $(dir)/,$(LDLIBS_PROJECT))
 
 
 
-# if we have libraries, define their names and targets
+# if we have libraries, define their names
 ifneq ($(LIB_OBJECTS),)
 
 LIB_TARGET_SO_BARE := $(dir)/$(TARGET_NAME).so
@@ -101,6 +101,14 @@ LIB_TARGET_SO_BARE := $(abspath $(LIB_TARGET_SO_BARE))
 LIB_TARGET_SO	   := $(abspath $(LIB_TARGET_SO))
 LIB_TARGET_A       := $(abspath $(LIB_TARGET_A))
 LDLIBS_PROJECT     := $(abspath $(LDLIBS_PROJECT))
+
+
+ifneq ($(LIB_OBJECTS),)
+$(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
+	ln -fs $(notdir $<) $@
+endif
+
+
 
 
 
