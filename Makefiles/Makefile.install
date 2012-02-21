@@ -81,6 +81,7 @@ $(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
 ~ = $(abspath $@)
 
 $(fulldir)/INSTALL: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
+ifeq ($(TARGET_NAME:lib%=lib),lib)
 	mkdir -p $($~_DESTDIR_MAIN)/usr/lib
 	mkdir -p $($~_DESTDIR_DEV)/usr/lib
 
@@ -88,7 +89,7 @@ $(fulldir)/INSTALL: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $
 	install -m 0644 $($~_LIB_TARGET_A)   $($~_DESTDIR_DEV)/usr/lib
 	ln -fs $(notdir $($~_LIB_TARGET_SO)) $($~_DESTDIR_MAIN)/usr/lib/$(notdir $($~_LIB_TARGET_SO_BARE)).$($~_API_VERSION)
 	ln -fs $(notdir $($~_LIB_TARGET_SO)) $($~_DESTDIR_DEV)/usr/lib/$(notdir $($~_LIB_TARGET_SO_BARE))
-
+endif
 ifneq ($(BIN_TARGET),)
 	mkdir -p $($~_DESTDIR_MAIN)/usr/bin
 	echo $($~_BIN_TARGET) | xargs -n1 basename | \
