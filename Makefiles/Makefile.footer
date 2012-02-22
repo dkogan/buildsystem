@@ -104,7 +104,7 @@ endif
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
 # bottom of this file
-ALLCFLAGS += -MMD
+ALLCFLAGS += -MMD -MP
 
 # if we don't care how we link the code, use plain cc
 CC_LINKER ?= $(CC)
