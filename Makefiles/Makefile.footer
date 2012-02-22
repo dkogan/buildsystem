@@ -202,6 +202,13 @@ $(LIB_TARGET_SO):  LDFLAGS := $(LDFLAGS)
 $(LIB_TARGET_SO):  LDLIBS  := $(LDLIBS)
 
 
+# I have now used all my build flags, so nothing should be using them. If some
+# build rule STILL uses these (through deferred evaluation) then it's a bug in
+# the Makefiles that should be fixed. I poison the variables to make this clear
+LDFLAGS = LDFLAGS_poison
+LDLIBS  = LDLIBS_poison
+CFLAGS  = CFLAGS_poison
+CXXFLAGS= CXXFLAGS_poison
 
 
 
