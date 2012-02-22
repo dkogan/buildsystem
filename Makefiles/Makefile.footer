@@ -29,7 +29,6 @@ LOCALDIR_BUILD ?= 1
 # significantly slower than the awk version below, so I don't use it
 LPAREN := (
 VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("-.*",""); print; exit}' $(ROOT)/debian/changelog)))
-
 $(if $(VERSION),,$(error "Couldn't parse version from debian/changelog"))
 
 
