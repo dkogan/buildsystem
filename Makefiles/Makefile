@@ -33,10 +33,10 @@ LIB_TARGET_A       :=
 
 
 # I include the lower-level Makefile if it's not already marked as processed
-ifndef $$(abspath $(1))/INCLUDED
+ifndef $(abspath $(1))/INCLUDED
 
 include $(1)/Makefile
-$$(abspath $(1))/INCLUDED := 1
+$(abspath $(1))/INCLUDED := 1
 
 endif
 
