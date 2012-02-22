@@ -2,6 +2,8 @@
 
 fulldir := $(abspath $(dir))
 
+$(if $(MAKE_DEBUG), $(info At top of the $(dir) Makefile))
+
 # include the system-dependent variables and anything oblong-specific
 include $(ROOT)/Makefile.sys
 
