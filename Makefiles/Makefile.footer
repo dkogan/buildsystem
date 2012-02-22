@@ -156,11 +156,16 @@ include $(ROOT)/Makefile.install
 
 #################### clean and all rules ##############################
 
-$(fulldir)/clean_FILES := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
-$(fulldir)/clean_FILES += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
+clean_files := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
+clean_files += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
 
+# This is done with an eval to immediately evaluate the files-to-clean list
+define CLEAN_template
 $(fulldir)/clean:
-	rm -rf $($@_FILES)
+	rm -rf $(clean_files)
+endef
+$(eval $(CLEAN_template))
+
 
 $(fulldir)/all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
