@@ -121,6 +121,15 @@ $(LIB_OBJECTS): CFLAGS   += -fPIC
 
 $(if $(MAKE_DEBUG), $(info Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
 
+
+
+
+
+
+############## rules to build libraries and executables ###############
+#
+# I set up all the variables, now use them to define the recipes
+
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
 
