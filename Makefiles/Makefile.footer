@@ -60,7 +60,7 @@ endif
 
 SO_VERSION := $(API_VERSION).$(VERSION)
 
-#######################################################################
+#################### variable setup ###################################
 
 
 # I separate LDLIBS into those that are a part of this repo and those that
@@ -87,8 +87,6 @@ EXTRACLEAN              := $(addprefix $(dir)/,$(EXTRACLEAN))
 LDLIBS_PROJECT          := $(addprefix $(dir)/,$(LDLIBS_PROJECT))
 
 
-
-
 # if we have libraries, define their names
 ifneq ($(LIB_OBJECTS),)
 LIB_TARGET_SO_BARE := $(dir)/$(TARGET_NAME).so
@@ -104,15 +102,6 @@ LIB_TARGET_SO_BARE := $(abspath $(LIB_TARGET_SO_BARE))
 LIB_TARGET_SO	   := $(abspath $(LIB_TARGET_SO))
 LIB_TARGET_A       := $(abspath $(LIB_TARGET_A))
 LDLIBS_PROJECT     := $(abspath $(LDLIBS_PROJECT))
-
-
-ifneq ($(LIB_OBJECTS),)
-$(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
-	ln -fs $(notdir $<) $@
-endif
-
-
-
 
 
 
@@ -134,7 +123,6 @@ BIN_TARGET_ALL := $(BIN_TARGET) $(BIN_TARGET_NOINST)
 $(LIB_OBJECTS): CXXFLAGS += -fPIC
 $(LIB_OBJECTS): CFLAGS   += -fPIC
 
-$(if $(MAKE_DEBUG), $(info Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
 
 
 
@@ -144,6 +132,13 @@ $(if $(MAKE_DEBUG), $(info Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LI
 ############## rules to build libraries and executables ###############
 #
 # I set up all the variables, now use them to define the recipes
+
+ifneq ($(LIB_OBJECTS),)
+$(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
+	ln -fs $(notdir $<) $@
+endif
+
+$(if $(MAKE_DEBUG), $(info Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
 
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
