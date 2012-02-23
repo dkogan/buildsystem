@@ -62,17 +62,6 @@ SO_VERSION := $(API_VERSION).$(VERSION)
 
 #################### variable setup ###################################
 
-
-# I separate LDLIBS into those that are a part of this repo and those that
-# aren't. If it's ../%.so, I assume that it's in this project. This logic may
-# need to be improved in the future
-LDLIBS_PROJECT := $(filter     ../%.so,$(LDLIBS))
-LDLIBS_SYSTEM  := $(filter-out ../%.so,$(LDLIBS))
-
-# done with ldlibs; poison it to prevent erroneous use
-LDLIBS = LDLIBS_poison
-
-
 # the user's makefile gives all the targets in reference to $(dir), so I locate
 # them absolutely in the tree
 DIST_BINS		:= $(addprefix $(dir)/,$(DIST_BINS))
@@ -84,7 +73,6 @@ LIB_OBJECTS		:= $(addprefix $(dir)/,$(LIB_OBJECTS))
 BIN_TARGET		:= $(addprefix $(dir)/,$(BIN_TARGET))
 BIN_TARGET_NOINST	:= $(addprefix $(dir)/,$(BIN_TARGET_NOINST))
 EXTRACLEAN              := $(addprefix $(dir)/,$(EXTRACLEAN))
-LDLIBS_PROJECT          := $(addprefix $(dir)/,$(LDLIBS_PROJECT))
 
 
 # if we have libraries, define their names
@@ -101,8 +89,14 @@ endif
 LIB_TARGET_SO_BARE := $(abspath $(LIB_TARGET_SO_BARE))
 LIB_TARGET_SO	   := $(abspath $(LIB_TARGET_SO))
 LIB_TARGET_A       := $(abspath $(LIB_TARGET_A))
-LDLIBS_PROJECT     := $(abspath $(LDLIBS_PROJECT))
 
+
+# I separate LDLIBS into those that are a part of this repo and those that
+# aren't. If it's ../%.so, I assume that it's in this project. This logic may
+# need to be improved in the future. I keep these as deferred references to try
+# to capture the per-target LDLIBS settings
+LDLIBS_PROJECT = $(abspath $(addprefix $(dir)/,$(filter ../%.so,$(LDLIBS))))
+LDLIBS_SYSTEM  = $(filter-out ../%.so,$(LDLIBS))
 
 
 # used to make gcc output header dependency information. All source
@@ -233,20 +227,18 @@ endif
 $(dir)/%.o: CXXFLAGS := -I$(dir) $(CXXFLAGS)
 $(dir)/%.o: CFLAGS   := -I$(dir) $(CFLAGS)
 
-$(BIN_TARGET_ALL): LDFLAGS        := $(LDFLAGS)
-$(BIN_TARGET_ALL): LDLIBS_PROJECT := $(LDLIBS_PROJECT)
-$(BIN_TARGET_ALL): LDLIBS_SYSTEM  := $(LDLIBS_SYSTEM)
-$(LIB_TARGET_SO):  LDFLAGS        := $(LDFLAGS)
-$(LIB_TARGET_SO):  LDLIBS_PROJECT := $(LDLIBS_PROJECT)
-$(LIB_TARGET_SO):  LDLIBS_SYSTEM  := $(LDLIBS_SYSTEM)
+$(BIN_TARGET_ALL): LDFLAGS     := $(LDFLAGS)
+$(BIN_TARGET_ALL): LDLIBS      := $(LDLIBS)
+$(LIB_TARGET_SO):  LDFLAGS     := $(LDFLAGS)
+$(LIB_TARGET_SO):  LDLIBS      := $(LDLIBS)
+$(BIN_TARGET_ALL): TARGET_NAME := $(TARGET_NAME)
 
 
 # I have now used all my build flags, so nothing should be using them. If some
 # build rule STILL uses these (through deferred evaluation) then it's a bug in
 # the Makefiles that should be fixed. I poison the variables to make this clear
 LDFLAGS		= LDFLAGS_poison
-LDLIBS_PROJECT  = LDLIBS_PROJECT_poison
-LDLIBS_SYSTEM	= LDLIBS_SYSTEM_poison
+LDLIBS          = LDLIBS_poison
 CFLAGS		= CFLAGS_poison
 CXXFLAGS	= CXXFLAGS_poison
 
