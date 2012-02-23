@@ -75,7 +75,7 @@ DESTDIR_DEV      := $(ROOT)/debian/$(PACKAGENAME_BASE)-dev
 $(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
 
 
-$(fulldir)/INSTALL: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET:%=%.dynamic) $(DIST_ALL)
+$(fulldir)/INSTALL: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET) $(DIST_ALL)
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 	mkdir -p $(DESTDIR_MAIN)/usr/lib
 	mkdir -p $(DESTDIR_DEV)/usr/lib
@@ -87,8 +87,7 @@ ifeq ($(TARGET_NAME:lib%=lib),lib)
 endif
 ifneq ($(BIN_TARGET),)
 	mkdir -p $(DESTDIR_MAIN)/usr/bin
-	echo $(BIN_TARGET) | xargs -n1 basename | \
-		xargs -I{} install -m 0755 $(dir)/{}.dynamic $(DESTDIR_MAIN)/usr/bin/{}
+	install -m 0755 $(BIN_TARGET) $(DESTDIR_MAIN)/usr/bin/
 endif
 ifneq ($(DIST_BINS),)
 	mkdir -p $(DESTDIR_MAIN)/usr/bin

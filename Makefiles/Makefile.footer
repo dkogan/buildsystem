@@ -143,24 +143,39 @@ $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 #
 # Here instead of specifying $^, I do just the %.o parts and then the
 # others. This is required to make the linker happy to see the dependent
-# objects first and the dependency objects last
-define BIN_TARGET_template
-$(1):         $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
-	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS) -o $$@
-$(1).dynamic: $(1).o $(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
+# objects first and the dependency objects last.
+#
+# I have rules for building both static and a dynamic binaries. The
+# dynamic libraries are ONLY built when I'm installing to make packages.
+# Thus these binaries are PHONY (always rebuilt to build on top of the
+# static ones). They are also INTERMEDIATE so that make deletes them
+# when done installing. This ensures that the "normal" static versions
+# will be built after and install
+define BIN_TARGET_template_static
+$(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
 	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS) -o $$@
 endef
+
+define BIN_TARGET_template_dynamic
+$(1): $(1).o $(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
+	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS) -o $$@
+.PHONY:        $(1)
+.INTERMEDIATE: $(1)
+endef
+
+# I pick static linking if I'm not installing; if I'm installing use dynamic linking
+BIN_TARGET_template = $(if $(filter $(MAKECMDGOALS),install),$(BIN_TARGET_template_dynamic),$(BIN_TARGET_template_static))
+
+# generate the recipe for every target
 $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target))))
-
-
-
-include $(ROOT)/Makefile.install
 
 
 #################### clean and all rules ##############################
 
+include $(ROOT)/Makefile.install
+
 clean_files := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
-clean_files += $(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)) $(EXTRACLEAN)
+clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN)
 
 # This is done with an eval to immediately evaluate the files-to-clean list
 define CLEAN_template
@@ -199,8 +214,8 @@ endif
 $(dir)/%.o: CXXFLAGS := -I$(dir) $(CXXFLAGS)
 $(dir)/%.o: CFLAGS   := -I$(dir) $(CFLAGS)
 
-$(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)): LDFLAGS := $(LDFLAGS)
-$(BIN_TARGET_ALL) $(addsuffix .dynamic,$(BIN_TARGET_ALL)): LDLIBS  := $(LDLIBS)
+$(BIN_TARGET_ALL): LDFLAGS := $(LDFLAGS)
+$(BIN_TARGET_ALL): LDLIBS  := $(LDLIBS)
 $(LIB_TARGET_SO):  LDFLAGS := $(LDFLAGS)
 $(LIB_TARGET_SO):  LDLIBS  := $(LDLIBS)
 
