@@ -67,8 +67,10 @@ SO_VERSION := $(API_VERSION).$(VERSION)
 # aren't. If it's ../%.so, I assume that it's in this project. This logic may
 # need to be improved in the future
 LDLIBS_PROJECT := $(filter     ../%.so,$(LDLIBS))
-LDLIBS         := $(filter-out ../%.so,$(LDLIBS))
+LDLIBS_SYSTEM  := $(filter-out ../%.so,$(LDLIBS))
 
+# done with ldlibs; poison it to prevent erroneous use
+LDLIBS = LDLIBS_poison
 
 
 # the user's makefile gives all the targets in reference to $(dir), so I locate
@@ -151,7 +153,7 @@ $(LIB_TARGET_A): $(LIB_OBJECTS)
 # objects first and the dependency objects last
 $(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
 $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
-	$(CC_LINKER) $(LDFLAGS) $(filter %.o, $^) $(filter-out %.o, $^) $(LDLIBS) -o $@
+	$(CC_LINKER) $(LDFLAGS) $(filter %.o, $^) $(filter-out %.o, $^) $(LDLIBS_SYSTEM) -o $@
 
 # I'm using $$ here to delay the variable expansion until later, so that the
 # rules are generated keeping the variable references intact. For instance, the
@@ -175,12 +177,12 @@ $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 # will be built after and install
 define BIN_TARGET_template_static
 $(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
-	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS) -o $$@
+	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS_SYSTEM) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
 $(1): $(1).o $(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
-	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS) -o $$@
+	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS_SYSTEM) -o $$@
 .PHONY:        $(1)
 .INTERMEDIATE: $(1)
 endef
@@ -236,19 +238,22 @@ endif
 $(dir)/%.o: CXXFLAGS := -I$(dir) $(CXXFLAGS)
 $(dir)/%.o: CFLAGS   := -I$(dir) $(CFLAGS)
 
-$(BIN_TARGET_ALL): LDFLAGS := $(LDFLAGS)
-$(BIN_TARGET_ALL): LDLIBS  := $(LDLIBS)
-$(LIB_TARGET_SO):  LDFLAGS := $(LDFLAGS)
-$(LIB_TARGET_SO):  LDLIBS  := $(LDLIBS)
+$(BIN_TARGET_ALL): LDFLAGS        := $(LDFLAGS)
+$(BIN_TARGET_ALL): LDLIBS_PROJECT := $(LDLIBS_PROJECT)
+$(BIN_TARGET_ALL): LDLIBS_SYSTEM  := $(LDLIBS_SYSTEM)
+$(LIB_TARGET_SO):  LDFLAGS        := $(LDFLAGS)
+$(LIB_TARGET_SO):  LDLIBS_PROJECT := $(LDLIBS_PROJECT)
+$(LIB_TARGET_SO):  LDLIBS_SYSTEM  := $(LDLIBS_SYSTEM)
 
 
 # I have now used all my build flags, so nothing should be using them. If some
 # build rule STILL uses these (through deferred evaluation) then it's a bug in
 # the Makefiles that should be fixed. I poison the variables to make this clear
-LDFLAGS = LDFLAGS_poison
-LDLIBS  = LDLIBS_poison
-CFLAGS  = CFLAGS_poison
-CXXFLAGS= CXXFLAGS_poison
+LDFLAGS		= LDFLAGS_poison
+LDLIBS_PROJECT  = LDLIBS_PROJECT_poison
+LDLIBS_SYSTEM	= LDLIBS_SYSTEM_poison
+CFLAGS		= CFLAGS_poison
+CXXFLAGS	= CXXFLAGS_poison
 
 
 
