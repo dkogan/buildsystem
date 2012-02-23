@@ -164,14 +164,28 @@ $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 # static ones). They are also INTERMEDIATE so that make deletes them
 # when done installing. This ensures that the "normal" static versions
 # will be built after and install
+#
+# Lastly, static links have no benefit of the DT_NEEDED tags in the shared
+# objects. Thus they more of the libraries given on the commandline. Here I save
+# the LDLIBS_SYSTEM for each project, and use LDLIBS_PROJECT to construct all
+# the LDLIBS_SYSTEM that come from a project's children. I can then link with
+# those libraries. I make two variables $(TARGET_NAME)_LDLIBS_SYSTEM for the
+# current LDLIBS_SYSTEM and $(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM for all of the
+# children's LDLIBS_SYSTEM.
+$(TARGET_NAME)_LDLIBS_SYSTEM := $(LDLIBS_SYSTEM)
+$(foreach lib,$(basename $(notdir $(LDLIBS_PROJECT))),$(eval \
+  $(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM += $$($(lib)_LDLIBS_SYSTEM) $$($(lib)_CHILDREN_LDLIBS_SYSTEM)))
+
 define BIN_TARGET_template_static
 $(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
-	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS_SYSTEM) -o $$@
+	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
+		$$($$(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM) $$(LDLIBS_SYSTEM) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
 $(1): $(1).o $(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
-	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) $$(LDLIBS_SYSTEM) -o $$@
+	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
+		$$(LDLIBS_SYSTEM) -o $$@
 .PHONY:        $(1)
 .INTERMEDIATE: $(1)
 endef
