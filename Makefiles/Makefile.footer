@@ -18,6 +18,19 @@ TARGET_NAME := $(or $(TARGET_NAME),$(notdir $(abspath $(dir))))
 LOCALDIR_BUILD ?= 1
 
 
+# basic error checking
+ifneq ($(LIB_OBJECTS),)
+ifneq ($(TARGET_NAME:lib%=lib),lib)
+$(error Target $(TARGET_NAME) has LIB_OBJECTS, so it MUST start with "lib")
+endif
+endif
+ifeq ($(TARGET_NAME:lib%=lib),lib)
+ifeq ($(LIB_OBJECTS),)
+$(error Target $(TARGET_NAME) starts with lib..., but has no LIB_OBJECTS!)
+endif
+endif
+
+
 #################### Shared object versioning #########################
 
 # I parse the version from debian/changelog. I look at the first line of that
