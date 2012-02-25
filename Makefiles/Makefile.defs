@@ -5,16 +5,36 @@
 # general PHONY targets that we use
 SPECIAL_TARGETS = clean all install
 
-# The 'relpath' function takes a path (local or absolute) and returns a
-# cleaned-up path relative to ROOT. For instance, something like
-# libRetro/../libAttic gets converted to libAttic. The root gets
+# basic functional stuff. These are a perl-style grep and map. You call these like
+#
+# $(call grep,cond,list)
+# where cond is another function
+grep = $(foreach x,$(2),$(if $(call $(1),$(x)),$(x)))
+map  = $(foreach x,$(2),$(call $(1),$(x)))
+
+
+# The 'relpath' function takes a list of paths (local or absolute) and
+# returns a cleaned-up path relative to ROOT. For instance, something
+# like libRetro/../libAttic gets converted to libAttic. The root gets
 # converted to '.'. The empty string is returned unchanged. If an
 # out-of-tree absolute path is given, an error is generated
+#
+# These helpers take a list of paths (relative or absolute) and return
+# only those that are (or not) that are in our repo
+filter-intree-predicate     = $(filter     $(ROOT)%,$(abspath $(1)))
+filter-out-intree-predicate = $(filter-out $(ROOT)%,$(abspath $(1)))
+filter-intree     = $(call grep,filter-intree-predicate,$(1))
+filter-out-intree = $(call grep,filter-out-intree-predicate,$(1))
+#
 # this makes paths such as '/libRetro' or ''. 
-relpath_hasinitial_slash = $(if $(findstring $(ROOT),$(abspath $(1))),$(subst $(ROOT),,$(abspath $(1))), \
+relpath-withinitial-slash = $(if $(call filter-intree,$(1)),$(patsubst $(ROOT)%,%,$(abspath $(1))), \
 	$(error out-of-tree path given: $(1)))
 # this converts it to 'libRetro' or '.'
-relpath = $(and $(1),$(if $(relpath_hasinitial_slash),$(relpath_hasinitial_slash:/%=%),.))
+relpath-single = $(if $(relpath-withinitial-slash),$(relpath-withinitial-slash:/%=%),.)
+#
+# find the relpath of each element
+relpath = $(and $(1),$(call map,relpath-single,$(1)))
+
 
 
 

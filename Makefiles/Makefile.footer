@@ -87,12 +87,45 @@ LIB_TARGET_SO	   := $(LIB_TARGET_SO_BARE).$(SO_VERSION)
 LIB_TARGET_A       := $(dir)/$(TARGET_NAME).a
 endif
 
-# I separate LDLIBS into those that are a part of this repo and those that
-# aren't. If it's ../%.so, I assume that it's in this project. This logic may
-# need to be improved in the future. I keep these as deferred references to try
-# to capture the per-target LDLIBS settings
-LDLIBS_PROJECT = $(call relpath,$(addprefix $(dir)/,$(filter ../%.so,$(LDLIBS))))
-LDLIBS_SYSTEM  = $(filter-out ../%.so,$(LDLIBS))
+
+# I separate LDLIBS into those that are a part of this repo and those
+# that aren't. All %.so LDLIBS are examined. If their path is in this
+# repo, they go into LDLIBS_PROJECT; otherwise, LDLIBS_SYSTEM. I keep
+# these as deferred references to try to capture the per-target LDLIBS
+# settings
+#
+# General logic:
+# ../
+# if( /%.so )
+# {
+#   if(in tree)
+#     LDLIBS_PROJECT
+#   else
+#     LDLIBS_SYSTEM
+# }
+# else if( %.so )
+# {
+#   if( $(dir)/% in tree)
+#     LDLIBS_PROJECT = $(dir)/%
+#   else
+#     LDLIBS_SYSTEM  = $(dir)/%
+# }
+# else
+# {
+#   LDLIBS_SYSTEM
+# }
+#
+LDLIBS_onlyso	     = $(filter      %.so,$(LDLIBS))
+LDLIBS_notso	     = $(filter-out  %.so,$(LDLIBS))
+LDLIBS_addpath       = $(if $(filter /%,$(1)),$(1),$(dir)/$(1))
+LDLIBS_onlyso_pathed = $(call map,LDLIBS_addpath,$(LDLIBS_onlyso))
+LDLIBS_SYSTEM        = $(LDLIBS_notso)
+LDLIBS_SYSTEM       += $(call                filter-out-intree, $(LDLIBS_onlyso_pathed))
+LDLIBS_PROJECT       = $(call relpath,$(call filter-intree,     $(LDLIBS_onlyso_pathed)))
+
+
+
+
 
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
@@ -233,11 +266,13 @@ all:   $(dir)/all
 $(dir)/%.o: CXXFLAGS := -I$(dir) $(CXXFLAGS)
 $(dir)/%.o: CFLAGS   := -I$(dir) $(CFLAGS)
 
-$(BIN_TARGET_ALL): LDFLAGS     := $(LDFLAGS)
-$(BIN_TARGET_ALL): LDLIBS      := $(LDLIBS)
 $(LIB_TARGET_SO):  LDFLAGS     := $(LDFLAGS)
 $(LIB_TARGET_SO):  LDLIBS      := $(LDLIBS)
+$(BIN_TARGET_ALL): LDFLAGS     := $(LDFLAGS)
+$(BIN_TARGET_ALL): LDLIBS      := $(LDLIBS)
 $(BIN_TARGET_ALL): TARGET_NAME := $(TARGET_NAME)
+$(LIB_TARGET_SO):  dir         := $(dir)
+$(BIN_TARGET_ALL): dir         := $(dir)
 
 
 # I have now used all my build flags, so nothing should be using them. If some
