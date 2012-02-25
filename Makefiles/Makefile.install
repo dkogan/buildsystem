@@ -52,7 +52,7 @@ VARS_TO_EXPORT := \
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 #{{{{{{{{{{{{{{ library
 
-PACKAGENAME_BASE := liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
+PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
 DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)$(API_VERSION)
 
 #}}}}}}}}}}}}}}
@@ -64,7 +64,7 @@ ifneq ($(LIB_OBJECTS),)
 endif
 # add a similar test for headers here
 
-PACKAGENAME_BASE := oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
+PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
 DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)
 #}}}}}}}}}}}}}}
 endif

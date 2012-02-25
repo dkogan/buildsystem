@@ -16,3 +16,9 @@ relpath_hasinitial_slash = $(if $(findstring $(absroot),$(abspath $(1))),$(subst
 	$(error out-of-tree path given: $(1)))
 # this converts it to 'libRetro' or '.'
 relpath = $(and $(1),$(if $(relpath_hasinitial_slash),$(relpath_hasinitial_slash:/%=%),.))
+
+
+
+# base package names from TARGET_NAMEs
+PACKAGENAME_BASE_LIB = liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
+PACKAGENAME_BASE_BIN = oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)

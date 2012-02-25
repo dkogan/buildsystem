@@ -49,8 +49,7 @@ $(if $(VERSION),,$(error "Couldn't parse version from debian/changelog"))
 # liboblong-retro1 package then the API version for libRetro is 1.
 ifneq ($(LIB_OBJECTS),)
 
-# duplicated from Makefile.install. Should break out into a template or something
-PACKAGENAME_BASE := liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
+PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
 API_VERSION := $(shell awk '/Package:[ 	]*$(PACKAGENAME_BASE)[0-9]+[ 	]*$$/ { sub("Package:[ 	]*$(PACKAGENAME_BASE)",""); print; exit;}' debian/control)
 $(if $(API_VERSION),,$(error "Couldn't parse API version for $(TARGET_NAME)"))
 
