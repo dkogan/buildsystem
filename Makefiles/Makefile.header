@@ -6,7 +6,7 @@ include $(ROOT)/Makefile.defs
 
 # we're building NOT from the root. poison the $(dir) (to declaw the user's makefile), and isssue a
 # new make from the right directory
-dir          := DIR_poison
+dir          := /DIR_poison
 nonroot_make := 1
 
 # I redo this make from the ROOT. I re-path everything except my special
