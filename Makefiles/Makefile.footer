@@ -51,8 +51,15 @@ ifneq ($(LIB_OBJECTS),)
 
 PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
 API_VERSION := $(shell awk '/Package:[ 	]*$(PACKAGENAME_BASE)[0-9]+[ 	]*$$/ { sub("Package:[ 	]*$(PACKAGENAME_BASE)",""); print; exit;}' debian/control)
-$(if $(API_VERSION),,$(error "Couldn't parse API version for $(TARGET_NAME)"))
+$(if $(API_VERSION),,$(error Couldn't parse API version for $(TARGET_NAME). Maybe the package isn't defined in debian/control?))
 
+else
+
+# not a library. but is a package defined?
+PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
+
+$(if $(shell grep 'Package:[ 	]*$(PACKAGENAME_BASE)[ 	]*$$' debian/control),, \
+  $(error No package defined for $(PACKAGENAME_BASE)))
 
 endif
 
