@@ -1,4 +1,27 @@
 # -*- Makefile -*-
 
-# used if we're building NOT from the root
-dir ?= .
+ifeq ($(dir),)
+
+include $(ROOT)/Makefile.defs
+
+# we're building NOT from the root. poison the $(dir) (to declaw the user's makefile), and isssue a
+# new make from the right directory
+dir          := DIR_poison
+nonroot_make := 1
+
+# I redo this make from the ROOT. I re-path everything except my special
+# targets that AREN'T all or clean. 'all' and 'clean' perform
+# per-directory functions if called from a subdirectory
+.DEFAULT_GOAL := all
+GOALSHERE              := $(or $(MAKECMDGOALS),$(.DEFAULT_GOAL))
+TARGETS_TO_NOT_REPATH   = $(filter-out all clean,$(SPECIAL_TARGETS))
+SPECIAL_TARGETS_HERE    = $(filter     $(TARGETS_TO_NOT_REPATH),$(GOALSHERE))
+NONSPECIAL_TARGETS_HERE = $(filter-out $(TARGETS_TO_NOT_REPATH),$(GOALSHERE))
+
+# This rule makes whatever I was asked to make. It'll always run since it's phony also
+$(MAKECMDGOALS) %:
+	$(MAKE) -C $(ROOT) $(call relpath,$(NONSPECIAL_TARGETS_HERE)) $(SPECIAL_TARGETS_HERE)
+
+.PHONY: $(MAKECMDGOALS)
+
+endif # ifeq ($(dir),)

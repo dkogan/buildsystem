@@ -1,21 +1,20 @@
 # -*- Makefile -*-
 
-fulldir := $(abspath $(dir))
+# we only bother to do anything if we were asked to do a make from the
+# ROOT directory. In not, Makefile.header has already defined a
+# from-root sub-make that will do all the work, so we do nothing here
+ifeq ($(nonroot_make),)
 
 $(if $(MAKE_DEBUG), $(info At top of the $(dir) Makefile))
 
 # include the system-dependent variables and anything oblong-specific
-include $(ROOT)/Makefile.sys
+include Makefile.sys
 
 
 # if we don't already have a target name, use the directory. So code in the
 # libRetro directory would produce libRetro.so and libRetro.a. I can't use ?=
 # here because it checks for definedness, not truth
-TARGET_NAME := $(or $(TARGET_NAME),$(notdir $(abspath $(dir))))
-
-# if we don't yet know whether this is a local build or not, it IS.
-# LOCALDIR_BUILD not set implies that we haven't seen the top level yet
-LOCALDIR_BUILD ?= 1
+TARGET_NAME := $(or $(TARGET_NAME),$(notdir $(dir)))
 
 
 # basic error checking
@@ -41,7 +40,7 @@ endif
 # debian has a dpkg-parsechangelog tool to do this for me, but it's
 # significantly slower than the awk version below, so I don't use it
 LPAREN := (
-VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("-.*",""); print; exit}' $(ROOT)/debian/changelog)))
+VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("-.*",""); print; exit}' debian/changelog)))
 $(if $(VERSION),,$(error "Couldn't parse version from debian/changelog"))
 
 
@@ -52,7 +51,7 @@ ifneq ($(LIB_OBJECTS),)
 
 # duplicated from Makefile.install. Should break out into a template or something
 PACKAGENAME_BASE := liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
-API_VERSION := $(shell awk '/Package:[ 	]*$(PACKAGENAME_BASE)[0-9]+[ 	]*$$/ { sub("Package:[ 	]*$(PACKAGENAME_BASE)",""); print; exit;}' $(ROOT)/debian/control)
+API_VERSION := $(shell awk '/Package:[ 	]*$(PACKAGENAME_BASE)[0-9]+[ 	]*$$/ { sub("Package:[ 	]*$(PACKAGENAME_BASE)",""); print; exit;}' debian/control)
 $(if $(API_VERSION),,$(error "Couldn't parse API version for $(TARGET_NAME)"))
 
 
@@ -82,22 +81,12 @@ LIB_TARGET_SO	   := $(LIB_TARGET_SO_BARE).$(SO_VERSION)
 LIB_TARGET_A       := $(dir)/$(TARGET_NAME).a
 endif
 
-
-# make gets confused when I refer to the same file from different paths, so I
-# here absolute paths here to remove the confusion. For instance it doesn't know
-# to make libRetro/libRetro.so if libAttic/../libRetro/libRetro.so is asked for
-LIB_TARGET_SO_BARE := $(abspath $(LIB_TARGET_SO_BARE))
-LIB_TARGET_SO	   := $(abspath $(LIB_TARGET_SO))
-LIB_TARGET_A       := $(abspath $(LIB_TARGET_A))
-
-
 # I separate LDLIBS into those that are a part of this repo and those that
 # aren't. If it's ../%.so, I assume that it's in this project. This logic may
 # need to be improved in the future. I keep these as deferred references to try
 # to capture the per-target LDLIBS settings
-LDLIBS_PROJECT = $(abspath $(addprefix $(dir)/,$(filter ../%.so,$(LDLIBS))))
+LDLIBS_PROJECT = $(call relpath,$(addprefix $(dir)/,$(filter ../%.so,$(LDLIBS))))
 LDLIBS_SYSTEM  = $(filter-out ../%.so,$(LDLIBS))
-
 
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
@@ -199,32 +188,26 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 #################### clean and all rules ##############################
 
-include $(ROOT)/Makefile.install
+include Makefile.install
 
 clean_files := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
 clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN)
 
 # This is done with an eval to immediately evaluate the files-to-clean list
 define CLEAN_template
-$(fulldir)/clean:
+$(dir)/clean:
 	rm -rf $(clean_files)
 endef
 $(eval $(CLEAN_template))
 
 
-$(fulldir)/all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
+$(dir)/all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
-clean_world: $(fulldir)/clean
-all:         $(fulldir)/all
-
-# clean_local just cleans out the current directory in a local build
-ifndef TOPLEVEL_INCLUDED
-clean_local: $(fulldir)/clean
-.DEFAULT_GOAL := $(fulldir)/all
-endif
+clean: $(dir)/clean
+all:   $(dir)/all
 
 
-.PHONY: clean_local clean_world all $(fulldir)/clean $(fulldir)/all
+.PHONY: clean all $(dir)/clean $(dir)/all
 
 #######################################################################
 
@@ -257,13 +240,4 @@ CFLAGS		= CFLAGS_poison
 CXXFLAGS	= CXXFLAGS_poison
 
 
-
-ifndef TOPLEVEL_INCLUDED
-
-# top-level makefile not yet included. This simply means that we're doing a make
-# that originated in the middle of our tree. I mark this file as included, and
-# include the top-level Makefile to get the others
-$(fulldir)/INCLUDED := 1
-include $(ROOT)/Makefile
-
-endif
+endif # ifeq ($(nonroot_make),)

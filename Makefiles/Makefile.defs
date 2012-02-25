@@ -1,0 +1,18 @@
+# -*- Makefile -*-
+
+# various useful definitions for the build system
+
+# general PHONY targets that we use
+SPECIAL_TARGETS = clean all install
+
+# The 'relpath' function takes a path (local or absolute) and returns a
+# cleaned-up path relative to ROOT. For instance, something like
+# libRetro/../libAttic gets converted to libAttic. The root gets
+# converted to '.'. The empty string is returned unchanged. If an
+# out-of-tree absolute path is given, an error is generated
+absroot = $(abspath $(ROOT))
+# this makes paths such as '/libRetro' or ''. 
+relpath_hasinitial_slash = $(if $(findstring $(absroot),$(abspath $(1))),$(subst $(absroot),,$(abspath $(1))), \
+	$(error out-of-tree path given: $(1)))
+# this converts it to 'libRetro' or '.'
+relpath = $(and $(1),$(if $(relpath_hasinitial_slash),$(relpath_hasinitial_slash:/%=%),.))

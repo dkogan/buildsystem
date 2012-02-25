@@ -1,14 +1,8 @@
-ROOT ?= .
-
-# if we don't yet know whether this is a local build or not, it is NOT. This
-# Makefile must have been seen first, which implies that we're starting at the
-# root
-LOCALDIR_BUILD ?= 0
-
-TOPLEVEL_INCLUDED := 1
+ROOT := .
+include Makefile.defs
 
 
-DIRS = $(addprefix $(ROOT)/, )
+DIRS = 
 
 define DIRS_template
 
@@ -31,30 +25,11 @@ LIB_TARGET_SO_BARE :=
 LIB_TARGET_SO      :=
 LIB_TARGET_A       :=
 
-
-# I include the lower-level Makefile if it's not already marked as processed
-ifndef $(abspath $(1))/INCLUDED
-
 include $(1)/Makefile
-$(abspath $(1))/INCLUDED := 1
-
-endif
-
 
 endef
 
 $(foreach dir,$(DIRS),$(eval $(call DIRS_template,$(dir))))
 
 
-ifeq ($(LOCALDIR_BUILD),1)
-clean: clean_local
-else
-clean: clean_world
-endif
-.PHONY: clean
-
-
-
-ifeq ($(LOCALDIR_BUILD),0)
 .DEFAULT_GOAL := all
-endif
