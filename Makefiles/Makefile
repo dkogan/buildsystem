@@ -1,4 +1,5 @@
-ROOT := .
+# ROOT assumed to be absolute later
+ROOT := $(abspath .)
 include Makefile.defs
 
 

@@ -10,9 +10,8 @@ SPECIAL_TARGETS = clean all install
 # libRetro/../libAttic gets converted to libAttic. The root gets
 # converted to '.'. The empty string is returned unchanged. If an
 # out-of-tree absolute path is given, an error is generated
-absroot = $(abspath $(ROOT))
 # this makes paths such as '/libRetro' or ''. 
-relpath_hasinitial_slash = $(if $(findstring $(absroot),$(abspath $(1))),$(subst $(absroot),,$(abspath $(1))), \
+relpath_hasinitial_slash = $(if $(findstring $(ROOT),$(abspath $(1))),$(subst $(ROOT),,$(abspath $(1))), \
 	$(error out-of-tree path given: $(1)))
 # this converts it to 'libRetro' or '.'
 relpath = $(and $(1),$(if $(relpath_hasinitial_slash),$(relpath_hasinitial_slash:/%=%),.))
