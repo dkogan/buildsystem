@@ -167,6 +167,9 @@ $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 # those libraries. I make two variables $(TARGET_NAME)_LDLIBS_SYSTEM for the
 # current LDLIBS_SYSTEM and $(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM for all of the
 # children's LDLIBS_SYSTEM.
+#
+# $(sort) sorts and removes duplicates. I don't really want to sort,
+# actually since order may matter, but I'll let the linker tell me this
 $(TARGET_NAME)_LDLIBS_SYSTEM := $(LDLIBS_SYSTEM)
 $(foreach lib,$(basename $(notdir $(LDLIBS_PROJECT))),$(eval \
   $(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM += $$($(lib)_LDLIBS_SYSTEM) $$($(lib)_CHILDREN_LDLIBS_SYSTEM)))
@@ -174,7 +177,7 @@ $(foreach lib,$(basename $(notdir $(LDLIBS_PROJECT))),$(eval \
 define BIN_TARGET_template_static
 $(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
 	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
-		$$($$(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM) $$(LDLIBS_SYSTEM) -o $$@
+		$$(sort $$($$(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM)) $$(LDLIBS_SYSTEM) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
