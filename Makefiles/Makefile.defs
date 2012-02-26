@@ -29,12 +29,6 @@ persist-active-vars := $$(foreach v,$(ACTIVE_VARS),\
 		$$(eval $$t: $$v := $$$$($$v))))
 
 
-# The recipes used to build targets are evaluated deferred (when needed), so by
-# default, the current values of CFLAGS, etc will NOT be used when the recipe is
-# evaluated. I thus need to save some variables on a per-target basis. This makes
-# current variables "persist"
-
-
 
 # 
 # basic functional stuff. These are a perl-style grep and map. You call these like
