@@ -2,14 +2,41 @@
 
 # various useful definitions for the build system
 
-# variables to reset between includes, and a function to do it
-NONPERSISTENT_VARS := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS DIST_BINS	\
-DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART LIB_OBJECTS BIN_TARGET		\
-BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME LIB_TARGET_SO_BARE			\
-LIB_TARGET_SO LIB_TARGET_A IS_UNIT_TEST
-reset-nonpersistent := $$(foreach v,$$(NONPERSISTENT_VARS),$$(eval $$(v) := ))
+# variables I use in my recipes and rules. These are reset between includes, and are
+# stored to be accessible to my recipes on a per-target basis. This is needed since
+# recipes evaluate their variables deferred
+ACTIVE_VARS := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS DIST_BINS	\
+DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART LIB_OBJECTS BIN_TARGET	\
+BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME LIB_TARGET_SO_BARE		\
+LIB_TARGET_SO LIB_TARGET_A IS_UNIT_TEST dir
+
+# a function to reset the active variables (before a new include) and to poison the
+# global active variables. No global variables should be used, and poisoning makes it
+# obvious that something wrong is happening
+reset-active-vars  := $$(foreach v,$(ACTIVE_VARS),$$(eval $$(v) := ))
+poison-active-vars := $$(foreach v,$(ACTIVE_VARS),$$(eval $$(v) := $$(v)_poison))
+
+# all targets that have recipes defined, which thus need variables accessible to them
+# through deferred evaluation. This double-loop generates a function that can be
+# evaluated to generate lines such as
+# $(LIB_TARGET_SO):  LDFLAGS     := $(LDFLAGS)
+#
+# This is done for all var/target combinations. This is a bit overkill, since all
+# recipes don't need all the variables, but it doesn't hurt
+TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(LIB_TARGET_SO) $$(BIN_TARGET_ALL)
+persist-active-vars := $$(foreach v,$(ACTIVE_VARS),\
+	$$(foreach t,$$(TARGETS_NEED_PERSISTENT_ACTIVE_VARS),\
+		$$(eval $$t: $$v := $$$$($$v))))
 
 
+# The recipes used to build targets are evaluated deferred (when needed), so by
+# default, the current values of CFLAGS, etc will NOT be used when the recipe is
+# evaluated. I thus need to save some variables on a per-target basis. This makes
+# current variables "persist"
+
+
+
+# 
 # basic functional stuff. These are a perl-style grep and map. You call these like
 #
 # $(call grep,cond,list)
