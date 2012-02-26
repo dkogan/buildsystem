@@ -77,6 +77,12 @@ $(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
 
 
 $(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET) $(DIST_ALL)
+ifeq ($(DESTDIR),)
+	@echo Tried to make install without having DESTDIR defined
+	@echo "make install" is ONLY for the debian package.
+	@echo What are you trying to do?
+	@false
+endif
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 	mkdir -p $(DESTDIR_MAIN)/usr/lib
 	mkdir -p $(DESTDIR_DEV)/usr/lib
