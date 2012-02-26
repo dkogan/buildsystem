@@ -53,6 +53,13 @@ grep = $(foreach x,$(2),$(if $(call $(1),$(x)),$(x)))
 map  = $(foreach x,$(2),$(call $(1),$(x)))
 
 
+# a non-destructive wildcard function. Takes a list; any element that matches
+# nothing is left alone as is. This also removes duplicates through the $(sort)
+# function. Thus it also sorts the list.
+soft-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(d))))
+
+
+
 # The 'relpath' function takes a list of paths (local or absolute) and
 # returns a cleaned-up path relative to ROOT. For instance, something
 # like libRetro/../libAttic gets converted to libAttic. The root gets
