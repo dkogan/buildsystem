@@ -248,8 +248,13 @@ $(dir)/all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 clean: $(dir)/clean
 all:   $(dir)/all
 
-
 .PHONY: clean all $(dir)/clean $(dir)/all
+
+# "making" a directory is equivalent to making all there
+$(dir):  $(dir)/all
+$(dir)/: $(dir)/all
+
+.PHONY: $(dir) $(dir)/
 
 #######################################################################
 
