@@ -19,19 +19,21 @@ ifeq ($(TARGET_NAME:lib%=lib),lib)
 #{{{{{{{{{{{{{{ library
 
 PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
-DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)$(API_VERSION)
+PACKAGENAME      := $(PACKAGENAME_BASE)$(API_VERSION)
+DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
 
 #}}}}}}}}}}}}}}
 else
 #{{{{{{{{{{{{{{ binary package
 
 PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
-DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)
+PACKAGENAME      := $(PACKAGENAME_BASE)
 #}}}}}}}}}}}}}}
 endif
 
+DESTDIR_MAIN     := debian/$(PACKAGENAME)
 
-DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
+
 
 
 $(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET) $(DIST_ALL)
@@ -63,8 +65,15 @@ ifneq ($(DIST_ETC_OBLONG),)
 	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
 endif
 ifneq ($(DIST_UPSTART),)
+# This should use dh_installinit, but I think that only works with a single upstart file...
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
 	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
+endif
+ifneq ($(DIST_DOCS),)
+	echo $(DIST_DOCS) | xargs -n1 > debian/$(PACKAGENAME).docs
+endif
+ifneq ($(DIST_MANS),)
+	echo $(DIST_MANS) | xargs -n1 > debian/$(PACKAGENAME).manpages
 endif
 # install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
 
