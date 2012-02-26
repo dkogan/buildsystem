@@ -2,8 +2,8 @@
 ROOT := $(abspath .)
 include Makefile.defs
 
-
-DIRS = 
+# directories in arbitrary order
+DIRS :=
 
 define DIRS_template
 
