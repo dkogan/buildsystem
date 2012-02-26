@@ -30,9 +30,17 @@ poison-active-vars := $$(foreach v,$(ACTIVE_VARS),$$(eval $$(v) := $$(v)_poison)
 TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(LIB_TARGET_SO)	\
 $$(BIN_TARGET_ALL) $$(dir)/check $$(dir)/install
 
+
 persist-active-vars := $$(foreach v,$(ACTIVE_VARS),\
 	$$(foreach t,$$(TARGETS_NEED_PERSISTENT_ACTIVE_VARS),\
 		$$(eval $$t: $$v := $$$$($$v))))
+
+
+# variables that may be specified in the user Makefile that use relative paths.
+# Makefile repaths them to $(dir) using the following function
+USER_RELATIVE_VARS = DIST_BINS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART	\
+LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN
+relocate-vars  := $$(foreach v,$(USER_RELATIVE_VARS),$$(eval $$(v) := $$$$(addprefix $$$$(dir)/,$$$$($$(v)))))
 
 
 

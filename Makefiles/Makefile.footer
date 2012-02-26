@@ -81,15 +81,7 @@ endif # ifeq ($(IS_UNIT_TEST),)
 
 # the user's makefile gives all the targets in reference to $(dir), so I locate
 # them absolutely in the tree
-DIST_BINS		:= $(addprefix $(dir)/,$(DIST_BINS))
-DIST_MANS		:= $(addprefix $(dir)/,$(DIST_MANS))
-DIST_DOCS		:= $(addprefix $(dir)/,$(DIST_DOCS))
-DIST_ETC_OBLONG		:= $(addprefix $(dir)/,$(DIST_ETC_OBLONG))
-DIST_UPSTART		:= $(addprefix $(dir)/,$(DIST_UPSTART))
-LIB_OBJECTS		:= $(addprefix $(dir)/,$(LIB_OBJECTS))
-BIN_TARGET		:= $(addprefix $(dir)/,$(BIN_TARGET))
-BIN_TARGET_NOINST	:= $(addprefix $(dir)/,$(BIN_TARGET_NOINST))
-EXTRACLEAN              := $(addprefix $(dir)/,$(EXTRACLEAN))
+$(eval $(relocate-vars))
 
 
 # if we have libraries, define their names
