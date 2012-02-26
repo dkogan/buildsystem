@@ -20,9 +20,12 @@ IS_UNIT_TEST := $(filter %/tests,$(dir))
 # basic error checking
 ifeq ($(IS_UNIT_TEST),)
 
-ifneq ($(LIB_OBJECTS),)
 ifneq ($(TARGET_NAME:lib%=lib),lib)
+ifneq ($(LIB_OBJECTS),)
 $(error Target $(TARGET_NAME) has LIB_OBJECTS, so it MUST start with "lib")
+endif
+ifneq ($(DIST_HEADERS),)
+$(error Target $(TARGET_NAME) has DIST_HEADERS, so it MUST start with "lib")
 endif
 endif
 ifeq ($(TARGET_NAME:lib%=lib),lib)

@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 
-DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPSTART)
+DIST_ALL = $(DIST_BINS) $(DIST_HEADERS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPSTART)
 
 
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
@@ -59,6 +59,10 @@ endif
 ifneq ($(DIST_BINS),)
 	mkdir -p $(DESTDIR_MAIN)/usr/bin
 	install -m 0755 $(DIST_BINS) $(DESTDIR_MAIN)/usr/bin/
+endif
+ifneq ($(DIST_HEADERS),)
+	mkdir -p $(DESTDIR_DEV)/usr/include
+	install -m 0644 $(DIST_HEADERS) $(DESTDIR_DEV)/usr/include/
 endif
 ifneq ($(DIST_ETC_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong
