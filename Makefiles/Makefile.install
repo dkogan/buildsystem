@@ -25,11 +25,6 @@ DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)$(API_VERSION)
 else
 #{{{{{{{{{{{{{{ binary package
 
-ifneq ($(LIB_OBJECTS),)
- $(error Binary package $(TARGET_NAME) has lib objects $(LIB_OBJECTS))
-endif
-# add a similar test for headers here
-
 PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
 DESTDIR_MAIN     := debian/$(PACKAGENAME_BASE)
 #}}}}}}}}}}}}}}
