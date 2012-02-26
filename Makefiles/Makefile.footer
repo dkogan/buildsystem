@@ -193,24 +193,25 @@ $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 # when done installing. This ensures that the "normal" static versions
 # will be built after and install
 #
-# Lastly, static links have no benefit of the DT_NEEDED tags in the shared
-# objects. Thus they more of the libraries given on the commandline. Here I save
-# the LDLIBS_SYSTEM for each project, and use LDLIBS_PROJECT to construct all
-# the LDLIBS_SYSTEM that come from a project's children. I can then link with
-# those libraries. I make two variables $(TARGET_NAME)_LDLIBS_SYSTEM for the
-# current LDLIBS_SYSTEM and $(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM for all of the
-# children's LDLIBS_SYSTEM.
+# Lastly, static links have no benefit of the DT_NEEDED tags in the
+# shared objects. Thus they more of the libraries given on the
+# commandline. Here I save the LDLIBS_SYSTEM for each project, and use
+# LDLIBS_PROJECT to construct all the LDLIBS_SYSTEM that come from a
+# project's children. I can then link with those libraries. I make two
+# variables $(dir)_LDLIBS_SYSTEM for the current LDLIBS_SYSTEM
+# and $(dir)_CHILDREN_LDLIBS_SYSTEM for all of the children's
+# LDLIBS_SYSTEM.
 #
 # $(sort) sorts and removes duplicates. I don't really want to sort,
 # actually since order may matter, but I'll let the linker tell me this
-$(TARGET_NAME)_LDLIBS_SYSTEM := $(LDLIBS_SYSTEM)
-$(foreach lib,$(basename $(notdir $(LDLIBS_PROJECT))),$(eval \
-  $(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM += $$($(lib)_LDLIBS_SYSTEM) $$($(lib)_CHILDREN_LDLIBS_SYSTEM)))
+$(dir)_LDLIBS_SYSTEM := $(LDLIBS_SYSTEM)
+$(foreach lib,$(patsubst %/,%,$(dir $(LDLIBS_PROJECT))),$(eval \
+  $(dir)_CHILDREN_LDLIBS_SYSTEM += $$($(lib)_LDLIBS_SYSTEM) $$($(lib)_CHILDREN_LDLIBS_SYSTEM)))
 
 define BIN_TARGET_template_static
 $(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
 	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
-		$$(sort $$($$(TARGET_NAME)_CHILDREN_LDLIBS_SYSTEM)) $$(LDLIBS_SYSTEM) -o $$@
+		$$(sort $$($$(dir)_CHILDREN_LDLIBS_SYSTEM)) $$(LDLIBS_SYSTEM) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
@@ -275,7 +276,6 @@ $(LIB_TARGET_SO):  LDFLAGS     := $(LDFLAGS)
 $(LIB_TARGET_SO):  LDLIBS      := $(LDLIBS)
 $(BIN_TARGET_ALL): LDFLAGS     := $(LDFLAGS)
 $(BIN_TARGET_ALL): LDLIBS      := $(LDLIBS)
-$(BIN_TARGET_ALL): TARGET_NAME := $(TARGET_NAME)
 $(LIB_TARGET_SO):  dir         := $(dir)
 $(BIN_TARGET_ALL): dir         := $(dir)
 
