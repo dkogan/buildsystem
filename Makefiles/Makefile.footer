@@ -14,10 +14,12 @@ include Makefile.sys
 # if we don't already have a target name, use the directory. So code in the
 # libRetro directory would produce libRetro.so and libRetro.a. I can't use ?=
 # here because it checks for definedness, not truth
-TARGET_NAME := $(or $(TARGET_NAME),$(notdir $(dir)))
-
+TARGET_NAME  := $(or $(TARGET_NAME),$(notdir $(dir)))
+IS_UNIT_TEST := $(filter %/tests,$(dir))
 
 # basic error checking
+ifeq ($(IS_UNIT_TEST),)
+
 ifneq ($(LIB_OBJECTS),)
 ifneq ($(TARGET_NAME:lib%=lib),lib)
 $(error Target $(TARGET_NAME) has LIB_OBJECTS, so it MUST start with "lib")
@@ -29,8 +31,16 @@ $(error Target $(TARGET_NAME) starts with lib..., but has no LIB_OBJECTS!)
 endif
 endif
 
+else # ifeq ($(IS_UNIT_TEST),)
+ifneq ($(LIB_OBJECTS),)
+$(error Unit tests $(dir) have LIB_OBJECTS. This is not allowed)
+endif
+endif
 
 #################### Shared object versioning #########################
+
+# none of this applies for unit tests
+ifeq ($(IS_UNIT_TEST),)
 
 # I parse the version from debian/changelog. I look at the first line of that
 # file and get everything betwee '(' and the first '-'. These lines look like
@@ -64,6 +74,8 @@ $(if $(shell grep 'Package:[ 	]*$(PACKAGENAME_BASE)[ 	]*$$' debian/control),, \
 endif
 
 SO_VERSION := $(API_VERSION).$(VERSION)
+
+endif # ifeq ($(IS_UNIT_TEST),)
 
 #################### variable setup ###################################
 
@@ -229,9 +241,12 @@ BIN_TARGET_template = $(if $(filter $(MAKECMDGOALS),install),$(BIN_TARGET_templa
 $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target))))
 
 
-#################### clean and all rules ##############################
+#################### clean and all and install rules ##################
 
+# can't install unit tests
+ifeq ($(IS_UNIT_TEST),)
 include Makefile.install
+endif
 
 clean_files := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
 clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN)
@@ -247,7 +262,11 @@ $(eval $(CLEAN_template))
 $(dir)/all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
 clean: $(dir)/clean
+
+# don't build unit tests unless asked
+ifeq ($(IS_UNIT_TEST),)
 all:   $(dir)/all
+endif # ifeq ($(IS_UNIT_TEST),)
 
 .PHONY: clean all $(dir)/clean $(dir)/all
 
@@ -257,7 +276,14 @@ $(dir)/: $(dir)/all
 
 .PHONY: $(dir) $(dir)/
 
-#######################################################################
+
+#################### unit tests #######################################
+
+check: $(dir)/check
+.PHONY: $(dir)/check check
+
+
+
 
 
 
