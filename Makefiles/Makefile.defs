@@ -2,6 +2,14 @@
 
 # various useful definitions for the build system
 
+# variables to reset between includes, and a function to do it
+NONPERSISTENT_VARS := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS DIST_BINS	\
+DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART LIB_OBJECTS BIN_TARGET		\
+BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME LIB_TARGET_SO_BARE			\
+LIB_TARGET_SO LIB_TARGET_A
+reset-nonpersistent := $$(foreach v,$$(NONPERSISTENT_VARS),$$(eval $$(v) := ))
+
+
 # basic functional stuff. These are a perl-style grep and map. You call these like
 #
 # $(call grep,cond,list)
