@@ -12,18 +12,14 @@ include $(ROOT)/Makefile.defs
 dir          := /DIR_poison
 nonroot_make := 1
 
-# I redo this make from the ROOT. I re-path everything except my special
-# targets that AREN'T all or clean. 'all' and 'clean' perform
-# per-directory functions if called from a subdirectory
+# I redo this make from the ROOT. I re-path everything except 'install',
+# since this is the only target that has no per-directory meaning
 .DEFAULT_GOAL := all
 GOALSHERE              := $(or $(MAKECMDGOALS),$(.DEFAULT_GOAL))
-TARGETS_TO_NOT_REPATH   = $(filter-out all clean,$(SPECIAL_TARGETS))
-SPECIAL_TARGETS_HERE    = $(filter     $(TARGETS_TO_NOT_REPATH),$(GOALSHERE))
-NONSPECIAL_TARGETS_HERE = $(filter-out $(TARGETS_TO_NOT_REPATH),$(GOALSHERE))
 
 # This rule makes whatever I was asked to make. It'll always run since it's phony also
 $(MAKECMDGOALS) %:
-	$(MAKE) -C $(ROOT) $(call relpath,$(NONSPECIAL_TARGETS_HERE)) $(SPECIAL_TARGETS_HERE)
+	$(MAKE) -C $(ROOT) $(call relpath,$(GOALSHERE))
 
 .PHONY: $(MAKECMDGOALS)
 

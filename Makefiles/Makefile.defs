@@ -2,9 +2,6 @@
 
 # various useful definitions for the build system
 
-# general PHONY targets that we use
-SPECIAL_TARGETS = clean all install
-
 # basic functional stuff. These are a perl-style grep and map. You call these like
 #
 # $(call grep,cond,list)
