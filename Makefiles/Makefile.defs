@@ -23,7 +23,7 @@ poison-active-vars := $$(foreach v,$(ACTIVE_VARS),$$(eval $$(v) := $$(v)_poison)
 #
 # This is done for all var/target combinations. This is a bit overkill, since all
 # recipes don't need all the variables, but it doesn't hurt
-TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(LIB_TARGET_SO) $$(BIN_TARGET_ALL)
+TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(LIB_TARGET_SO) $$(BIN_TARGET_ALL) $$(dir)/check
 persist-active-vars := $$(foreach v,$(ACTIVE_VARS),\
 	$$(foreach t,$$(TARGETS_NEED_PERSISTENT_ACTIVE_VARS),\
 		$$(eval $$t: $$v := $$$$($$v))))
