@@ -4,40 +4,6 @@
 DIST_ALL = $(DIST_BINS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPSTART)
 
 
-
-# when I have a rule such as
-# target: dependency
-#	recipe
-#
-# the target and dependency are evaluated immediately, but the recipe is
-# evaluated deferred. This means that any variables referenced in the
-# recipe MUST have a single value throughout the build. They must have a
-# unique name, and must be referenced as such. I resolve it thusly: my
-# main install target is called $(dir)/install. This clearly is tied to
-# a $(dir), thus the name is unique. Furthermore the target is evaluated
-# immediately so the $(dir) is expanded right away. If I want to use
-# $(var) in the recipe, I can NOT just do this directly because it
-# wouldn't get expanded until it's used, but at that point $(var) could
-# come from some other directory's makefile. I use per-target variables
-# to get around this:
-#
-# $(dir)/install: DESTDIR_MAIN := $(DESTDIR_MAIN)
-#
-# using the EXPORT_template. All variables in $(VARS_TO_EXPORT) are
-# exported in this way
-
-define EXPORT_template
-$(dir)/install: $(1) := $($(1))
-endef
-
-VARS_TO_EXPORT := \
-	DESTDIR_MAIN DESTDIR_DEV LIB_TARGET_A \
-	LIB_TARGET_SO LIB_TARGET_SO_BARE \
-	DIST_ALL DIST_BINS DIST_ETC_OBLONG DIST_UPSTART \
-	BIN_TARGET API_VERSION dir
-
-
-
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
 # library. Otherwise it's binaries. Libraries have -dev versions of
 # their packages, have API_VERSIONs, and are allowed to have headers,
@@ -71,9 +37,6 @@ endif
 
 
 DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
-
-# all my variables are now defined. ready to export
-$(foreach var,$(VARS_TO_EXPORT),$(eval $(call EXPORT_template,$(var))))
 
 
 $(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET) $(DIST_ALL)
