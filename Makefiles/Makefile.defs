@@ -60,6 +60,11 @@ map  = $(foreach x,$(2),$(call $(1),$(x)))
 # function. Thus it also sorts the list.
 soft-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(d))))
 
+# A wildcard function that reports an error if it encounters any term
+# that expands to nothing (everything MUST exist). Similarly, it removes
+# duplicates and sorts
+hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard matched nothing: $(1)))))
+
 
 
 # The 'relpath' function takes a list of paths (local or absolute) and
