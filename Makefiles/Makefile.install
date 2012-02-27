@@ -3,7 +3,11 @@
 # DIST_ALL is the CONTENTS of all the DIST_... variables
 DIST_ALL = $(foreach t,$(DIST_TYPES),$($t))
 
-
+# I want to allow wildcards in my DIST_... lists. Since some of the
+# files in those lists are built, they may not exist at the time the
+# Makefiles are read. I thus apply the wildcard to every element, but
+# don't remove non-existing elements
+$(foreach t,$(DIST_TYPES),$(eval $t := $(call soft-wildcard, $($t))))
 
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
 # library. Otherwise it's binaries. Libraries have -dev versions of
