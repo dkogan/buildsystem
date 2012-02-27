@@ -40,8 +40,8 @@ DESTDIR_MAIN     := debian/$(PACKAGENAME)
 
 
 
-
-$(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(BIN_TARGET) $(DIST_ALL)
+# BIN_TARGET is incorporated in DIST_BINS
+$(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(DIST_ALL)
 ifeq ($(DESTDIR),)
 	@echo Tried to make install without having DESTDIR defined
 	@echo "make install" is ONLY for the debian package.
@@ -56,10 +56,6 @@ ifeq ($(TARGET_NAME:lib%=lib),lib)
 	install -m 0644 $(LIB_TARGET_A)   $(DESTDIR_DEV)/usr/lib
 	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_MAIN)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
 	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_DEV)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE))
-endif
-ifneq ($(BIN_TARGET),)
-	mkdir -p $(DESTDIR_MAIN)/usr/bin
-	install -m 0755 $(BIN_TARGET) $(DESTDIR_MAIN)/usr/bin/
 endif
 ifneq ($(DIST_BINS),)
 	mkdir -p $(DESTDIR_MAIN)/usr/bin

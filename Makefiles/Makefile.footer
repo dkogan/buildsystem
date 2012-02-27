@@ -154,7 +154,8 @@ BIN_TARGET_ALL := $(BIN_TARGET) $(BIN_TARGET_NOINST)
 $(LIB_OBJECTS): CXXFLAGS += -fPIC
 $(LIB_OBJECTS): CFLAGS   += -fPIC
 
-
+# install all the binaries that need installing
+DIST_BINS += $(BIN_TARGET)
 
 
 
