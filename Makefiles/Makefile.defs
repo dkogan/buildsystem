@@ -1,6 +1,7 @@
 # -*- Makefile -*-
 
-# various useful definitions for the build system
+# various useful definitions for the build system.
+# THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL
 
 # variables I use in my recipes and rules. These are reset between includes, and are
 # stored to be accessible to my recipes on a per-target basis. This is needed since

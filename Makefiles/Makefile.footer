@@ -1,5 +1,7 @@
 # -*- Makefile -*-
 
+# THIS FILE IS INCLUDED BY EACH USER Makefile
+
 # we only bother to do anything if we were asked to do a make from the
 # ROOT directory. In not, Makefile.header has already defined a
 # from-root sub-make that will do all the work, so we do nothing here
