@@ -7,6 +7,10 @@ DIRS :=
 
 define DIRS_template
 
+# We're about to include a user file. I wipe all the active variables so
+# that it can start with a clean slate. I do this here and NOT in the
+# header because $(dir) is an active var, and doing it here will restore
+# this variable immediately afterward
 $$(eval $$(reset-active-vars))
 dir := $(dirhere)
 include $$(dir)/Makefile
@@ -19,10 +23,7 @@ include $$(dir)/Makefile
 endif
 endef
 
-$(foreach dirhere,$(DIRS),$(eval $(DIRS_template)))
 
-# done with $(dir). Any use of it at this point is a bug, so I poison
-# all my variables to make this obvious
-$(eval $(poison-active-vars))
+$(foreach dirhere,$(DIRS),$(eval $(DIRS_template)))
 
 .DEFAULT_GOAL := all
