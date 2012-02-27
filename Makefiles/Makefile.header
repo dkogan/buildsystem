@@ -25,6 +25,9 @@ $(MAKECMDGOALS) %:
 
 else # ifeq ($(dir),)
 
+# include the system-dependent variables and anything oblong-specific
+include Makefile.sys
+
 # QT stuff uses immediate variables for efficiency, so I must include
 # these in the header, not the footer
 include Makefile.qt

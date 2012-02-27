@@ -9,10 +9,6 @@ ifeq ($(nonroot_make),)
 
 $(if $(MAKE_DEBUG), $(info At top of the $(dir) Makefile))
 
-# include the system-dependent variables and anything oblong-specific
-include Makefile.sys
-
-
 # if we don't already have a target name, use the directory. So code in the
 # libRetro directory would produce libRetro.so and libRetro.a. I can't use ?=
 # here because it checks for definedness, not truth
