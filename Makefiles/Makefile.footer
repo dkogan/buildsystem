@@ -22,15 +22,15 @@ ifeq ($(IS_UNIT_TEST),)
 
 ifneq ($(TARGET_NAME:lib%=lib),lib)
 ifneq ($(LIB_OBJECTS),)
-$(error Target $(TARGET_NAME) has LIB_OBJECTS, so it MUST start with "lib")
+$(error Target "$(TARGET_NAME)" from dir "$(dir)" has LIB_OBJECTS, so it MUST start with "lib")
 endif
 ifneq ($(DIST_HEADERS),)
-$(error Target $(TARGET_NAME) has DIST_HEADERS, so it MUST start with "lib")
+$(error Target "$(TARGET_NAME)" from dir "$(dir)" has DIST_HEADERS, so it MUST start with "lib")
 endif
 endif
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 ifeq ($(LIB_OBJECTS),)
-$(error Target $(TARGET_NAME) starts with lib..., but has no LIB_OBJECTS!)
+$(error Target "$(TARGET_NAME)" from dir "$(dir)" starts with lib..., but has no LIB_OBJECTS!)
 endif
 endif
 
