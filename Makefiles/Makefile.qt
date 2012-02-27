@@ -1,0 +1,24 @@
+# -*- Makefile -*-
+
+# THIS DEFINES IMMEDIATE VARIABLES, SO MUST BE INCLUDED IN THE HEADER,
+# NOT THE FOOTER
+
+# this is how you build QT4 UIs. There's a tool to generate headers from
+# UI definitions. There's also a tool to generate metadata from QT
+# classes. This must be compiled and linked in. QT4_MOCS is a list of
+# all these extra objects needed by QT. Simply add $(QT4_MOCS) to your
+# objects list and magic happens. Similar with QT4_UI_HEADERS
+QT4_MOCS_BASE  := $(addprefix $(dir)/,$(patsubst %.h,moc_%,$(notdir $(shell grep -ls Q_OBJECT $(dir)/*.h))))
+QT4_UI_HEADERS := $(addprefix $(dir)/,$(patsubst %.ui,ui_%.h,$(notdir $(wildcard $(dir)/*.ui))))
+
+$(dir)/ui_%.h: $(dir)/%.ui
+	uic-qt4 $< > $@
+EXTRACLEAN += $(QT4_UI_HEADERS)
+
+QT4_MOCS_CPP  = $(addsuffix .cpp,$(QT4_MOCS_BASE))
+QT4_MOCS      = $(addsuffix .o,$(QT4_MOCS_BASE))
+EXTRACLEAN   += $(addsuffix .*,$(QT4_MOCS_BASE))
+.SECONDARY: $(QT4_MOCS_CPP)
+$(dir)/moc_%.cpp: $(dir)/%.h
+	moc-qt4 $< > $@
+

@@ -23,4 +23,10 @@ $(MAKECMDGOALS) %:
 
 .PHONY: $(MAKECMDGOALS)
 
+else # ifeq ($(dir),)
+
+# QT stuff uses immediate variables for efficiency, so I must include
+# these in the header, not the footer
+include Makefile.qt
+
 endif # ifeq ($(dir),)
