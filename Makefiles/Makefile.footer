@@ -144,8 +144,8 @@ ALLCFLAGS += -MMD -MP
 # if we don't care how we link the code, use plain cc
 CC_LINKER ?= $(CC)
 
-CFLAGS   += $(ALLCFLAGS)
-CXXFLAGS += $(ALLCFLAGS)
+CFLAGS   += $(ALLCFLAGS) -g
+CXXFLAGS += $(ALLCFLAGS) -g
 
 BIN_TARGET_ALL := $(BIN_TARGET) $(BIN_TARGET_NOINST)
 
