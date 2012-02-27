@@ -1,7 +1,8 @@
 # -*- Makefile -*-
 
+# DIST_ALL is the CONTENTS of all the DIST_... variables
+DIST_ALL = $(foreach t,$(DIST_TYPES),$($t))
 
-DIST_ALL = $(DIST_BINS) $(DIST_HEADERS) $(DIST_MANS) $(DIST_DOCS) $(DIST_ETC_OBLONG) $(DIST_UPSTART)
 
 
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a

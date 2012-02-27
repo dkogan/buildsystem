@@ -3,14 +3,16 @@
 # various useful definitions for the build system.
 # THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL
 
+# all the various types of distribution I can define
+DIST_TYPES := DIST_BINS DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART
+
 # variables I use in my recipes and rules. These are reset between includes, and are
 # stored to be accessible to my recipes on a per-target basis. This is needed since
 # recipes evaluate their variables deferred
-ACTIVE_VARS := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS DIST_BINS			\
-DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART LIB_OBJECTS BIN_TARGET	\
-BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME LIB_TARGET_SO_BARE				\
-LIB_TARGET_SO LIB_TARGET_A IS_UNIT_TEST dir DESTDIR_MAIN DESTDIR_DEV			\
-DIST_ALL API_VERSION PACKAGENAME
+ACTIVE_VARS := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS $(DIST_TYPES)	\
+LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME		\
+LIB_TARGET_SO_BARE LIB_TARGET_SO LIB_TARGET_A IS_UNIT_TEST dir		\
+DESTDIR_MAIN DESTDIR_DEV DIST_ALL API_VERSION PACKAGENAME
 
 
 
@@ -39,8 +41,7 @@ persist-active-vars = $(foreach v,$(ACTIVE_VARS),\
 
 # variables that may be specified in the user Makefile that use relative paths.
 # Makefile repaths them to $(dir) using the following function
-USER_RELATIVE_VARS = DIST_BINS DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART	\
-LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN
+USER_RELATIVE_VARS = $(DIST_TYPES) LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN
 relocate-vars = $(foreach v,$(USER_RELATIVE_VARS),$(eval $v := $(addprefix $(dir)/,$($(v)))))
 
 
