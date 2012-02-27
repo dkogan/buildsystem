@@ -161,9 +161,23 @@ DIST_BINS += $(BIN_TARGET)
 
 
 
-############## rules to build libraries and executables ###############
+############## rules to build my stuff ################################
 #
 # I set up all the variables, now use them to define the recipes
+
+# first stuff to convert the PODs to HTML, manpages, and to set their
+# distribution
+$(dir)/%.1: $(dir)/%.pod
+	podchecker $<
+	pod2man --center "Oblong Industries" --release "$(TARGET_NAME) $(VERSION)" $< $@
+
+$(dir)/%-man.html: $(dir)/%.pod
+	pod2html $< > $@
+
+DIST_MANS +=$(strip $(patsubst %.pod,%.1,       $(call hard-wildcard,$(PODS))))
+DIST_DOCS +=$(strip $(patsubst %.pod,%-man.html,$(call hard-wildcard,$(PODS))))
+
+
 
 ifneq ($(LIB_OBJECTS),)
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
@@ -247,6 +261,8 @@ include Makefile.install
 endif
 
 clean_files := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
+clean_files += pod2htmi.tmp pod2htmd.tmp $(addprefix $(dir)/, *.1 *-man.html)
+
 clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN)
 
 # This is done with an eval to immediately evaluate the files-to-clean list

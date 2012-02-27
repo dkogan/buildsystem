@@ -12,7 +12,7 @@ DIST_TYPES := DIST_BINS DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UP
 ACTIVE_VARS := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS $(DIST_TYPES)	\
 LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME		\
 LIB_TARGET_SO_BARE LIB_TARGET_SO LIB_TARGET_A IS_UNIT_TEST dir		\
-DESTDIR_MAIN DESTDIR_DEV DIST_ALL API_VERSION PACKAGENAME
+DESTDIR_MAIN DESTDIR_DEV DIST_ALL API_VERSION PACKAGENAME PODS
 
 
 
@@ -30,7 +30,7 @@ poison-active-vars = $(foreach v,$(ACTIVE_VARS),$(eval $v := $(v)_poison))
 #
 # This is done for all var/target combinations. This is a bit overkill, since all
 # recipes don't need all the variables, but it doesn't hurt
-TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(LIB_TARGET_SO)	\
+TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(dir)/%.1 $$(LIB_TARGET_SO) \
 $$(BIN_TARGET_ALL) $$(dir)/check $$(dir)/install
 
 
@@ -41,7 +41,7 @@ persist-active-vars = $(foreach v,$(ACTIVE_VARS),\
 
 # variables that may be specified in the user Makefile that use relative paths.
 # Makefile repaths them to $(dir) using the following function
-USER_RELATIVE_VARS = $(DIST_TYPES) LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN
+USER_RELATIVE_VARS = $(DIST_TYPES) LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN PODS
 relocate-vars = $(foreach v,$(USER_RELATIVE_VARS),$(eval $v := $(addprefix $(dir)/,$($(v)))))
 
 
