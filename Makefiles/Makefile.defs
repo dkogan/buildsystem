@@ -4,7 +4,7 @@
 # THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL
 
 # all the various types of distribution I can define
-DIST_TYPES := DIST_BINS DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_UPSTART
+DIST_TYPES := DIST_BINS DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_SHARE_OBLONG DIST_UPSTART
 
 # variables I use in my recipes and rules. These are reset between includes, and are
 # stored to be accessible to my recipes on a per-target basis. This is needed since

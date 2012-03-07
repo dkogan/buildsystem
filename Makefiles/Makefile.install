@@ -69,6 +69,10 @@ ifneq ($(DIST_ETC_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong
 	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
 endif
+ifneq ($(DIST_SHARE_OBLONG),)
+	mkdir -p $(DESTDIR_MAIN)/usr/share/oblong
+	install -m 0644 $(DIST_SHARE_OBLONG) $(DESTDIR_MAIN)/usr/share/oblong
+endif
 ifneq ($(DIST_UPSTART),)
 # This should use dh_installinit, but I think that only works with a single upstart file...
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
