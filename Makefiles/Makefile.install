@@ -66,8 +66,8 @@ ifneq ($(DIST_HEADERS),)
 	install -m 0644 $(DIST_HEADERS) $(DESTDIR_DEV)/usr/include/
 endif
 ifneq ($(DIST_ETC_OBLONG),)
-	mkdir -p $(DESTDIR_MAIN)/etc/oblong
-	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong
+	mkdir -p $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
+	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
 endif
 ifneq ($(DIST_SHARE_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/usr/share/oblong
