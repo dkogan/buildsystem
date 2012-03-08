@@ -39,7 +39,7 @@ endif
 DESTDIR_MAIN     := debian/$(PACKAGENAME)
 
 
-
+# using 'cp -P' instead of 'install' because the latter follows links unconditionally
 # BIN_TARGET is incorporated in DIST_BINS
 $(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(DIST_ALL)
 ifeq ($(DESTDIR),)
@@ -52,8 +52,8 @@ ifeq ($(TARGET_NAME:lib%=lib),lib)
 	mkdir -p $(DESTDIR_MAIN)/usr/lib
 	mkdir -p $(DESTDIR_DEV)/usr/lib
 
-	install -m 0644 $(LIB_TARGET_SO)  $(DESTDIR_MAIN)/usr/lib
-	install -m 0644 $(LIB_TARGET_A)   $(DESTDIR_DEV)/usr/lib
+	cp -P $(LIB_TARGET_SO)  $(DESTDIR_MAIN)/usr/lib
+	cp -P $(LIB_TARGET_A)   $(DESTDIR_DEV)/usr/lib
 	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_MAIN)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
 	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_DEV)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE))
 endif
@@ -63,20 +63,20 @@ ifneq ($(DIST_BINS),)
 endif
 ifneq ($(DIST_HEADERS),)
 	mkdir -p $(DESTDIR_DEV)/usr/include
-	install -m 0644 $(DIST_HEADERS) $(DESTDIR_DEV)/usr/include/
+	cp -P $(DIST_HEADERS) $(DESTDIR_DEV)/usr/include/
 endif
 ifneq ($(DIST_ETC_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
-	install -m 0644 $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
+	cp -P $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
 endif
 ifneq ($(DIST_SHARE_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/usr/share/oblong
-	install -m 0644 $(DIST_SHARE_OBLONG) $(DESTDIR_MAIN)/usr/share/oblong
+	cp -P $(DIST_SHARE_OBLONG) $(DESTDIR_MAIN)/usr/share/oblong
 endif
 ifneq ($(DIST_UPSTART),)
 # This should use dh_installinit, but I think that only works with a single upstart file...
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
-	install -m 0644 $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
+	cp -P $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
 endif
 ifneq ($(DIST_DOCS),)
 	echo $(DIST_DOCS) | xargs -n1 > debian/$(PACKAGENAME).docs
@@ -84,7 +84,7 @@ endif
 ifneq ($(DIST_MANS),)
 	echo $(DIST_MANS) | xargs -n1 > debian/$(PACKAGENAME).manpages
 endif
-# install -m 0644 $(HEADERS) $(DESTDIR)/usr/include/
+# cp -P $(HEADERS) $(DESTDIR)/usr/include/
 
 
 install: $(dir)/install
