@@ -5,6 +5,9 @@ include Makefile.defs
 # directories in arbitrary order
 DIRS :=
 
+
+
+
 define DIRS_template
 
 # We're about to include a user file. I wipe all the active variables so
