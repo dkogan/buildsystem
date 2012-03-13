@@ -84,6 +84,11 @@ endif # ifeq ($(IS_UNIT_TEST),)
 # them absolutely in the tree
 $(eval $(relocate-vars))
 
+# some variables may have been customized by the user on the commandline
+# (CFLAGS, etc). I apply those here.
+$(eval $(apply-var-customizations))
+
+
 
 # if we have libraries, define their names
 ifneq ($(LIB_OBJECTS),)

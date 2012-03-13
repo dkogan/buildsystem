@@ -14,6 +14,15 @@ LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME		\
 LIB_TARGET_SO_BARE LIB_TARGET_SO LIB_TARGET_A IS_UNIT_TEST dir		\
 DESTDIR_MAIN DESTDIR_DEV DIST_ALL API_VERSION PACKAGENAME PODS
 
+# These are a subset of ACTIVE_VARS. These variables are allowed to be
+# customized by the user on the cmdline. So the user can say
+# CFLAGS=-foo make
+ACTIVE_VARS_CUSTOMIZABLE := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS
+
+# function to apply the customizations. Note that the customizations are
+# prepended, NOT appended. This is because gcc searches directories in
+# the order given, and I want the user-given overrides to have priority
+apply-var-customizations = $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(eval $v:=$(_USER_CUSTOMIZED_$v) $($v)))
 
 
 
