@@ -137,6 +137,9 @@ LDLIBS_PROJECT       = $(call relpath,$(call filter-intree,     $(LDLIBS_onlyso_
 
 
 
+# if we don't care how we link the code, use plain cc
+CC_LINKER ?= $(CC)
+
 # used to make gcc output header dependency information. All source
 # files generated .d dependency definitions that are included at the
 # bottom of this file
@@ -145,8 +148,28 @@ ALLCFLAGS += -MMD -MP
 # if we don't care how we link the code, use plain cc
 CC_LINKER ?= $(CC)
 
-CFLAGS   += $(ALLCFLAGS) -g
-CXXFLAGS += $(ALLCFLAGS) -g
+# always building with debug information. This is stripped into the -dbg
+# packages by debhelper later
+ALLCFLAGS += -g
+
+# build with -O2 if we don't already have a -Ox. I need to redefine the
+# rules here (and have _USER_...) because my C..FLAGS variables are
+# simple (immediately evaluated), but the user could have specified
+# per-target flags that ALWAYS evaluate deferred-ly
+_USER_DEFINED_CFLAGS   = $(CFLAGS) $(ALLCFLAGS)
+_USER_DEFINED_CXXFLAGS = $(CXXFLAGS) $(ALLCFLAGS)
+cc_build_rule = $(CXX) $(_USER_DEFINED_CXXFLAGS) $(if $(filter -O%,$(_USER_DEFINED_CXXFLAGS)),,-O2) -c -o $@ $<
+c_build_rule  = $(CC)  $(_USER_DEFINED_CFLAGS) $(if $(filter -O%,$(_USER_DEFINED_CFLAGS)),,-O2) -c -o $@ $<
+%.o:%.C
+	$(cc_build_rule)
+%.o:%.cc
+	$(cc_build_rule)
+%.o:%.cpp
+	$(cc_build_rule)
+%.o:%.c
+	$(c_build_rule)
+
+
 
 BIN_TARGET_ALL := $(BIN_TARGET) $(BIN_TARGET_NOINST)
 
