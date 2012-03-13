@@ -1,6 +1,7 @@
 # -*- Makefile -*-
 
 ifeq ($(dir),)
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ directory-local build
 
 # ROOT is assumed to be absolute so I set that here
 ROOT := $(abspath $(ROOT))
@@ -23,7 +24,9 @@ $(MAKECMDGOALS) %:
 
 .PHONY: $(MAKECMDGOALS)
 
+#}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} directory-local build
 else # ifeq ($(dir),)
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ top-level build
 
 # include the system-dependent variables and anything oblong-specific
 include Makefile.sys
@@ -32,4 +35,5 @@ include Makefile.sys
 # these in the header, not the footer
 include Makefile.qt
 
+#}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} top-level build
 endif # ifeq ($(dir),)
