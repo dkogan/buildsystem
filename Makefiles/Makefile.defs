@@ -9,7 +9,7 @@ DIST_TYPES := DIST_BINS DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_SH
 # variables I use in my recipes and rules. These are reset between includes, and are
 # stored to be accessible to my recipes on a per-target basis. This is needed since
 # recipes evaluate their variables deferred
-ACTIVE_VARS := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS $(DIST_TYPES)	\
+ACTIVE_VARS := CCXXFLAGS CFLAGS CXXFLAGS LDFLAGS LDLIBS $(DIST_TYPES)	\
 LIB_OBJECTS BIN_TARGET BIN_TARGET_NOINST EXTRACLEAN TARGET_NAME		\
 LIB_TARGET_SO_BARE LIB_TARGET_SO LIB_TARGET_A IS_UNIT_TEST dir		\
 DESTDIR_MAIN DESTDIR_DEV DIST_ALL API_VERSION PACKAGENAME PODS
@@ -17,7 +17,7 @@ DESTDIR_MAIN DESTDIR_DEV DIST_ALL API_VERSION PACKAGENAME PODS
 # These are a subset of ACTIVE_VARS. These variables are allowed to be
 # customized by the user on the cmdline. So the user can say
 # CFLAGS=-foo make
-ACTIVE_VARS_CUSTOMIZABLE := ALLCFLAGS CFLAGS CXXFLAGS LDFLAGS
+ACTIVE_VARS_CUSTOMIZABLE := CCXXFLAGS CFLAGS CXXFLAGS LDFLAGS
 
 # function to apply the customizations. Note that the customizations are
 # prepended, NOT appended. This is because gcc searches directories in
