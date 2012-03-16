@@ -25,6 +25,55 @@ ACTIVE_VARS_CUSTOMIZABLE := CCXXFLAGS CFLAGS CXXFLAGS LDFLAGS
 apply-var-customizations = $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(eval $v:=$(_USER_CUSTOMIZED_$v) $($v)))
 
 
+# given a string and an option, strips spaces after the option. For instance
+# $(call _strip_spaces_after_option,-L  /tmp/abc -L    /tmp/123,-L)
+# becomes '-L/tmp/abc -L/tmp/123'
+# A side effect is that ALL consecutive spaces are collapsed to one
+_strip_spaces_after_option = $(subst $(2) ,$(2),$(1:%=%))
+
+# given a string, retrieves all arguments to a given option. So
+# $(call _get_option_args,-foo -L  /tmp/abc -bar -L    /tmp/123,-L)
+# gives '/tmp/abc /tmp/123'
+# A side effect is that ALL consecutive spaces are collapsed to one
+_get_option_args = $(patsubst $(2)%,%,$(filter $(2)%,$(call _strip_spaces_after_option,$(1),$(2))))
+
+# makes sure every directory in the passed-in list exists. Error if not,
+# no output if yes. Second arg used in the error message
+_assert_alldirs_exist = $(foreach dir,$(1),$(if $(wildcard $(dir)),,$(error $(2) given a nonexisting directory: $(dir)))) \
+
+
+# If the user customized the LDFLAGS with -L, I want to make this
+# directory selection propagate to later links (runtime, etc). I thus
+# set RPATH to the same directory.
+#
+# Some things to worry about: -L logically must reside in LDFLAGS. If
+# somebody puts it in LDLIBS, I'll complain about it. Also, gcc accepts
+# both '-L dir' and '-Ldir'. I like the no-spaces version so I need to
+# detect and convert the with-spaces version.
+#
+# This function must be deferred so that it can see the per-target
+# LDFLAGS and LDLIBS variables
+_LDFLAGS_SEARCH_DIRS = $(call _get_option_args,$(LDFLAGS),-L)
+# makes sure we're using LDFLAGS; makes sure -L dirs exist, adds RPATH for every -L directory
+comma :=,
+_LDFLAGS_POSTPROCESS = \
+$(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L. This must be in LDFLAGS instead)) \
+$(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L) \
+$(addprefix -Wl$(comma)-rpath$(comma),$(abspath $(_LDFLAGS_SEARCH_DIRS))) \
+$(LDFLAGS)
+
+
+# make sure any -I directories exist
+# build with -O2 if we don't already have a -Ox
+_CCXXFLAGS_SEARCH_DIRS = $(call _get_option_args,$(1),-I)
+_CCXXFLAGS_POSTPROCESS = \
+$(call _assert_alldirs_exist,$(_CCXXFLAGS_SEARCH_DIRS),-I) \
+$(1) \
+$(if $(filter -O%,$(1)),,-O2)
+
+
+
+
 
 # a function to reset the active variables (before a new include) and to poison the
 # global active variables. No global variables should be used, and poisoning makes it

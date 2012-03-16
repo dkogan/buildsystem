@@ -152,14 +152,11 @@ CC_LINKER ?= $(CC)
 # packages by debhelper later
 CCXXFLAGS += -g
 
-# build with -O2 if we don't already have a -Ox. I need to redefine the
-# rules here (and have _USER_...) because my C..FLAGS variables are
-# simple (immediately evaluated), but the user could have specified
-# per-target flags that ALWAYS evaluate deferred-ly
-_USER_DEFINED_CFLAGS   = $(CFLAGS) $(CCXXFLAGS)
-_USER_DEFINED_CXXFLAGS = $(CXXFLAGS) $(CCXXFLAGS)
-cc_build_rule = $(CXX) $(_USER_DEFINED_CXXFLAGS) $(if $(filter -O%,$(_USER_DEFINED_CXXFLAGS)),,-O2) -c -o $@ $<
-c_build_rule  = $(CC)  $(_USER_DEFINED_CFLAGS) $(if $(filter -O%,$(_USER_DEFINED_CFLAGS)),,-O2) -c -o $@ $<
+# define the compile rules. I need to redefine the rules here because my
+# C..FLAGS variables are simple (immediately evaluated), but the user
+# could have specified per-target flags that ALWAYS evaluate deferred-ly
+cc_build_rule = $(CXX) $(call _CCXXFLAGS_POSTPROCESS,$(CXXFLAGS) $(CCXXFLAGS)) -c -o $@ $<
+c_build_rule  = $(CC)  $(call _CCXXFLAGS_POSTPROCESS,$(CFLAGS) $(CCXXFLAGS)) -c -o $@ $<
 %.o:%.C
 	$(cc_build_rule)
 %.o:%.cc
@@ -216,7 +213,7 @@ $(LIB_TARGET_A): $(LIB_OBJECTS)
 # objects first and the dependency objects last
 $(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
 $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
-	$(CC_LINKER) $(LDFLAGS) $(filter %.o, $^) $(filter-out %.o, $^) $(LDLIBS_SYSTEM) -o $@
+	$(CC_LINKER) $(_LDFLAGS_POSTPROCESS) $(filter %.o, $^) $(filter-out %.o, $^) $(LDLIBS_SYSTEM) -o $@
 
 # I'm using $$ here to delay the variable expansion until later, so that the
 # rules are generated keeping the variable references intact. For instance, the
@@ -256,13 +253,13 @@ $(foreach lib,$(patsubst %/,%,$(dir $(LDLIBS_PROJECT))),$(eval \
 
 define BIN_TARGET_template_static
 $(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
-	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
+	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
 		$$(sort $$($$(dir)_CHILDREN_LDLIBS_SYSTEM)) $$(LDLIBS_SYSTEM) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
 $(1): $(1).o $(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
-	$$(CC_LINKER) $$(LDFLAGS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
+	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
 		$$(LDLIBS_SYSTEM) -o $$@
 .PHONY:        $(1)
 .INTERMEDIATE: $(1)
