@@ -39,7 +39,7 @@ _get_option_args = $(patsubst $(2)%,%,$(filter $(2)%,$(call _strip_spaces_after_
 
 # makes sure every directory in the passed-in list exists. Error if not,
 # no output if yes. Second arg used in the error message
-_assert_alldirs_exist = $(foreach d,$(1),$(if $(wildcard $d),,$(error $(2) given a nonexisting directory: $d))) \
+_assert_alldirs_exist = $(foreach d,$(1),$(if $(wildcard $d),,$(error $(2) given a nonexisting directory ($d) when building $@))) \
 
 
 # If the user customized the LDFLAGS with -L, I want to make this
@@ -60,10 +60,10 @@ _LDFLAGS_SEARCH_DIRS = $(call _get_option_args,$(LDFLAGS),-L)
 # makes sure we're using LDFLAGS; makes sure -L dirs exist, adds RPATH for every -L directory
 comma :=,
 _LDFLAGS_POSTPROCESS = \
-$(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L. This must be in LDFLAGS instead)) \
+$(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L when building $@. This must be in LDFLAGS instead)) \
 $(if $(filter -L%,$(LDFLAGS)),\
   $(if $(filter $(MAKECMDGOALS),install), \
-    $(error When building packages ALL libraries must be in a package; -L not allowed))) \
+    $(error When building packages ALL libraries must be in a package; -L not allowed. Error when building $@))) \
 $(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L) \
 $(addprefix -Wl$(comma)-rpath$(comma),$(abspath $(_LDFLAGS_SEARCH_DIRS))) \
 $(LDFLAGS)
