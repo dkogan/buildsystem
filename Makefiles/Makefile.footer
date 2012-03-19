@@ -308,7 +308,10 @@ endif # ifeq ($(IS_UNIT_TEST),)
 $(dir):  $(dir)/all
 $(dir)/: $(dir)/all
 
-.PHONY: $(dir) $(dir)/
+# 'subdirs' makes this project all the projects in all the subdirectories
+$(dir)/subdirs: $(filter $(dir)%,$(DIRS))
+
+.PHONY: $(dir) $(dir)/ $(dir)/subdirs
 
 
 #################### unit tests #######################################
