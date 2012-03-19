@@ -51,7 +51,8 @@ ifeq ($(IS_UNIT_TEST),)
 # debian has a dpkg-parsechangelog tool to do this for me, but it's
 # significantly slower than the awk version below, so I don't use it
 LPAREN := (
-VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("-.*",""); print; exit}' debian/changelog)))
+RPAREN := )
+VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("[-$(RPAREN)].*",""); print; exit}' debian/changelog)))
 $(if $(VERSION),,$(error "Couldn't parse version from debian/changelog"))
 
 
