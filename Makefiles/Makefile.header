@@ -3,9 +3,6 @@
 ifeq ($(dir),)
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ directory-local build
 
-# ROOT is assumed to be absolute so I set that here
-ROOT := $(abspath $(ROOT))
-
 include $(ROOT)/Makefile.defs
 
 # we're building NOT from the root. poison the $(dir) (to declaw the user's makefile), and isssue a

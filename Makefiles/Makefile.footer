@@ -107,7 +107,7 @@ endif
 #
 # General logic:
 # ../
-# if( /%.so )
+# if( /%.so or ./%.so )
 # {
 #   if(in tree)
 #     LDLIBS_PROJECT
@@ -128,7 +128,7 @@ endif
 #
 LDLIBS_onlyso	     = $(filter      %.so,$(LDLIBS))
 LDLIBS_notso	     = $(filter-out  %.so,$(LDLIBS))
-LDLIBS_addpath       = $(if $(filter /%,$(1)),$(1),$(dir)/$(1))
+LDLIBS_addpath       = $(if $(filter ./%,$(1))$(filter /%,$(1)),$(1),$(dir)/$(1))
 LDLIBS_onlyso_pathed = $(call map,LDLIBS_addpath,$(LDLIBS_onlyso))
 LDLIBS_SYSTEM        = $(LDLIBS_notso)
 LDLIBS_SYSTEM       += $(call                filter-out-intree, $(LDLIBS_onlyso_pathed))

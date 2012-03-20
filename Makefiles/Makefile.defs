@@ -3,6 +3,9 @@
 # various useful definitions for the build system.
 # THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL
 
+# ROOT is assumed to be relative; I make an absolute version for later use
+ROOT_ABS := $(abspath $(ROOT))
+
 # all the various types of distribution I can define
 DIST_TYPES := DIST_BINS DIST_HEADERS DIST_MANS DIST_DOCS DIST_ETC_OBLONG DIST_SHARE_OBLONG DIST_UPSTART
 
@@ -139,13 +142,13 @@ hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard m
 #
 # These helpers take a list of paths (relative or absolute) and return
 # only those that are (or not) that are in our repo
-filter-intree-predicate     = $(filter     $(ROOT)%,$(abspath $(1)))
-filter-out-intree-predicate = $(filter-out $(ROOT)%,$(abspath $(1)))
+filter-intree-predicate     = $(filter     $(ROOT_ABS)%,$(abspath $(1)))
+filter-out-intree-predicate = $(filter-out $(ROOT_ABS)%,$(abspath $(1)))
 filter-intree     = $(call grep,filter-intree-predicate,$(1))
 filter-out-intree = $(call grep,filter-out-intree-predicate,$(1))
 #
 # this makes paths such as '/libRetro' or ''. 
-relpath-withinitial-slash = $(if $(call filter-intree,$(1)),$(patsubst $(ROOT)%,%,$(abspath $(1))), \
+relpath-withinitial-slash = $(if $(call filter-intree,$(1)),$(patsubst $(ROOT_ABS)%,%,$(abspath $(1))), \
 	$(error out-of-tree path given: $(1)))
 # this converts it to 'libRetro' or '.'
 relpath-single = $(if $(relpath-withinitial-slash),$(relpath-withinitial-slash:/%=%),.)
