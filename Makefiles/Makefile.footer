@@ -310,8 +310,9 @@ $(dir)/: $(dir)/all
 
 # 'subdirs' makes this project all the projects in all the subdirectories
 $(dir)/subdirs: $(filter $(dir)%,$(DIRS))
+$(dir)/subdirs_clean: $(addsuffix /clean,$(filter $(dir)%,$(DIRS)))
 
-.PHONY: $(dir) $(dir)/ $(dir)/subdirs
+.PHONY: $(dir) $(dir)/ $(dir)/subdirs $(dir)/subdirs_clean
 
 
 #################### unit tests #######################################
