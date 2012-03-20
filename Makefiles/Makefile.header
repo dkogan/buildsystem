@@ -13,10 +13,9 @@ include $(ROOT)/Makefile.defs
 dir          := /DIR_poison
 nonroot_make := 1
 
-# I redo this make from the ROOT. I re-path everything except 'install',
-# since this is the only target that has no per-directory meaning
+# I redo this make from the ROOT, re-pathing everything
 .DEFAULT_GOAL := all
-GOALSHERE              := $(or $(MAKECMDGOALS),$(.DEFAULT_GOAL))
+GOALSHERE     := $(or $(MAKECMDGOALS),$(.DEFAULT_GOAL))
 
 # This rule makes whatever I was asked to make. It'll always run since it's phony also
 $(MAKECMDGOALS) %:
