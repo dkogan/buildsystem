@@ -7,7 +7,7 @@
 # from-root sub-make that will do all the work, so we do nothing here
 ifeq ($(nonroot_make),)
 
-$(if $(MAKE_DEBUG), $(info At top of the $(dir) Makefile))
+$(if $(MAKE_DEBUG), $(info MAKE_DEBUG: At top of the $(dir) Makefile))
 
 # if we don't already have a target name, use the directory. So code in the
 # libRetro directory would produce libRetro.so and libRetro.a. I can't use ?=
@@ -203,7 +203,7 @@ $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
 	ln -fs $(notdir $<) $@
 endif
 
-$(if $(MAKE_DEBUG), $(info Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
+$(if $(MAKE_DEBUG), $(info MAKE_DEBUG: Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
 
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^
