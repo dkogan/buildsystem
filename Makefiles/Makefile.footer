@@ -5,7 +5,7 @@
 # we only bother to do anything if we were asked to do a make from the
 # ROOT directory. In not, Makefile.header has already defined a
 # from-root sub-make that will do all the work, so we do nothing here
-ifeq ($(nonroot_make),)
+ifeq ($(_make_will_recurse),)
 
 $(if $(MAKE_DEBUG), $(info MAKE_DEBUG: At top of the $(dir) Makefile))
 
@@ -348,4 +348,4 @@ $(eval $(persist-active-vars))
 $(eval $(poison-active-vars))
 
 
-endif # ifeq ($(nonroot_make),)
+endif # ifeq ($(_make_will_recurse),)
