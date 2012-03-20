@@ -196,3 +196,22 @@ endef
 # base package names from TARGET_NAMEs
 PACKAGENAME_BASE_LIB = liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
 PACKAGENAME_BASE_BIN = oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
+
+
+
+
+
+# $(eval) this to run a recursive make. Can be used to change
+# directories or to enforce Make flags
+define _define_recursive_make
+
+# I redo this make from the ROOT, re-pathing everything
+.DEFAULT_GOAL := all
+GOALSHERE     := $$(or $$(MAKECMDGOALS),$$(.DEFAULT_GOAL))
+
+# This rule makes whatever I was asked to make. It'll always run since it's phony also
+$$(MAKECMDGOALS) %:
+	@$$(MAKE) -rR --no-print-directory -C $$(ROOT) $$(call relpath,$$(GOALSHERE))
+
+.PHONY: $$(MAKECMDGOALS)
+endef

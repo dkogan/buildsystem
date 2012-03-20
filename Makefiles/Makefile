@@ -3,6 +3,27 @@ ROOT := .
 include Makefile.defs
 
 
+# call the make again with -Rr unless those options are both already
+# there. This is mostly a performance optimization measure
+_make_will_recurse := 1
+ifneq ($(findstring r,$(MAKEFLAGS)),)
+ifneq ($(findstring R,$(MAKEFLAGS)),)
+_make_will_recurse :=
+endif
+endif
+
+ifneq ($(_make_will_recurse),)
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ need to recurse with -Rr
+
+$(eval $(_define_recursive_make))
+
+#}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} need to recurse with -Rr
+else
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ have -Rr. Build!
+
+
+
+
 # I want to support custom make variables passed in on the commandline.
 # Ideally I want the user to pass in a variable such as CFLAGS, then
 # have those flags be used automatically, in addition to all other flags
@@ -67,3 +88,7 @@ endef
 $(foreach dirhere,$(DIRS),$(eval $(DIRS_template)))
 
 .DEFAULT_GOAL := all
+
+
+#}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} have -Rr. Build!
+endif # ifeq ($(_make_will_recurse),)
