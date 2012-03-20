@@ -136,7 +136,8 @@ hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard m
 
 # _prepend_dir_selectively takes a list of paths, classifies it, and
 # prepends a $(dir) if necessary. The paths this function outputs can be
-# used with functions such as $(abspath). Logic:
+# used with functions such as $(abspath). If $(dir) is '', simply
+# returns the input list. Logic:
 #
 # | path type              | identified by   | output   |
 # |------------------------+-----------------+----------|
@@ -144,7 +145,7 @@ hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard m
 # | $(ROOT)-relative paths | ./%             | %        |
 # | $(dir)-relative paths  | everything else | $(dir)/% |
 _prepend_dir_selectively_one = $(if $(filter ./%,$(1))$(filter /%,$(1)),$(1),$(dir)/$(1))
-_prepend_dir_selectively     = $(call map,_prepend_dir_selectively_one,$(1))
+_prepend_dir_selectively     = $(if $(dir),$(call map,_prepend_dir_selectively_one,$(1)),$(1))
 
 # The 'relpath' function takes a list of paths (absolute or relative to
 # ROOT) and returns a cleaned-up path relative to ROOT. For instance,
@@ -169,6 +170,27 @@ relpath-single = $(if $(relpath-withinitial-slash),$(relpath-withinitial-slash:/
 relpath = $(and $(1),$(call map,relpath-single,$(1)))
 
 
+
+
+# function to read in all xxx_SUBSET variables and use them to define
+# subsets. Once a subset is defined, the corresponsing xxx_SUBSET
+# variable is set to ''
+define _read_subsets
+$(foreach subsetvar,\
+	$(filter %_SUBSET,$(.VARIABLES)),\
+	$(and $($(subsetvar)),$(eval $(call _make_one_subset,$(subsetvar)))))
+endef
+
+define _make_one_subset
+$(if $(MAKE_DEBUG), $(info MAKE_DEBUG: Defining subset '$1' in dir '$(dir)'. Subset is '$($1)'))
+
+_subset_name   := $(1:%_SUBSET=%)
+_subset_pathed := $(call _prepend_dir_selectively,$($1))
+$(dir)/$$(_subset_name)       $$(_subset_name):       $$(_subset_pathed)
+$(dir)/$$(_subset_name)/clean $$(_subset_name)/clean: $$(_subset_pathed:%=%/clean)
+.PHONY: $$(_subset_name) $$(_subset_name)/clean $(dir)/$$(_subset_name) $(dir)/$$(_subset_name)/clean
+$1 :=
+endef
 
 
 # base package names from TARGET_NAMEs

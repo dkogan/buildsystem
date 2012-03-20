@@ -39,6 +39,9 @@ $(foreach var,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($(var)),$(eval _USER_CUSTOMIZED
 # directories in arbitrary order
 DIRS :=
 
+$(eval $(_read_subsets))
+
+
 
 
 

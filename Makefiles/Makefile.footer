@@ -303,6 +303,11 @@ endif # ifeq ($(IS_UNIT_TEST),)
 
 .PHONY: clean all $(dir)/clean $(dir)/all
 
+
+
+#################### all other convenience rules ######################
+
+
 # "making" a directory is equivalent to making all there
 $(dir):  $(dir)/all
 $(dir)/: $(dir)/all
@@ -312,6 +317,9 @@ $(dir)/subdirs: $(filter $(dir)%,$(DIRS))
 $(dir)/subdirs/clean: $(addsuffix /clean,$(filter $(dir)%,$(DIRS)))
 
 .PHONY: $(dir) $(dir)/ $(dir)/subdirs $(dir)/subdirs/clean
+
+
+$(eval $(_read_subsets))
 
 
 #################### unit tests #######################################
