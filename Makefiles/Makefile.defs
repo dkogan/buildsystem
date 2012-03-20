@@ -134,11 +134,11 @@ hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard m
 
 
 
-# The 'relpath' function takes a list of paths (local or absolute) and
-# returns a cleaned-up path relative to ROOT. For instance, something
-# like libRetro/../libAttic gets converted to libAttic. The root gets
-# converted to '.'. The empty string is returned unchanged. If an
-# out-of-tree absolute path is given, an error is generated
+# The 'relpath' function takes a list of paths (absolute or relative to
+# ROOT) and returns a cleaned-up path relative to ROOT. For instance,
+# something like libRetro/../libAttic gets converted to libAttic. The
+# root gets converted to '.'. The empty string is returned unchanged. If
+# an out-of-tree absolute path is given, an error is generated
 #
 # These helpers take a list of paths (relative or absolute) and return
 # only those that are (or not) that are in our repo
