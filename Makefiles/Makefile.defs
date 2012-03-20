@@ -134,6 +134,18 @@ hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard m
 
 
 
+# _prepend_dir_selectively takes a list of paths, classifies it, and
+# prepends a $(dir) if necessary. The paths this function outputs can be
+# used with functions such as $(abspath). Logic:
+#
+# | path type              | identified by   | output   |
+# |------------------------+-----------------+----------|
+# | Absolute paths         | /%              | %        |
+# | $(ROOT)-relative paths | ./%             | %        |
+# | $(dir)-relative paths  | everything else | $(dir)/% |
+_prepend_dir_selectively_one = $(if $(filter ./%,$(1))$(filter /%,$(1)),$(1),$(dir)/$(1))
+_prepend_dir_selectively     = $(call map,_prepend_dir_selectively_one,$(1))
+
 # The 'relpath' function takes a list of paths (absolute or relative to
 # ROOT) and returns a cleaned-up path relative to ROOT. For instance,
 # something like libRetro/../libAttic gets converted to libAttic. The
