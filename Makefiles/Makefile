@@ -33,7 +33,7 @@ else
 # LIB_OBJECTS, as it's a fundamental Makefile setting. Non-active vars
 # could be customized, though, and the user is responsible for making
 # sure they don't clash with anything
-$(foreach var,$(ACTIVE_VARS),$(if $($(var)),$(if $(filter-out $(ACTIVE_VARS_CUSTOMIZABLE),$(var)),$(error Var "$(var)" not customizable. Are you SURE you want to set it yourself?))))
+$(foreach v,$(ACTIVE_VARS),$(if $($v),$(if $(filter-out $(ACTIVE_VARS_CUSTOMIZABLE),$v),$(error Var "$v" not customizable. Are you SURE you want to set it yourself?))))
 # There are two ways to pass variables to make:
 #
 # make CFLAGS=-foo
@@ -49,13 +49,13 @@ $(foreach var,$(ACTIVE_VARS),$(if $($(var)),$(if $(filter-out $(ACTIVE_VARS_CUST
 # without the "override" nothing would happen. I want to avoid this
 # rabbithole entirely, so I disallow "command line" variables for things
 # that I modify. Environment variables are OK, though
-$(foreach var,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $(filter command line,$(origin $(var))), $(error Var "$(var)" not allowed as a make parameter. Please do "$(var)=xxxx make yyyy" instead)))
+$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $(filter command line,$(origin $v)), $(error Var "$v" not allowed as a make parameter. Please do "$v=xxxx make yyyy" instead)))
 #
 # OK. Any user-customized vars are valid. I'm going to apply these to
 # all the sub-makefiles. Thus I copy the values of these variables
 # (CFLAGS to _USER_CUSTOMIZED_CFLAGS for instance), and apply them one
 # at a time when I need them
-$(foreach var,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($(var)),$(eval _USER_CUSTOMIZED_$(var) := $($(var)))))
+$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval _USER_CUSTOMIZED_$v := $($v))))
 
 # directories in arbitrary order
 DIRS :=
