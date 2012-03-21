@@ -45,6 +45,17 @@ _get_option_args = $(patsubst $(2)%,%,$(filter $(2)%,$(call _strip_spaces_after_
 _assert_alldirs_exist = $(foreach d,$(1),$(if $(wildcard $d),,$(error $(2) given a nonexisting directory ($d) when building $@))) \
 
 
+# These check our custom directories for existence. Note that the
+# compile version must be called with $(call) because only the caller
+# knows if we're looking at CFLAGS or CXXFLAGS
+_ensure_custom_dirs_exist = $(_ensure_custom_dirs_exist_compile) $(_ensure_custom_dirs_exist_link)
+_ensure_custom_dirs_exist_compile =\
+ $(call _assert_alldirs_exist,$(_CCXXFLAGS_SEARCH_DIRS),-I)
+_ensure_custom_dirs_exist_link =\
+ $(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L when building $@. This must be in LDFLAGS instead)) \
+ $(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L)
+
+
 # If the user customized the LDFLAGS with -L, I want to make this
 # directory selection propagate to later links (runtime, etc). I thus
 # set RPATH to the same directory.
@@ -62,21 +73,23 @@ _assert_alldirs_exist = $(foreach d,$(1),$(if $(wildcard $d),,$(error $(2) given
 _LDFLAGS_SEARCH_DIRS = $(call _get_option_args,$(LDFLAGS),-L)
 # makes sure we're using LDFLAGS; makes sure -L dirs exist, adds RPATH for every -L directory
 comma :=,
-_LDFLAGS_POSTPROCESS = \
-$(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L when building $@. This must be in LDFLAGS instead)) \
+_LDFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_link) \
 $(if $(filter -L%,$(LDFLAGS)),\
   $(if $(filter $(MAKECMDGOALS),install), \
     $(error When building packages ALL libraries must be in a package; -L not allowed. Error when building $@))) \
-$(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L) \
 $(addprefix -Wl$(comma)-rpath$(comma),$(abspath $(_LDFLAGS_SEARCH_DIRS))) \
 $(LDFLAGS)
 
 
 # make sure any -I directories exist
 # build with -O2 if we don't already have a -Ox
+#
+# Note that unlike _LDFLAGS_POSTPROCESS, this is a function to be called
+# with $(call). This is because when linking we KNOW to look at LDFLAGS,
+# but when compiling we look at a different flag depending on whether
+# we're doing C or C++
 _CCXXFLAGS_SEARCH_DIRS = $(call _get_option_args,$(1),-I)
-_CCXXFLAGS_POSTPROCESS = \
-$(call _assert_alldirs_exist,$(_CCXXFLAGS_SEARCH_DIRS),-I) \
+_CCXXFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_compile) \
 $(1) \
 $(if $(filter -O%,$(1)),,-O2)
 
