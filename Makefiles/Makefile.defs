@@ -178,13 +178,13 @@ _prepend_dir_selectively     = $(if $(dir),$(call map,_prepend_dir_selectively_o
 #
 # These helpers take a list of paths (relative or absolute) and return
 # only those that are (or not) that are in our repo
-filter-intree-predicate     = $(filter     $(ROOT_ABS)%,$(abspath $(1)))
-filter-out-intree-predicate = $(filter-out $(ROOT_ABS)%,$(abspath $(1)))
-filter-intree     = $(call grep,filter-intree-predicate,$(1))
-filter-out-intree = $(call grep,filter-out-intree-predicate,$(1))
+_filter-intree-predicate     = $(filter     $(ROOT_ABS)%,$(abspath $(1)))
+_filter-out-intree-predicate = $(filter-out $(ROOT_ABS)%,$(abspath $(1)))
+_filter-intree     = $(call grep,_filter-intree-predicate,$(1))
+_filter-out-intree = $(call grep,_filter-out-intree-predicate,$(1))
 #
 # this makes paths such as '/libRetro' or ''. 
-relpath-withinitial-slash = $(if $(call filter-intree,$(1)),$(patsubst $(ROOT_ABS)%,%,$(abspath $(1))), \
+relpath-withinitial-slash = $(if $(call _filter-intree,$(1)),$(patsubst $(ROOT_ABS)%,%,$(abspath $(1))), \
 	$(error out-of-tree path given: '$(1)' $(_when)))
 # this converts it to 'libRetro' or '.'
 relpath-single = $(if $(relpath-withinitial-slash),$(relpath-withinitial-slash:/%=%),.)
@@ -226,8 +226,8 @@ _LDLIBS_onlyso          = $(filter      %.so,$(LDLIBS))
 _LDLIBS_notso           = $(filter-out  %.so,$(LDLIBS))
 _LDLIBS_onlyso_pathed   = $(call _prepend_dir_selectively,$(_LDLIBS_onlyso))
 _create_LDLIBS_SYSTEM   = $(_LDLIBS_notso)
-_create_LDLIBS_SYSTEM  += $(call                filter-out-intree, $(_LDLIBS_onlyso_pathed))
-_create_LDLIBS_PROJECT  = $(call relpath,$(call filter-intree,     $(_LDLIBS_onlyso_pathed)))
+_create_LDLIBS_SYSTEM  += $(call                _filter-out-intree, $(_LDLIBS_onlyso_pathed))
+_create_LDLIBS_PROJECT  = $(call relpath,$(call _filter-intree,     $(_LDLIBS_onlyso_pathed)))
 
 
 
