@@ -179,7 +179,13 @@ $(LIB_OBJECTS): CFLAGS   += -fPIC
 DIST_BINS += $(BIN_TARGET)
 
 
-
+# complain NOW if I'm trying to link with a non-existent -L directory or
+# trying to compile with a non-existent -I directory. To pick up
+# target-specific settings I always do this when actually doing the
+# compile/link later (via _CCXXFLAGS_POSTPROCESS and
+# _LDFLAGS_POSTPROCESS). Doing this now as well catches and reports the
+# non-target-specific cases earlier
+$(call _ensure_custom_dirs_exist,$(CFLAGS) $(CXXFLAGS) $(CCXXFLAGS))
 
 
 ############## rules to build my stuff ################################
