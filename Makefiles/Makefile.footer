@@ -7,7 +7,7 @@
 # from-root sub-make that will do all the work, so we do nothing here
 ifeq ($(_make_will_recurse),)
 
-$(if $(MAKE_DEBUG), $(info MAKE_DEBUG: At top of the $(dir) Makefile))
+$(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): At top of the $(dir) Makefile))
 
 # if we don't already have a target name, use the directory. So code in the
 # libRetro directory would produce libRetro.so and libRetro.a. I can't use ?=
@@ -20,21 +20,21 @@ ifeq ($(IS_UNIT_TEST),)
 
 ifneq ($(TARGET_NAME:lib%=lib),lib)
 ifneq ($(LIB_OBJECTS),)
-$(error Target "$(TARGET_NAME)" from dir "$(dir)" has LIB_OBJECTS, so it MUST start with "lib")
+$(error Target "$(TARGET_NAME)" from dir '$(dir)' has LIB_OBJECTS, so it MUST start with "lib" ($(_when)))
 endif
 ifneq ($(DIST_HEADERS),)
-$(error Target "$(TARGET_NAME)" from dir "$(dir)" has DIST_HEADERS, so it MUST start with "lib")
+$(error Target "$(TARGET_NAME)" from dir '$(dir)' has DIST_HEADERS, so it MUST start with "lib"($(_when)))
 endif
 endif
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 ifeq ($(LIB_OBJECTS),)
-$(error Target "$(TARGET_NAME)" from dir "$(dir)" starts with lib..., but has no LIB_OBJECTS!)
+$(error Target "$(TARGET_NAME)" from dir '$(dir)' starts with lib..., but has no LIB_OBJECTS! ($(_when)))
 endif
 endif
 
 else # ifeq ($(IS_UNIT_TEST),)
 ifneq ($(LIB_OBJECTS),)
-$(error Unit tests $(dir) have LIB_OBJECTS. This is not allowed)
+$(error Unit tests '$(dir)' have LIB_OBJECTS. This is not allowed)
 endif
 endif
 
@@ -71,7 +71,7 @@ else
 PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
 
 $(if $(shell grep 'Package:[ 	]*$(PACKAGENAME_BASE)[ 	]*$$' debian/control),, \
-  $(error No package defined for $(PACKAGENAME_BASE)))
+  $(error No package defined for $(PACKAGENAME_BASE) ($(_when))))
 
 endif
 
@@ -209,7 +209,7 @@ $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
 	ln -fs $(notdir $<) $@
 endif
 
-$(if $(MAKE_DEBUG), $(info MAKE_DEBUG: Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
+$(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
 
 $(LIB_TARGET_A): $(LIB_OBJECTS)
 	ar rcvu $@ $^

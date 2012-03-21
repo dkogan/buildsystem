@@ -40,10 +40,19 @@ _strip_spaces_after_option = $(subst $(2) ,$(2),$(1:%=%))
 # gives '/tmp/abc /tmp/123'
 _get_option_args = $(patsubst $(2)%,%,$(filter $(2)%,$(call _strip_spaces_after_option,$(1),$(2))))
 
+# used in reporting to let the user know what'd being done when an error/message happened
+_when = when $(strip			\
+  $(if $@,				\
+    building $@,			\
+    $(if $(filter /DIR_poison,$(dir)),	\
+      between Makefiles,		\
+      $(if $(dir),			\
+        reading $(dir)/Makefile,        \
+        reading toplevel or header Makefile))))
+
 # makes sure every directory in the passed-in list exists. Error if not,
 # no output if yes. Second arg used in the error message
-_directory_error_when = $(if $@,building $@,reading $(dir)/Makefile)
-_assert_alldirs_exist = $(foreach d,$(1),$(if $(wildcard $d),,$(error $(2) given a nonexisting directory ($d) when $(_directory_error_when)))) \
+_assert_alldirs_exist = $(foreach d,$(1),$(if $(wildcard $d),,$(error $(2) given a nonexisting directory ($d) $(_when)))) \
 
 
 # These check our custom directories for existence. Note that the
@@ -53,7 +62,7 @@ _ensure_custom_dirs_exist = $(_ensure_custom_dirs_exist_compile) $(_ensure_custo
 _ensure_custom_dirs_exist_compile =\
  $(call _assert_alldirs_exist,$(_CCXXFLAGS_SEARCH_DIRS),-I)
 _ensure_custom_dirs_exist_link =\
- $(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L when $(_directory_error_when). This must be in LDFLAGS instead)) \
+ $(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L $(_when). This must be in LDFLAGS instead)) \
  $(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L)
 
 
@@ -77,7 +86,7 @@ comma :=,
 _LDFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_link) \
 $(if $(filter -L%,$(LDFLAGS)),\
   $(if $(filter $(MAKECMDGOALS),install), \
-    $(error When building packages ALL libraries must be in a package; -L not allowed. Error when $(_directory_error_when)))) \
+    $(error When building packages ALL libraries must be in a package; -L not allowed. Error $(_when)))) \
 $(addprefix -Wl$(comma)-rpath$(comma),$(abspath $(_LDFLAGS_SEARCH_DIRS))) \
 $(LDFLAGS)
 
@@ -144,7 +153,7 @@ soft-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(d))))
 # A wildcard function that reports an error if it encounters any term
 # that expands to nothing (everything MUST exist). Similarly, it removes
 # duplicates and sorts
-hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard matched nothing: $(1)))))
+hard-wildcard = $(sort $(foreach d,$(1),$(or $(wildcard $(d)),$(error Wildcard matched nothing: '$(1)' $(_when)))))
 
 
 
@@ -176,7 +185,7 @@ filter-out-intree = $(call grep,filter-out-intree-predicate,$(1))
 #
 # this makes paths such as '/libRetro' or ''. 
 relpath-withinitial-slash = $(if $(call filter-intree,$(1)),$(patsubst $(ROOT_ABS)%,%,$(abspath $(1))), \
-	$(error out-of-tree path given: $(1)))
+	$(error out-of-tree path given: '$(1)' $(_when)))
 # this converts it to 'libRetro' or '.'
 relpath-single = $(if $(relpath-withinitial-slash),$(relpath-withinitial-slash:/%=%),.)
 #
@@ -196,7 +205,7 @@ $(foreach subsetvar,\
 endef
 
 define _make_one_subset
-$(if $(MAKE_DEBUG), $(info MAKE_DEBUG: Defining subset '$1' in dir '$(dir)'. Subset is '$($1)'))
+$(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): Defining subset '$1' in dir '$(dir)'. Subset is '$($1)'))
 
 _subset_name   := $(1:%_SUBSET=%)
 _subset_pathed := $(call _prepend_dir_selectively,$($1))
