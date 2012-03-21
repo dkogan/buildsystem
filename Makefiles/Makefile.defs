@@ -1,6 +1,7 @@
 # -*- Makefile -*-
 
-# various useful definitions for the build system.
+# various useful definitions for the build system. This file contains
+# the definitions, but has NO rules itself
 # THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL
 
 # ROOT is assumed to be relative; I make an absolute version for later use
