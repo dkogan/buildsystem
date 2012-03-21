@@ -24,39 +24,6 @@ else
 
 
 
-# I want to support custom make variables passed in on the commandline.
-# Ideally I want the user to pass in a variable such as CFLAGS, then
-# have those flags be used automatically, in addition to all other flags
-# that are determined later. Only some of my variables are customizable.
-# Any ACTIVE_VAR that isn't customizable isn't allowed to be set at this
-# point. For instance the user shouldn't be trying to customize
-# LIB_OBJECTS, as it's a fundamental Makefile setting. Non-active vars
-# could be customized, though, and the user is responsible for making
-# sure they don't clash with anything
-$(foreach v,$(ACTIVE_VARS),$(if $($v),$(if $(filter-out $(ACTIVE_VARS_CUSTOMIZABLE),$v),$(error Var "$v" not customizable. Are you SURE you want to set it yourself?))))
-# There are two ways to pass variables to make:
-#
-# make CFLAGS=-foo
-#   and
-# CFLAGS=-foo make
-#
-# The former creates a "command line" variable and the latter an
-# "environment variable". In order to be able to modify a "command line"
-# variable (to add other flags, say), one MUST use 'override'. So one would have to do
-#
-# override CFLAGS += -bar
-#
-# without the "override" nothing would happen. I want to avoid this
-# rabbithole entirely, so I disallow "command line" variables for things
-# that I modify. Environment variables are OK, though
-$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $(filter command line,$(origin $v)), $(error Var "$v" not allowed as a make parameter. Please do "$v=xxxx make yyyy" instead)))
-#
-# OK. Any user-customized vars are valid. I'm going to apply these to
-# all the sub-makefiles. Thus I copy the values of these variables
-# (CFLAGS to _USER_CUSTOMIZED_CFLAGS for instance), and apply them one
-# at a time when I need them
-$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval _USER_CUSTOMIZED_$v := $($v))))
-
 # directories in arbitrary order
 DIRS :=
 
