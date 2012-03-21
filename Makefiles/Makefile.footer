@@ -100,40 +100,9 @@ endif
 
 
 # I separate LDLIBS into those that are a part of this repo and those
-# that aren't. All %.so LDLIBS are examined. If their path is in this
-# repo, they go into LDLIBS_PROJECT; otherwise, LDLIBS_SYSTEM. I keep
-# these as deferred references to try to capture the per-target LDLIBS
-# settings
-#
-# General logic:
-# ../
-# if( /%.so or ./%.so ) # this is handled by _prepend_dir_selectively
-# {
-#   if(in tree)
-#     LDLIBS_PROJECT
-#   else
-#     LDLIBS_SYSTEM
-# }
-# else if( %.so )
-# {
-#   if( $(dir)/% in tree)
-#     LDLIBS_PROJECT = $(dir)/%
-#   else
-#     LDLIBS_SYSTEM  = $(dir)/%
-# }
-# else
-# {
-#   LDLIBS_SYSTEM
-# }
-#
-LDLIBS_onlyso	     = $(filter      %.so,$(LDLIBS))
-LDLIBS_notso	     = $(filter-out  %.so,$(LDLIBS))
-LDLIBS_onlyso_pathed = $(call _prepend_dir_selectively,$(LDLIBS_onlyso))
-LDLIBS_SYSTEM        = $(LDLIBS_notso)
-LDLIBS_SYSTEM       += $(call                filter-out-intree, $(LDLIBS_onlyso_pathed))
-LDLIBS_PROJECT       = $(call relpath,$(call filter-intree,     $(LDLIBS_onlyso_pathed)))
-
-
+# that aren't
+LDLIBS_SYSTEM  = $(_create_LDLIBS_SYSTEM)
+LDLIBS_PROJECT = $(_create_LDLIBS_PROJECT)
 
 
 

@@ -195,6 +195,43 @@ relpath = $(and $(1),$(call map,relpath-single,$(1)))
 
 
 
+# I separate LDLIBS into those that are a part of this repo and those
+# that aren't. All %.so LDLIBS are examined. If their path is in this
+# repo, they go into LDLIBS_PROJECT; otherwise, LDLIBS_SYSTEM. I keep
+# these as deferred references to try to capture the per-target LDLIBS
+# settings
+#
+# General logic:
+# ../
+# if( /%.so or ./%.so ) # this is handled by _prepend_dir_selectively
+# {
+#   if(in tree)
+#     LDLIBS_PROJECT
+#   else
+#     LDLIBS_SYSTEM
+# }
+# else if( %.so )
+# {
+#   if( $(dir)/% in tree)
+#     LDLIBS_PROJECT = $(dir)/%
+#   else
+#     LDLIBS_SYSTEM  = $(dir)/%
+# }
+# else
+# {
+#   LDLIBS_SYSTEM
+# }
+#
+_LDLIBS_onlyso          = $(filter      %.so,$(LDLIBS))
+_LDLIBS_notso           = $(filter-out  %.so,$(LDLIBS))
+_LDLIBS_onlyso_pathed   = $(call _prepend_dir_selectively,$(_LDLIBS_onlyso))
+_create_LDLIBS_SYSTEM   = $(_LDLIBS_notso)
+_create_LDLIBS_SYSTEM  += $(call                filter-out-intree, $(_LDLIBS_onlyso_pathed))
+_create_LDLIBS_PROJECT  = $(call relpath,$(call filter-intree,     $(_LDLIBS_onlyso_pathed)))
+
+
+
+
 # function to read in all xxx_SUBSET variables and use them to define
 # subsets. Once a subset is defined, the corresponsing xxx_SUBSET
 # variable is set to ''
