@@ -38,7 +38,6 @@ _strip_spaces_after_option = $(subst $(2) ,$(2),$(1:%=%))
 # given a string, retrieves all arguments to a given option. So
 # $(call _get_option_args,-foo -L  /tmp/abc -bar -L    /tmp/123,-L)
 # gives '/tmp/abc /tmp/123'
-# A side effect is that ALL consecutive spaces are collapsed to one
 _get_option_args = $(patsubst $(2)%,%,$(filter $(2)%,$(call _strip_spaces_after_option,$(1),$(2))))
 
 # makes sure every directory in the passed-in list exists. Error if not,
