@@ -22,15 +22,9 @@ else
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ have -Rr. Build!
 
 
-
-
-# directories in arbitrary order
-DIRS :=
+include Makefile.projectdefs
 
 $(eval $(_read_subsets))
-
-
-
 
 
 define DIRS_template
