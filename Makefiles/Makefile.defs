@@ -125,8 +125,7 @@ $$(BIN_TARGET_ALL) $$(dir)/check $$(dir)/install
 
 
 persist-active-vars = $(foreach v,$(ACTIVE_VARS),\
-	$(foreach t,$(TARGETS_NEED_PERSISTENT_ACTIVE_VARS),\
-		$(eval $t: $v := $$($v))))
+  $(eval $(TARGETS_NEED_PERSISTENT_ACTIVE_VARS): $v := $$($v)))
 
 
 # variables that may be specified in the user Makefile that use relative paths.
