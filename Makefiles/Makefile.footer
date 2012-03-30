@@ -229,7 +229,7 @@ $(foreach lib,$(patsubst %/,%,$(dir $(LDLIBS_PROJECT))),$(eval \
 define BIN_TARGET_template_static
 $(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
 	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
-		$$(sort $$($$(dir)_CHILDREN_LDLIBS_SYSTEM)) $$(LDLIBS_SYSTEM) -o $$@
+		$$(sort $$($$(dir)_CHILDREN_LDLIBS_SYSTEM) $$(LDLIBS_SYSTEM)) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
