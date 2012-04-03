@@ -170,8 +170,8 @@ $(dir)/%.1: $(dir)/%.pod
 $(dir)/%-man.html: $(dir)/%.pod
 	pod2html $< > $@
 
-DIST_MANS +=$(strip $(patsubst %.pod,%.1,       $(call hard-wildcard,$(PODS))))
-DIST_DOCS +=$(strip $(patsubst %.pod,%-man.html,$(call hard-wildcard,$(PODS))))
+DIST_MANS +=$(strip $(patsubst %.pod,%.1,       $(wildcard $(dir)/*.pod)))
+DIST_DOCS +=$(strip $(patsubst %.pod,%-man.html,$(wildcard $(dir)/*.pod)))
 
 ifneq ($(LIB_OBJECTS),)
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
