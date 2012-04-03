@@ -84,7 +84,6 @@ endif
 ifneq ($(DIST_MANS),)
 	echo $(DIST_MANS) | xargs -n1 > debian/$(PACKAGENAME).manpages
 endif
-# cp -P $(HEADERS) $(DESTDIR)/usr/include/
 
 
 install: $(dir)/install
