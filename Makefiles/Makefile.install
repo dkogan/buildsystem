@@ -9,6 +9,23 @@ DIST_ALL = $(foreach t,$(DIST_TYPES),$($t))
 # don't remove non-existing elements
 $(foreach t,$(DIST_TYPES),$(eval $t := $(call soft-wildcard, $($t))))
 
+
+# If I have a DAEMON_COMMAND, I define an upstart configuration
+ifneq ($(DAEMON_COMMAND),)
+#{{{{{{{{{{{{{{ making upstart conf
+define _install_upstart_daemon
+@perl -pe 's{^###.*}{}g; \
+           s{\@NAME\@}{$(TARGET_NAME)}g; \
+           s{\@COMMAND\@}{$(DAEMON_COMMAND)}g;' \
+	appliance/upstart/template.conf > \
+  $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
+endef
+#}}}}}}}}}}}}}}
+endif
+
+
+
+
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
 # library. Otherwise it's binaries. Libraries have -dev versions of
 # their packages, have API_VERSIONs, and are allowed to have headers,
@@ -83,6 +100,10 @@ ifneq ($(DIST_DOCS),)
 endif
 ifneq ($(DIST_MANS),)
 	echo $(DIST_MANS) | xargs -n1 > debian/$(PACKAGENAME).manpages
+endif
+ifneq ($(DAEMON_COMMAND),)
+	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
+	$(_install_upstart_daemon)
 endif
 
 
