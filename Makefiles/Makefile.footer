@@ -52,7 +52,7 @@ ifeq ($(IS_UNIT_TEST),)
 # significantly slower than the awk version below, so I don't use it
 LPAREN := (
 RPAREN := )
-VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("[-$(RPAREN)].*",""); print; exit}' debian/changelog)))
+VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("[-$(RPAREN)~].*",""); print; exit}' debian/changelog)))
 $(if $(VERSION),,$(error "Couldn't parse version from debian/changelog"))
 
 
