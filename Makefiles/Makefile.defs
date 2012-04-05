@@ -105,7 +105,10 @@ $(1) \
 $(if $(filter -O%,$(1)),,-O2)
 
 
-
+# takes a list of project library files, extracts all their directories
+# and returns an rpath-link option for each
+comma :=,
+_rpath-link_dirs_from_libs = $(sort $(foreach l,$1,-Wl$(comma)-rpath-link$(comma)$(abspath $(dir $l))))
 
 
 # a function to reset the active variables (before a new include) and to poison the

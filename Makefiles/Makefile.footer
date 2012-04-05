@@ -176,6 +176,7 @@ DIST_DOCS +=$(strip $(patsubst %.pod,%-man.html,$(wildcard $(dir)/*.pod)))
 ifneq ($(LIB_OBJECTS),)
 $(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
 	ln -fs $(notdir $<) $@
+	ln -fs $(notdir $<) $@.$(API_VERSION)
 endif
 
 $(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
@@ -222,19 +223,25 @@ $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 #
 # $(sort) sorts and removes duplicates. I don't really want to sort,
 # actually since order may matter, but I'll let the linker tell me this
-$(dir)_LDLIBS_SYSTEM := $(LDLIBS_SYSTEM)
-$(foreach lib,$(patsubst %/,%,$(dir $(LDLIBS_PROJECT))),$(eval \
-  $(dir)_CHILDREN_LDLIBS_SYSTEM += $$($(lib)_LDLIBS_SYSTEM) $$($(lib)_CHILDREN_LDLIBS_SYSTEM)))
+$(dir)_LDLIBS_SYSTEM  := $(LDLIBS_SYSTEM)
+$(dir)_LDLIBS_PROJECT := $(LDLIBS_PROJECT:%.so=%.a)
+
+$(foreach lib,$(patsubst %/,%,$(dir $(LDLIBS_PROJECT))),							\
+	$(eval													\
+	  $(dir)_CHILDREN_LDLIBS_SYSTEM  += $$($(lib)_LDLIBS_SYSTEM)  $$($(lib)_CHILDREN_LDLIBS_SYSTEM))	\
+	$(eval													\
+	  $(dir)_CHILDREN_LDLIBS_PROJECT += $$($(lib)_LDLIBS_PROJECT) $$($(lib)_CHILDREN_LDLIBS_PROJECT)))
 
 define BIN_TARGET_template_static
-$(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a)
+$(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.so=%.a) $$(sort $$($$(dir)_CHILDREN_LDLIBS_PROJECT))
 	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
 		$$(sort $$($$(dir)_CHILDREN_LDLIBS_SYSTEM) $$(LDLIBS_SYSTEM)) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
 $(1): $(1).o $(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
-	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
+	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(call _rpath-link_dirs_from_libs, $$(sort $$($$(dir)_CHILDREN_LDLIBS_PROJECT))) \
+		$$(filter %.o, $$^) $$(filter-out %.o, $$^)									 \
 		$$(LDLIBS_SYSTEM) -o $$@
 .PHONY:        $(1)
 .INTERMEDIATE: $(1)
