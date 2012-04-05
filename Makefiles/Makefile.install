@@ -84,16 +84,16 @@ ifneq ($(DIST_HEADERS),)
 endif
 ifneq ($(DIST_ETC_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
-	cp -P $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
+	cp -Pr $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
 endif
 ifneq ($(DIST_SHARE_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/usr/share/oblong
-	cp -P $(DIST_SHARE_OBLONG) $(DESTDIR_MAIN)/usr/share/oblong
+	cp -Pr $(DIST_SHARE_OBLONG) $(DESTDIR_MAIN)/usr/share/oblong
 endif
 ifneq ($(DIST_UPSTART),)
 # This should use dh_installinit, but I think that only works with a single upstart file...
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
-	cp -P $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
+	cp -Pr $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
 endif
 ifneq ($(DIST_DOCS),)
 	echo $(DIST_DOCS) | xargs -n1 > debian/$(PACKAGENAME).docs
