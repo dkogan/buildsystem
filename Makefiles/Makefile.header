@@ -3,6 +3,8 @@
 ifeq ($(dir),)
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ directory-local build
 
+_make_will_recurse := 1
+
 include $(ROOT)/Makefile.defs
 
 # We're going to re-do the make in the $(ROOT) directory. Any variables
@@ -17,7 +19,6 @@ $(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_LDFLAGS,-L))
 # we're building NOT from the root. poison the $(dir) (to declaw the user's makefile), and isssue a
 # new make from the right directory
 dir                := /DIR_poison
-_make_will_recurse := 1
 
 $(eval $(_define_recursive_make))
 
