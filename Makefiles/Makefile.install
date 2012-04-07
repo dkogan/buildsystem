@@ -17,7 +17,7 @@ define _install_upstart_daemon
 @perl -pe 's{^###.*}{}g; \
            s{\@NAME\@}{$(TARGET_NAME)}g; \
            s{\@COMMAND\@}{$(DAEMON_COMMAND)}g;' \
-	appliance/upstart/template.conf > \
+	appliance/template.conf > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
 endef
 #}}}}}}}}}}}}}}
