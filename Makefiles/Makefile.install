@@ -12,11 +12,16 @@ $(foreach t,$(DIST_TYPES),$(eval $t := $(call soft-wildcard, $($t))))
 
 # If I have a DAEMON_COMMAND, I define an upstart configuration
 ifneq ($(DAEMON_COMMAND),)
+
+# the upstart stanzas can be multiline, so I export them to the
+# environment and have perl pick them up from there
+export UPSTART_STANZAS
+
 #{{{{{{{{{{{{{{ making upstart conf
 define _install_upstart_daemon
 @perl -pe 's{^###.*}{}g; \
            s{\@NAME\@}{$(TARGET_NAME)}g; \
-           s{\@UPSTART_STANZAS\@}{$(UPSTART_STANZAS)}g; \
+           s{\@UPSTART_STANZAS\@}{$$ENV{UPSTART_STANZAS}}g; \
            s{\@COMMAND\@}{$(DAEMON_COMMAND)}g;' \
 	appliance/template.conf > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
