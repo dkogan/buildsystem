@@ -16,6 +16,7 @@ ifneq ($(DAEMON_COMMAND),)
 define _install_upstart_daemon
 @perl -pe 's{^###.*}{}g; \
            s{\@NAME\@}{$(TARGET_NAME)}g; \
+           s{\@UPSTART_STANZAS\@}{$(UPSTART_STANZAS)}g; \
            s{\@COMMAND\@}{$(DAEMON_COMMAND)}g;' \
 	appliance/template.conf > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
