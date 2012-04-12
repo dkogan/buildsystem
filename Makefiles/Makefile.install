@@ -27,8 +27,8 @@ define _install_upstart_daemon
 
 test -e $(DESTDIR_MAIN).prerm    || cp appliance/template.maintainerscript.header $(DESTDIR_MAIN).prerm
 test -e $(DESTDIR_MAIN).postinst || cp appliance/template.maintainerscript.header $(DESTDIR_MAIN).postinst
-@perl -pe 's{\#JOB\#}{$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/prerm-upstart    >> $(DESTDIR_MAIN).prerm
-@perl -pe 's{\#JOB\#}{$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/postinst-upstart >> $(DESTDIR_MAIN).postinst
+@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/prerm-upstart    >> $(DESTDIR_MAIN).prerm
+@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/postinst-upstart >> $(DESTDIR_MAIN).postinst
 
 endef
 #}}}}}}}}}}}}}}
