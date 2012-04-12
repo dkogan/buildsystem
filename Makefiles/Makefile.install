@@ -9,7 +9,6 @@ DIST_ALL = $(foreach t,$(DIST_TYPES),$($t))
 # don't remove non-existing elements
 $(foreach t,$(DIST_TYPES),$(eval $t := $(call soft-wildcard, $($t))))
 
-
 # If I have a DAEMON_COMMAND, I define an upstart configuration
 ifneq ($(DAEMON_COMMAND),)
 
@@ -25,6 +24,12 @@ define _install_upstart_daemon
            s{\@COMMAND\@}{$(DAEMON_COMMAND)}g;' \
 	appliance/template.upstart.conf > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
+
+test -e $(DESTDIR_MAIN).prerm    || cp appliance/template.maintainerscript.header $(DESTDIR_MAIN).prerm
+test -e $(DESTDIR_MAIN).postinst || cp appliance/template.maintainerscript.header $(DESTDIR_MAIN).postinst
+@perl -pe 's{\@NAME\@}{$(TARGET_NAME)}g;' appliance/template.service.prerm    >> $(DESTDIR_MAIN).prerm
+@perl -pe 's{\@NAME\@}{$(TARGET_NAME)}g;' appliance/template.service.postinst >> $(DESTDIR_MAIN).postinst
+
 endef
 #}}}}}}}}}}}}}}
 endif
