@@ -134,6 +134,8 @@ c_build_rule  = $(CC)  $(call _CCXXFLAGS_POSTPROCESS,$(CFLAGS) $(CCXXFLAGS)) -c 
 	$(cc_build_rule)
 %.o:%.c
 	$(c_build_rule)
+%.o: %.S
+	$(CC) $(ASFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 
 
