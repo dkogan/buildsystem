@@ -265,7 +265,7 @@ endif
 clean_files := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)
 clean_files += pod2htmi.tmp pod2htmd.tmp $(addprefix $(dir)/, *.1 *-man.html)
 
-clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN)
+clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN) $(LIB_OBJECTS) $(addsuffix .o,$(BIN_TARGET_ALL))
 
 # This is done with an eval to immediately evaluate the files-to-clean list
 define CLEAN_template
