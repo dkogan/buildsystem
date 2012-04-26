@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-# THIS FILE IS INCLUDED BY EACH USER Makefile
+# THIS FILE IS INCLUDED BY EACH PROJECT Makefile
 
 # we only bother to do anything if we were asked to do a make from the
 # ROOT directory. In not, Makefile.header has already defined a
