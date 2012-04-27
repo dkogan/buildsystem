@@ -36,6 +36,34 @@ endif
 
 
 
+#{{{{{{{{{{{{{{ header path stuff
+
+# the headers are installed into
+#   /usr/include/$(HEADER_PATH)/$(HEADER_SUBPATH)
+
+# Here the HEADER_PATH holds all of this project's headers, and if the
+# project has sub-path headers, they go into subdirectories. The
+# HEADER_PATH defaults to the location of the project in the source
+# tree, unless explicitly overwridden in the project Makefile. Example:
+# project lives in $(ROOT)/libXXX. It's trying to install a.h, d/b.h.
+# These will be installed to
+#   /usr/include/libXXX/a.h
+#   /usr/include/libXXX/d/b.h
+ifneq ($(DIST_HEADERS),)
+
+_dir_rel          = $(patsubst %/,%,$(dir $@))
+_DIST_HEADER_DIRS = $(sort $(dir $(DIST_HEADERS)))
+
+define _install_header
+cp -P $h $(DESTDIR_DEV)/usr/include/$(or $(HEADER_PATH),$(_dir_rel))/$(patsubst $(_dir_rel)/%,%,$h)
+
+endef
+
+endif
+#}}}}}}}}}}}}}} header path stuff
+
+
+
 
 # now the install rules. If the TARGET_NAME starts with 'lib', it's a
 # library. Otherwise it's binaries. Libraries have -dev versions of
@@ -90,8 +118,15 @@ ifneq ($(DIST_BINS),)
 	install -m 0755 $(DIST_BINS) $(DESTDIR_MAIN)/usr/bin/
 endif
 ifneq ($(DIST_HEADERS),)
-	mkdir -p $(DESTDIR_DEV)/usr/include
-	cp -P $(DIST_HEADERS) $(DESTDIR_DEV)/usr/include/
+  # headers are installed into a directory based on the path of the
+  # header in the tree, OR based on the HEADER_PATH variable. See
+  # comments above
+  ifneq ($(HEADER_PATH),)
+	mkdir -p $(addprefix $(DESTDIR_DEV)/usr/include/,$(patsubst $(_dir_rel)%,$(HEADER_PATH)%,$(_DIST_HEADER_DIRS)))
+  else
+	mkdir -p $(addprefix $(DESTDIR_DEV)/usr/include/,$(_DIST_HEADER_DIRS))
+  endif
+	$(foreach h,$(DIST_HEADERS),$(_install_header))
 endif
 ifneq ($(DIST_ETC_OBLONG),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
