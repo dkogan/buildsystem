@@ -5,7 +5,7 @@ ifeq ($(dir),)
 
 _make_will_recurse := 1
 
-include $(ROOT)/Makefile.defs
+include $(ROOT)/buildsystem/Makefile.defs
 
 # We're going to re-do the make in the $(ROOT) directory. Any variables
 # that are external to the Makefiles themselves (i.e. the environment
@@ -32,7 +32,7 @@ include Makefile.sys
 
 # QT stuff uses immediate variables for efficiency, so I must include
 # these in the header, not the footer
-include Makefile.qt
+include buildsystem/Makefile.qt
 
 #}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} top-level build
 endif # ifeq ($(dir),)

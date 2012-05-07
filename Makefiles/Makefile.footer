@@ -255,7 +255,7 @@ $(foreach target,$(BIN_TARGET_ALL),$(eval $(call BIN_TARGET_template,$(target)))
 
 # can't install unit tests
 ifeq ($(IS_UNIT_TEST),)
-include Makefile.install
+include buildsystem/Makefile.install
 endif
 
 clean_files := $(addprefix $(dir)/, *.a *.o *.so *.so.* *.d)

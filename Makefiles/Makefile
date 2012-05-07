@@ -1,6 +1,6 @@
 # ROOT is assumed relative
 ROOT := .
-include Makefile.defs
+include buildsystem/Makefile.defs
 
 
 # call the make again with -Rr unless those options are both already
