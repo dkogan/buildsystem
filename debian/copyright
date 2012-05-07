@@ -1,0 +1,12 @@
+Format: http://dep.debian.net/deps/dep5
+Upstream-Contact: Dima Kogan <dima@oblong.com>
+Source: Oblong git repo: buildsystem
+Upstream-Name: Dima's Oblong build system
+
+Files: *
+Copyright: Oblong
+License: Proprietary
+
+Files: debian/*
+Copyright: 2012, Oblong Industries
+License: Proprietary

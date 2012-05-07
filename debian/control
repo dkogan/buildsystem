@@ -1,0 +1,14 @@
+Source: oblong-buildsystem
+Section: non-free/oblong
+Priority: extra
+Maintainer: Dima Kogan <dima@oblong.com>
+Build-Depends: debhelper (>= 7.0.50~), org-mode
+Standards-Version: 3.8.4
+
+Package: oblong-buildsystem
+Section: non-free/oblong
+Architecture: all
+Depends: ${misc:Depends}, make
+Description: Build/packaging system for Oblong code
+ The system used in various Oblong software to enable builds and generation of
+ Debian packages
