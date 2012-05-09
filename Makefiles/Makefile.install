@@ -9,6 +9,53 @@ DIST_ALL = $(foreach t,$(DIST_TYPES),$($t))
 # don't remove non-existing elements
 $(foreach t,$(DIST_TYPES),$(eval $t := $(call soft-wildcard, $($t))))
 
+
+# 'make install' installs files for packaging, while 'make localinstall' dumps
+# them all together into a single directory. The only difference is the
+# DESTDIR_DEV and DESTDIR_MAIN directories.
+
+ifneq ($(filter $(MAKECMDGOALS),install),)
+#{{{{{{{{{{{{{{ 'make install'
+
+  # If the TARGET_NAME starts with 'lib', it's a library. Otherwise it's
+  # binaries. Libraries have -dev versions of their packages, have API_VERSIONs,
+  # and are allowed to have headers, .so, .a, etc. For each library I have 3
+  # packages:
+  #
+  # liboblong-blahN    : main library, N is a number that gets bumped up with each API chage
+  # liboblong-blah-dev : devel files (.a, .h, .pc)
+  # liboblong-blahN-dbg: just the debug symbols
+
+  ifeq ($(TARGET_NAME:lib%=lib),lib)
+  #{{{{{{{{{{{{{{ library
+    PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
+    PACKAGENAME      := $(PACKAGENAME_BASE)$(API_VERSION)
+    $(dir)/install: DESTDIR_DEV := debian/$(PACKAGENAME_BASE)-dev
+  #}}}}}}}}}}}}}}
+  else
+  #{{{{{{{{{{{{{{ binary package
+   PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
+   PACKAGENAME      := $(PACKAGENAME_BASE)
+  #}}}}}}}}}}}}}}
+  endif
+
+  $(dir)/install: DESTDIR_MAIN := debian/$(PACKAGENAME)
+  install: $(dir)/install
+  .PHONY: install
+#}}}}}}}}}}}}}} 'make install'
+else
+#{{{{{{{{{{{{{{ 'make localinstall'
+  localinstall: DESTDIR_DEV  := localinstall
+  localinstall: DESTDIR_MAIN := localinstall
+
+  localinstall: $(dir)/install
+  .PHONY: localinstall
+#}}}}}}}}}}}}}} 'make localinstall'
+
+.PHONY: $(dir)/install
+
+
+
 # If I have a DAEMON_COMMAND, I define an upstart configuration
 ifneq ($(DAEMON_COMMAND),)
 
@@ -65,44 +112,20 @@ endif
 
 
 
-# now the install rules. If the TARGET_NAME starts with 'lib', it's a
-# library. Otherwise it's binaries. Libraries have -dev versions of
-# their packages, have API_VERSIONs, and are allowed to have headers,
-# .so, .a, etc. For each library I have 3 packages:
-#
-# liboblong-blahN    : main library, N is a number that gets bumped up with each API chage
-# liboblong-blah-dev : devel files (.a, .h, .pc)
-# liboblong-blahN-dbg: just the debug symbols
-
-
-
-ifeq ($(TARGET_NAME:lib%=lib),lib)
-#{{{{{{{{{{{{{{ library
-
-PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
-PACKAGENAME      := $(PACKAGENAME_BASE)$(API_VERSION)
-DESTDIR_DEV      := debian/$(PACKAGENAME_BASE)-dev
-
-#}}}}}}}}}}}}}}
-else
-#{{{{{{{{{{{{{{ binary package
-
-PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
-PACKAGENAME      := $(PACKAGENAME_BASE)
-#}}}}}}}}}}}}}}
-endif
-
-DESTDIR_MAIN     := debian/$(PACKAGENAME)
 
 
 # using 'cp -P' instead of 'install' because the latter follows links unconditionally
 # BIN_TARGET is incorporated in DIST_BINS
 $(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(DIST_ALL)
-ifeq ($(DESTDIR),)
+
+# must have DESTDIR if we're doing an "install"
+ifneq ($(filter $(MAKECMDGOALS),install),)
+ifeq  ($(DESTDIR),)
 	@echo Tried to make install without having DESTDIR defined
 	@echo "make install" is ONLY for the debian package.
 	@echo What are you trying to do?
 	@false
+endif
 endif
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 	mkdir -p $(DESTDIR_MAIN)/usr/lib
@@ -151,8 +174,3 @@ ifneq ($(DAEMON_COMMAND),)
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
 	$(_install_upstart_daemon)
 endif
-
-
-install: $(dir)/install
-.PHONY: $(dir)/install
-
