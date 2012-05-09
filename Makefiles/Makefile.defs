@@ -28,7 +28,7 @@ ACTIVE_VARS_CUSTOMIZABLE := CCXXFLAGS CFLAGS CXXFLAGS LDFLAGS ASFLAGS CPPFLAGS
 # function to apply the customizations. Note that the customizations are
 # prepended, NOT appended. This is because gcc searches directories in
 # the order given, and I want the user-given overrides to have priority
-apply-var-customizations = $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(eval $v:=$(_USER_CUSTOMIZED_$v) $($v)))
+apply-var-customizations = $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(eval $v:=$(_USER_CUSTOMIZED_$v) $(_SYS_$v) $($v)))
 
 
 # given a string and an option, strips spaces after the option. For instance
