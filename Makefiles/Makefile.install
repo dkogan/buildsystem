@@ -51,6 +51,7 @@ else
   localinstall: $(dir)/install
   .PHONY: localinstall
 #}}}}}}}}}}}}}} 'make localinstall'
+endif
 
 .PHONY: $(dir)/install
 
