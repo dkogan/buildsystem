@@ -13,6 +13,7 @@ include $(ROOT)/buildsystem/Makefile.defs
 $(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_CCXXFLAGS,-I))
 $(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_CXXFLAGS,-I))
 $(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_CFLAGS,-I))
+$(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_ASFLAGS,-I))
 $(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_LDFLAGS,-L))
 
 
