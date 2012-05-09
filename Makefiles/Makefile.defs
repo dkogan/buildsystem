@@ -320,13 +320,19 @@ endef
 # directories or to enforce Make flags
 define _define_recursive_make
 
-# I redo this make from the ROOT, re-pathing everything
 .DEFAULT_GOAL := all
 GOALSHERE     := $$(or $$(MAKECMDGOALS),$$(.DEFAULT_GOAL))
 
 # This rule makes whatever I was asked to make. It'll always run since it's phony also
-$$(MAKECMDGOALS) %:
+$$(sort $$(MAKECMDGOALS) all): _recursive_rebuild_everything_target
+	@true
+
+# I redo this make from the ROOT, re-pathing everything. I use an extra PHONY
+# target in order to build ALL my desired targets with a single sub-make
+# invocation
+_recursive_rebuild_everything_target:
 	@$$(MAKE) -rR --no-print-directory -C $$(ROOT) $$(call relpath,$$(GOALSHERE))
 
-.PHONY: $$(MAKECMDGOALS)
+.PHONY: $$(MAKECMDGOALS) all _recursive_rebuild_everything_target
+
 endef
