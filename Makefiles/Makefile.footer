@@ -128,13 +128,21 @@ CCXXFLAGS += -g
 # could have specified per-target flags that ALWAYS evaluate deferred-ly
 cc_build_rule = $(CXX) $(call _CCXXFLAGS_POSTPROCESS,$(CXXFLAGS) $(CCXXFLAGS)) -c -o $@ $<
 c_build_rule  = $(CC)  $(call _CCXXFLAGS_POSTPROCESS,$(CFLAGS) $(CCXXFLAGS)) -c -o $@ $<
-%.o %-fPIC.o:%.C
+%.o:%.C
 	$(cc_build_rule)
-%.o %-fPIC.o:%.cc
+%.o:%.cc
 	$(cc_build_rule)
-%.o %-fPIC.o:%.cpp
+%.o:%.cpp
 	$(cc_build_rule)
-%.o %-fPIC.o:%.c
+%.o:%.c
+	$(c_build_rule)
+%-fPIC.o:%.C
+	$(cc_build_rule)
+%-fPIC.o:%.cc
+	$(cc_build_rule)
+%-fPIC.o:%.cpp
+	$(cc_build_rule)
+%-fPIC.o:%.c
 	$(c_build_rule)
 %.o: %.S
 	$(CC) $(ASFLAGS) $(CPPFLAGS) -c -o $@ $<
