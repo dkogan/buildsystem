@@ -32,5 +32,11 @@ else # ifeq ($(dir),)
 # these in the header, not the footer
 include buildsystem/Makefile.qt
 
+# some variables (CFLAGS, etc), may have been customized by the user on the
+# commandline or with the system-specific (from Makefile.sys) variables. I apply
+# those here. I want these variables to be available to the user Makefile for
+# modification, if desired; thus I do this in the header instead of the footer
+$(eval $(apply-var-customizations))
+
 #}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} top-level build
 endif # ifeq ($(dir),)
