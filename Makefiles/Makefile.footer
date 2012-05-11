@@ -267,7 +267,7 @@ ifeq ($(IS_UNIT_TEST),)
 include buildsystem/Makefile.install
 endif
 
-clean_files := $(addprefix $(dir)/, *.a *.o *.$(SO) *.$(SO).* *.d)
+clean_files := $(addprefix $(dir)/, *.a *.o *.$(SO) *.$(SO).*)
 clean_files += pod2htmi.tmp pod2htmd.tmp $(addprefix $(dir)/, *.1 *-man.html)
 
 clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN) $(LIB_OBJECTS) $(LIB_OBJECTS:%.o=%-fPIC.o) $(addsuffix .o,$(BIN_TARGET_ALL))
@@ -275,7 +275,7 @@ clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN) $(LIB_OBJECTS) $(LIB_OBJECTS:%.o=
 # This is done with an eval to immediately evaluate the files-to-clean list
 define CLEAN_template
 $(dir)/clean:
-	rm -rf $(clean_files)
+	rm -rf $(clean_files) $(patsubst %.o,%.d,$(filter %.o,$(clean_files)))
 endef
 $(eval $(CLEAN_template))
 
