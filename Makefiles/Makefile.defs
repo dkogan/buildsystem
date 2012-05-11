@@ -28,7 +28,7 @@ ACTIVE_VARS_CUSTOMIZABLE := CCXXFLAGS CFLAGS CXXFLAGS LDFLAGS ASFLAGS CPPFLAGS
 # function to apply the customizations. Note that the customizations are
 # prepended, NOT appended. This is because gcc searches directories in
 # the order given, and I want the user-given overrides to have priority
-apply-var-customizations = $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(eval $v:=$(_USER_CUSTOMIZED_$v) $(_SYS_$v) $($v)))
+apply-var-customizations = $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(eval $v:=$(_CUSTOMIZED_$v) $($v)))
 
 
 # given a string and an option, strips spaces after the option. For instance
@@ -295,9 +295,9 @@ $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $(filter command line,$(origin $v))
 #
 # OK. Any user-customized vars are valid. I'm going to apply these to
 # all the sub-makefiles. Thus I copy the values of these variables
-# (CFLAGS to _USER_CUSTOMIZED_CFLAGS for instance), and apply them one
+# (CFLAGS to _CUSTOMIZED_CFLAGS for instance), and apply them one
 # at a time when I need them
-$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval _USER_CUSTOMIZED_$v := $($v))))
+$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval _CUSTOMIZED_$v := $($v))))
 
 # when doing a submake in the $(ROOT) I need to change the relative
 # paths in my user-customized variables. This function handles that
@@ -308,7 +308,7 @@ _chdir_customized_vars_single =\
      $$1)
 $1 := $$(call map,_chdir_customized_vars_single,$(call _strip_spaces_after_option,$($1),$2))
 export $1
-unexport $(1:_USER_CUSTOMIZED_%=%)
+unexport $(1:_CUSTOMIZED_%=%)
 endef
 
 

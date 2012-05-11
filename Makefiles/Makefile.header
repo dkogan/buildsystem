@@ -10,11 +10,11 @@ include $(ROOT)/buildsystem/Makefile.defs
 # We're going to re-do the make in the $(ROOT) directory. Any variables
 # that are external to the Makefiles themselves (i.e. the environment
 # customized variables) need to be re-pathed. I do that here.
-$(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_CCXXFLAGS,-I))
-$(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_CXXFLAGS,-I))
-$(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_CFLAGS,-I))
-$(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_ASFLAGS,-I))
-$(eval $(call _chdir_customized_vars,_USER_CUSTOMIZED_LDFLAGS,-L))
+$(eval $(call _chdir_customized_vars,_CUSTOMIZED_CCXXFLAGS,-I))
+$(eval $(call _chdir_customized_vars,_CUSTOMIZED_CXXFLAGS,-I))
+$(eval $(call _chdir_customized_vars,_CUSTOMIZED_CFLAGS,-I))
+$(eval $(call _chdir_customized_vars,_CUSTOMIZED_ASFLAGS,-I))
+$(eval $(call _chdir_customized_vars,_CUSTOMIZED_LDFLAGS,-L))
 
 
 # we're building NOT from the root. poison the $(dir) (to declaw the user's makefile), and isssue a
