@@ -3,6 +3,9 @@
 
 void funca(void)
 {
+#ifdef A
+  printf("A defined\n");
+#endif
   printf("a\n");
   funcb();
 }
