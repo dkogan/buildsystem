@@ -176,12 +176,6 @@ $(dir)/%-man.html: $(dir)/%.pod
 DIST_MANS +=$(strip $(patsubst %.pod,%.1,       $(wildcard $(dir)/*.pod)))
 DIST_DOCS +=$(strip $(patsubst %.pod,%-man.html,$(wildcard $(dir)/*.pod)))
 
-ifneq ($(LIB_OBJECTS),)
-$(LIB_TARGET_SO_BARE): $(LIB_TARGET_SO)
-	ln -fs $(notdir $<) $@
-	ln -fs $(notdir $<) $@.$(API_VERSION)
-endif
-
 $(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
 
 $(LIB_TARGET_A): $(LIB_OBJECTS) | $(LDLIBS_PROJECT:%.$(SO)=%.a)
@@ -195,8 +189,12 @@ ifneq ($(COND_DARWIN),)
 else
   $(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
 endif
+
+$(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(API_VERSION): | $(LIB_TARGET_SO)
 $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS:%.o=%-fPIC.o)
 	$(CC_LINKER) $(_LDFLAGS_POSTPROCESS) $(filter %.o, $^) $(filter-out %.o, $^) $(LDLIBS_SYSTEM) -o $@
+	ln -fs $(notdir $@) $(LIB_TARGET_SO_BARE)
+	ln -fs $(notdir $@) $(LIB_TARGET_SO_BARE).$(API_VERSION)
 
 # I'm using $$ here to delay the variable expansion until later, so that the
 # rules are generated keeping the variable references intact. For instance, the

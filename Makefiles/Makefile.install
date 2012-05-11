@@ -117,7 +117,7 @@ endif
 
 # using 'cp -P' instead of 'install' because the latter follows links unconditionally
 # BIN_TARGET is incorporated in DIST_BINS
-$(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(DIST_ALL)
+$(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(API_VERSION) $(DIST_ALL)
 
 # must have DESTDIR if we're doing an "install"
 ifneq ($(filter $(MAKECMDGOALS),install),)
