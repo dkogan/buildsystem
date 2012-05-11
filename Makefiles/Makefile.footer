@@ -184,7 +184,7 @@ endif
 
 $(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): Defining rules for libs. o: $(LIB_TARGET_SO); a: $(LIB_TARGET_A)))
 
-$(LIB_TARGET_A): $(LIB_OBJECTS)
+$(LIB_TARGET_A): $(LIB_OBJECTS) | $(LDLIBS_PROJECT:%.$(SO)=%.a)
 	ar rcvu $@ $^
 
 # Here instead of specifying $^, I do just the %.o parts and then the
@@ -239,9 +239,11 @@ $(foreach lib,$(patsubst %/,%,$(dir $(LDLIBS_PROJECT))),							\
 	  $(dir)_CHILDREN_LDLIBS_PROJECT += $$($(lib)_LDLIBS_PROJECT) $$($(lib)_CHILDREN_LDLIBS_PROJECT)))
 
 define BIN_TARGET_template_static
-$(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.$(SO)=%.a) $$($$(dir)_CHILDREN_LDLIBS_PROJECT)
+$(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.$(SO)=%.a)
 	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(filter %.o, $$^) $$(filter-out %.o, $$^) \
-		$$($$(dir)_CHILDREN_LDLIBS_SYSTEM) $$(LDLIBS_SYSTEM) -o $$@
+		$$($$(dir)_CHILDREN_LDLIBS_PROJECT) \
+		$$($$(dir)_CHILDREN_LDLIBS_SYSTEM) \
+		$$(LDLIBS_SYSTEM) -o $$@
 endef
 
 define BIN_TARGET_template_dynamic
