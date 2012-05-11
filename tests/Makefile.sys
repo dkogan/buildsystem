@@ -1,0 +1,19 @@
+# -*- Makefile -*-
+
+CC        := gcc
+CXX       := g++
+CC_LINKER := $(CXX)
+
+CCXXFLAGS += -DGLOBAL_EXTRA -Werror -Wall
+
+# I want to copy the DT_NEEDED tags. Older ld implementations do this by
+# default. Newer ones (such as that in Debian/unstable 2012/2) need to
+# be explicitly turned on. I check to see if the option exists, and turn
+# it on if it does. I would also like to add --as-needed, but we don't
+# specify our libraries carefully enough, so stuff breaks with that
+# turned on
+ifeq ($(LDFLAGS_COPY_DTNEEDED_CHECKED),)
+LDFLAGS_COPY_DTNEEDED_CHECKED := 1
+LDFLAGS_COPY_DTNEEDED := $(if $(shell ld --copy-dt-needed-entries 2>&1 | grep unrecognized),,-Wl,--copy-dt-needed-entries)
+endif
+LDFLAGS   += $(LDFLAGS_COPY_DTNEEDED)

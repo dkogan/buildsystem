@@ -1,0 +1,12 @@
+# -*- Makefile -*-
+
+# This Makefile defines
+# 1. all the projects present in this repository
+# 2. any subsets that exist here (can also be defined in any user Makefile)
+
+
+# directories in arbitrary order
+DIRS := libA libB libC
+
+#barepipe_SUBSET := libVision/apps/ghost libVision/apps/handhub \
+#	devices/kinect/openkinect devices/kinect/openni

@@ -1,0 +1,73 @@
+Source: buildsystem-unittests
+Section: extra
+Priority: extra
+Maintainer: Dima Kogan <dima@oblong.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+
+
+Package: liboblong-a0
+Section: extra
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: liba
+ unit test library a
+
+Package: liboblong-a0-dbg
+Section: debug
+Architecture: any
+Depends: ${misc:Depends}
+Description: liba debug symbols
+ unit test library a - debug symbols
+
+Package: liboblong-a-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends},
+         liboblong-a0 (= ${binary:Version})
+Description: liba dev
+ unit test library a - dev
+
+Package: liboblong-b0
+Section: extra
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libb
+ unit test library b
+
+Package: liboblong-b0-dbg
+Section: debug
+Architecture: any
+Depends: ${misc:Depends}
+Description: libb debug symbols
+ unit test library b - debug symbols
+
+Package: liboblong-b-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends},
+         liboblong-b0 (= ${binary:Version})
+Description: libb dev
+ unit test library b - dev
+
+Package: liboblong-c0
+Section: extra
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libc
+ unit test library c
+
+Package: liboblong-c0-dbg
+Section: debug
+Architecture: any
+Depends: ${misc:Depends}
+Description: libc debug symbols
+ unit test library c - debug symbols
+
+Package: liboblong-c-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends},
+         liboblong-c0 (= ${binary:Version})
+Description: libc dev
+ unit test library c - dev
