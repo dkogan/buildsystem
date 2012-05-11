@@ -86,8 +86,8 @@ endif # ifeq ($(IS_UNIT_TEST),)
 $(eval $(relocate-vars))
 
 # some variables (CFLAGS, etc), may have been customized by the user on the
-# commandline or with the system-specific _SYS_... variables. I apply those
-# here.
+# commandline or with the system-specific (from Makefile.sys) variables. I apply
+# those here.
 $(eval $(apply-var-customizations))
 
 

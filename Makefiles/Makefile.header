@@ -28,9 +28,6 @@ $(eval $(_define_recursive_make))
 else # ifeq ($(dir),)
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ top-level build
 
-# include the system-dependent variables and anything oblong-specific
-include Makefile.sys
-
 # QT stuff uses immediate variables for efficiency, so I must include
 # these in the header, not the footer
 include buildsystem/Makefile.qt

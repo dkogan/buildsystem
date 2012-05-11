@@ -1,8 +1,11 @@
 # -*- Makefile -*-
 
 # various useful definitions for the build system. This file contains
-# the definitions, but has NO rules itself
-# THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL
+# the definitions, but has NO rules itself.
+# THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL.
+#
+# THIS FILE MUST BE INCLUDED BEFORE ANY OTHERS. This happens in the top-level
+# Makefile and in Makefile.header when building from a subdir
 
 # ROOT is assumed to be relative; I make an absolute version for later use
 ROOT_ABS := $(abspath $(ROOT))
