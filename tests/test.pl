@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use feature qw(say);
 use IPC::Run qw(run);
+use Carp qw(confess);
 
 # The toy project is very simple: libA depends on libB depends on libC The
 # libA/utila executable calls simple functions in each of the sub-libraries.
@@ -17,7 +18,7 @@ say '';
 say '';
 
 my $leftovers = ensure( "find . -name debian -prune -o \\( -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' \\) -print" );
-die "'make clean' didn't clean out everything. Leftovers:\n" . $leftovers if $leftovers;
+confess "'make clean' didn't clean out everything. Leftovers:\n" . $leftovers if $leftovers;
 say '';
 say '';
 
@@ -61,11 +62,11 @@ sub ensure
 
   if( !$shouldfail && !$success )
   {
-    die "Test failure: '$cmd' exited with error code $errorcode";
+    confess "Test failure: '$cmd' exited with error code $errorcode";
   }
   if( $shouldfail &&  $success )
   {
-    die "Test failure: '$cmd' should have failed, but it succeeded";
+    confess "Test failure: '$cmd' should have failed, but it succeeded";
   }
 
   return $result;
