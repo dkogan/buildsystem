@@ -5,39 +5,85 @@ use feature qw(say);
 use IPC::Run qw(run);
 use Carp qw(confess);
 
-# The toy project is very simple: libA depends on libB depends on libC The
+# The toy project is very simple: libA depends on libB depends on libC. The
 # libA/utila executable calls simple functions in each of the sub-libraries.
 # This is set up this way to make sure that the implicit dependency of libA on
 # libC is handled properly
 
-
 # First, I make sure I can clean out the tree without leaving any known cruft
 # behind
 ensure( 'make clean' );
-say '';
-say '';
+nextTest();
 
 my $leftovers = ensure( "find . -name debian -prune -o \\( -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' \\) -print" );
 confess "'make clean' didn't clean out everything. Leftovers:\n" . $leftovers if $leftovers;
-say '';
-say '';
+nextTest();
 
 # make sure shit can build
 ensure( 'make' );
+
+# make sure the built application does the expected thing
+my $utila_result = `libA/utila`;
+my $utila_result_should = <<EOF;
+a helper
+A defined
+a
+B defined
+b
+C defined
+c
+EOF
+
+if( $utila_result ne $utila_result_should )
+{
+  confess( "utila output is wrong. Should:\n" .
+           $utila_result_should . "\n" .
+           "instead got\n" .
+           $utila_result . "\n" );
+}
+
+
 ensure( 'make clean' );
-say '';
-say '';
+nextTest();
 
 # make sure stuff fails if we're doing a package-less install
 ensure( 'make install', 'shouldfail' );
-say '';
-say '';
+nextTest();
 
-# make sure stuff fails if we're doing a package-less install
+# make sure install succeeds otherwise
+# make sure correct things actually get installed here
 ensure( 'DESTDIR=/tmp make install' );
 ensure( 'make clean' );
-say '';
-say '';
+nextTest();
+
+
+
+##################### build dependency checks.#######################
+
+# make sure a rebuild doesn't do anything
+ensure( 'make' );
+if( ensure( 'make' ) !~ /Nothing to be done/ )
+{
+  confess "Rebuild shouldn't do anything";
+}
+nextTest();
+
+
+touch('libA/subdir/utila_helper.c');
+ensure_rebuild( 'make',
+                'libA/subdir/utila_helper.o',
+                'libA/utila' );
+nextTest();
+
+touch('libC/c.h');
+ensure_rebuild( 'make',
+                'libB/b.o',
+                'libB/libB.a',
+                'libA/utila' );
+nextTest();
+
+
+
 
 
 # runs a command, prints and returns its output (stderr and stdout together).
@@ -72,7 +118,38 @@ sub ensure
   return $result;
 }
 
+# makes sure that the given targets are rebuilt in the order specified
+sub ensure_rebuild
+{
+  my $cmd = shift;
+  my @targets = @_;
+  my $Ntargets = @targets;
 
+  my $commands = ensure( $cmd );
+
+  my @rebuilt = $commands =~ /(?:-o|rcvu) +(\S+)/g;
+  my $Ntargets_did = @rebuilt;
+
+  confess "Should have rebuilt $Ntargets targets, instead rebuilt $Ntargets_did targets" unless $Ntargets == $Ntargets_did;
+
+  foreach (0..$#targets)
+  {
+    confess "Should have rebuilt $targets[$_]; instead rebuilt $rebuilt[$_]" if $rebuilt[$_] ne $targets[$_];
+  }
+}
+
+sub nextTest
+{
+  say '';
+  say '';
+  sleep 1; # to work around timestamp resolution issues
+}
+
+sub touch
+{
+  my $fil = shift;
+  run [ 'touch', $fil ] or confess "couldn't 'touch $fil'";
+}
 
 __END__
 
