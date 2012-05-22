@@ -187,7 +187,7 @@ say '##################### build flag checks #######################';
   nextTest();
 
   # I now made sure that all the variables are used correctly, changing paths as
-  # necessary, etc, etc. Now make sure that non-existant paths get picked up and flagged
+  # necessary, etc, etc.
   ensure( 'make clean' );
   ensure( "CCXXFLAGS='-Iasdf' make -n", 'shouldfail' );
   ensure( "CCXXFLAGS='-I../bogus_bogus_bogus' make -n", 'shouldfail' );
@@ -196,6 +196,7 @@ say '##################### build flag checks #######################';
   ensure( "LDFLAGS='-L../bogus_bogus_bogus' make -n", 'shouldfail' );
   ensure( "LDFLAGS='-L/bogus_bogus_bogus' make -n", 'shouldfail' );
 
+  # Now make sure that non-existant paths get picked up and flagged
   ensure( "CCXXFLAGS='-I../asdf' make -n libA", 'shouldfail' );
   ensure( "LDFLAGS='-L../asdf' make -n libA", 'shouldfail' );
 
