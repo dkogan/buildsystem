@@ -17,8 +17,7 @@ say '##################### clean tests #######################';
 {
   my $leftovers;
 
-  # First, I make sure I can clean out the tree without leaving any known cruft
-  # behind
+  say '------ make sure I can clean out the tree without leaving any known cruft behind ------';
   ensure( 'make clean' );
   cleanDebianDir();
   system( 'rm -rf localinstall' );
@@ -92,7 +91,7 @@ say '##################### basic building/execution tests ######################
 
 
 
-  # make sure the built applications do the expected thing
+  say '------ making sure the built applications do the expected thing -------';
   my $utila_result = ensure( 'libA/utila' );
   my $utila_result_should = <<EOF;
 a helper
@@ -143,6 +142,7 @@ EOF
   {
     my $makecmd        = shift;
     my $targets_should = shift;
+    say "------ Making sure '$makecmd' succeeds and builds the right things";
 
     ensure( 'make clean' );
     my $commands = ensure( $makecmd );
@@ -154,7 +154,7 @@ EOF
 
 say '##################### build dependency checks.#######################';
 {
-  # make sure a rebuild doesn't do anything
+  say '------ making sure a rebuild does not do anything ------';
   ensure( 'make' );
   if ( ensure( 'make' ) !~ /Nothing to be done/ )
   {
@@ -162,6 +162,7 @@ say '##################### build dependency checks.#######################';
   }
   nextTest();
 
+  say '------ making sure build dependecies trigger rebuilds correctly ------';
   touch('libA/subdir/utila_helper.c');
   ensureRebuild( 'make libA/utila',
                  'libA/subdir/utila_helper.o',
@@ -212,6 +213,8 @@ say '##################### build flag checks #######################';
   ensureCommandlineOptions("CCXXFLAGS='-DGLOBALFLAG -O3' make");
   nextTest();
 
+  say '----- Making sure the build flags change their paths as needed --------';
+
   # I now made sure that all the variables are used correctly, changing paths as
   # necessary, etc, etc.
   ensureCommandlineOptions("CCXXFLAGS='-I.. -IlibC' LDFLAGS='-L.. -LlibC' make");
@@ -220,7 +223,7 @@ say '##################### build flag checks #######################';
   ensureCommandlineOptions("CCXXFLAGS='-I../.. -I../libC' LDFLAGS='-L../.. -L../libC' make -C libA");
   nextTest();
 
-  # Now make sure that non-existant paths get picked up and flagged
+  say '------ making sure that non-existent paths get picked up and flagged ------';
   ensure( 'make clean' );
   ensure( "CCXXFLAGS='-Iasdf' make -n",                 'shouldfail' );
   ensure( "CCXXFLAGS='-I../bogus_bogus_bogus' make -n", 'shouldfail' );
@@ -239,6 +242,8 @@ say '##################### build flag checks #######################';
   sub ensureCommandlineOptions
   {
     my $makecmd = shift;
+    say "------ Making sure '$makecmd' uses the correct build flags";
+
     my ($CCXXFLAGS) = $makecmd =~ /CCXXFLAGS='(.*?)'/;
     my ($LDFLAGS)   = $makecmd =~ /LDFLAGS='(.*?)'/;
     $CCXXFLAGS //= '';
@@ -363,14 +368,14 @@ say '##################### build flag checks #######################';
 
 say '##################### installation checks #######################';
 {
-  # make sure stuff fails if we're doing a package-less install
+  say '------ make sure stuff fails if we attempt a package-less install ------';
   ensure( 'make install', 'shouldfail' );
   nextTest();
 
-  # make sure install succeeds otherwise
+  say '------ make sure an install succeeds otherwise -------';
   ensure( "DESTDIR=asdf make install" );
   {
-    # make sure the right files got installed
+    say '------- make sure the right files got installed ------';
     my $files = ensure( "echo debian/**/*~debian/changelog~debian/control(.) | xargs -n1 | sort" );
     my $links = ensure( "echo debian/**/*(@) | xargs -n1 | sort" );
 
@@ -421,7 +426,7 @@ EOF
   system( "rm -rf localinstall" );
   ensure( "make localinstall" );
   {
-    # make sure the right files got installed
+    say '------- localinstall: make sure the right files got installed ------';
     my $files = ensure( "echo localinstall/**/*(.) | xargs -n1 | sort" );
     my $links = ensure( "echo localinstall/**/*(@) | xargs -n1 | sort" );
 
@@ -474,6 +479,8 @@ EOF
   {
     my $dir        = shift;
     my $static_exe = shift;
+
+    say "------- Making sure that the libraries, executables in '$dir' have correct DT_NEEDED flags ------";
 
     check($dir, 'libA.so.0.5.6');
     check($dir, 'libB.so.0.5.6');
