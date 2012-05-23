@@ -6,7 +6,7 @@
 
 
 # directories in arbitrary order
-DIRS := libA libB libC
+DIRS := libA libB libC util
 
 #barepipe_SUBSET := libVision/apps/ghost libVision/apps/handhub \
 #	devices/kinect/openkinect devices/kinect/openni

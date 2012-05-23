@@ -71,3 +71,17 @@ Depends: ${misc:Depends},
          liboblong-c0 (= ${binary:Version})
 Description: libc dev
  unit test library c - dev
+
+Package: oblong-test-utility
+Section: extra
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: test utility
+ unit test utility
+
+Package: oblong-test-utility-dbg
+Section: debug
+Architecture: any
+Depends: ${misc:Depends}
+Description: test utility
+ unit test utility - dbg
