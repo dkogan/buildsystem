@@ -63,7 +63,7 @@ say '##################### clean tests #######################';
   }
 }
 
-say '##################### basic building tests #######################';
+say '##################### basic building/execution tests #######################';
 {
   my @targets_should_base = qw(libA/a.o
                                libB/b.o
@@ -76,18 +76,63 @@ say '##################### basic building tests #######################';
                                libA/subdir/utila_helper.o
                                libA/utila);
 
-  testBuildWithTarget('make', [@targets_should_base, 'libB/utilb', 'libB/utilb.o'] );
+  testBuildWithTarget('make libA', [@targets_should_base, qw(libA/utila2.o libA/utila2)] );
   nextTest();
 
-  testBuildWithTarget('make libA', \@targets_should_base );
-  nextTest();
-
-  testBuildWithTarget('make -C libA', \@targets_should_base);
+  testBuildWithTarget('make -C libA', [@targets_should_base, qw(libA/utila2.o libA/utila2)] );
   nextTest();
 
   testBuildWithTarget('make libA/utila', \@targets_should_base);
   nextTest();
 
+  testBuildWithTarget('make', [@targets_should_base, qw(libA/utila2.o libA/utila2 libB/utilb libB/utilb.o) ] );
+  nextTest();
+
+
+
+
+  # make sure the built applications do the expected thing
+  my $utila_result = ensure( 'libA/utila' );
+  my $utila_result_should = <<EOF;
+a helper
+A defined
+a
+B defined
+b
+B2 defined
+C defined
+c
+EOF
+
+  my $utila2_result = ensure( 'libA/utila2' );
+  my $utila2_result_should = <<EOF;
+utila 2
+UTILA2 defined
+A defined
+a
+B defined
+b
+B2 defined
+C defined
+c
+EOF
+
+  if ( $utila_result ne $utila_result_should )
+  {
+    confess( "utila output is wrong. Should:\n" .
+             $utila_result_should . "\n" .
+             "instead got\n" .
+             $utila_result . "\n" );
+  }
+
+
+  if ( $utila2_result ne $utila2_result_should )
+  {
+    confess( "utila2 output is wrong. Should:\n" .
+             $utila2_result_should . "\n" .
+             "instead got\n" .
+             $utila2_result . "\n" );
+  }
 
 
 
@@ -103,27 +148,6 @@ say '##################### basic building tests #######################';
     my @targets = getRebuiltTargets($commands);
 
     ensureUnorderedCompare(\@targets, $targets_should );
-
-
-    # make sure the built application does the expected thing
-    my $utila_result = `libA/utila`;
-    my $utila_result_should = <<EOF;
-a helper
-A defined
-a
-B defined
-b
-B2 defined
-C defined
-c
-EOF
-    if ( $utila_result ne $utila_result_should )
-    {
-      confess( "utila output is wrong. Should:\n" .
-               $utila_result_should . "\n" .
-               "instead got\n" .
-               $utila_result . "\n" );
-    }
   }
 }
 
@@ -187,28 +211,26 @@ say '##################### build flag checks #######################';
   ensureCommandlineOptions("CCXXFLAGS='-DGLOBALFLAG -O3' make");
   nextTest();
 
+  # I now made sure that all the variables are used correctly, changing paths as
+  # necessary, etc, etc.
   ensureCommandlineOptions("CCXXFLAGS='-I.. -IlibC' LDFLAGS='-L.. -LlibC' make");
   nextTest();
 
   ensureCommandlineOptions("CCXXFLAGS='-I../.. -I../libC' LDFLAGS='-L../.. -L../libC' make -C libA");
   nextTest();
 
-  # I now made sure that all the variables are used correctly, changing paths as
-  # necessary, etc, etc.
-  ensure( 'make clean' );
-  ensure( "CCXXFLAGS='-Iasdf' make -n", 'shouldfail' );
-  ensure( "CCXXFLAGS='-I../bogus_bogus_bogus' make -n", 'shouldfail' );
-  ensure( "CCXXFLAGS='-I/bogus_bogus_bogus' make -n", 'shouldfail' );
-  ensure( "LDFLAGS='-Lasdf' make -n", 'shouldfail' );
-  ensure( "LDFLAGS='-L../bogus_bogus_bogus' make -n", 'shouldfail' );
-  ensure( "LDFLAGS='-L/bogus_bogus_bogus' make -n", 'shouldfail' );
-
   # Now make sure that non-existant paths get picked up and flagged
-  ensure( "CCXXFLAGS='-I../asdf' make -n libA", 'shouldfail' );
-  ensure( "LDFLAGS='-L../asdf' make -n libA", 'shouldfail' );
-
-  ensure( "CCXXFLAGS='-I../asdf' make -n -C libA", 'shouldfail' );
-  ensure( "LDFLAGS='-L../asdf' make -n -C libA", 'shouldfail' );
+  ensure( 'make clean' );
+  ensure( "CCXXFLAGS='-Iasdf' make -n",                 'shouldfail' );
+  ensure( "CCXXFLAGS='-I../bogus_bogus_bogus' make -n", 'shouldfail' );
+  ensure( "CCXXFLAGS='-I/bogus_bogus_bogus' make -n",   'shouldfail' );
+  ensure( "LDFLAGS='-Lasdf' make -n",                   'shouldfail' );
+  ensure( "LDFLAGS='-L../bogus_bogus_bogus' make -n",   'shouldfail' );
+  ensure( "LDFLAGS='-L/bogus_bogus_bogus' make -n",     'shouldfail' );
+  ensure( "CCXXFLAGS='-I../asdf' make -n libA",         'shouldfail' );
+  ensure( "LDFLAGS='-L../asdf' make -n libA",           'shouldfail' );
+  ensure( "CCXXFLAGS='-I../asdf' make -n -C libA",      'shouldfail' );
+  ensure( "LDFLAGS='-L../asdf' make -n -C libA",        'shouldfail' );
 
 
 
@@ -236,9 +258,11 @@ say '##################### build flag checks #######################';
         my @rebuilt = getRebuiltTargets($cmd);
         confess "getRebuiltTargets() thinks that '$cmd' rebuilt " . scalar(@rebuilt) . " targets: @rebuilt" unless @rebuilt == 1;
         my ($target) = @rebuilt;
+        say "Checking build flags for $target";
 
         # extract the options, leaving out the '-o'
-        my @options = grep !/^-o$/, $cmd =~ /-\S+/g;
+        my @options_did = grep !/^-o$/, $cmd =~ /-\S+/g;
+
 
         if ( $cmd =~ /\s-c/ )
         {
@@ -280,7 +304,12 @@ say '##################### build flag checks #######################';
             }
           }
 
-          ensureUnorderedCompare(\@options, \@options_should)
+          if( $target =~ /utila2.o/ )
+          {
+            push @options_should, '-DUTILA2';
+          }
+
+          ensureUnorderedCompare(\@options_did, \@options_should)
         }
         else
         {
@@ -307,7 +336,24 @@ say '##################### build flag checks #######################';
             }
           }
 
-          ensureUnorderedCompare(\@options, \@options_should);
+          if( $target =~ /util/ )
+          {
+            # utils in libA and libB need to depend on libC's LDLIBS
+            push @options_should, '-lstdc++';
+          }
+          if( $target =~ /utila/ )
+          {
+            # utils in libA also need to depend on libA's LDLIBS
+            push @options_should, '-lm';
+          }
+          if( $target =~ /utila2/ )
+          {
+            # liba2 also has it's own custom extra options
+            push @options_should, '-Wl,--stats';
+            push @options_should, '-lc';
+          }
+
+          ensureUnorderedCompare(\@options_did, \@options_should);
         }
       }
     }
