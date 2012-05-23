@@ -21,6 +21,7 @@ say '##################### clean tests #######################';
   # behind
   ensure( 'make clean' );
   cleanDebianDir();
+  system( 'rm -rf localinstall' );
   nextTest();
 
   my $files = '**/*.(so*|dylib|a|o|d)';
@@ -366,11 +367,180 @@ say '##################### installation checks #######################';
   ensure( 'make install', 'shouldfail' );
   nextTest();
 
-
   # make sure install succeeds otherwise
-  # make sure correct things actually get installed here
-  ensure( 'DESTDIR=/tmp make install' );
+  ensure( "DESTDIR=asdf make install" );
+  {
+    # make sure the right files got installed
+    my $files = ensure( "echo debian/**/*~debian/changelog~debian/control(.) | xargs -n1 | sort" );
+    my $links = ensure( "echo debian/**/*(@) | xargs -n1 | sort" );
+
+    my $files_should = <<EOF;
+debian/liboblong-a0/usr/bin/utila
+debian/liboblong-a0/usr/bin/utila2
+debian/liboblong-a0/usr/lib/libA.so.0.5.6
+debian/liboblong-a-dev/usr/lib/libA.a
+debian/liboblong-b0/usr/bin/utilb
+debian/liboblong-b0/usr/lib/libB.so.0.5.6
+debian/liboblong-b-dev/usr/lib/libB.a
+debian/liboblong-c0/usr/lib/libC.so.0.5.6
+debian/liboblong-c-dev/usr/lib/libC.a
+EOF
+
+    my $links_should = <<EOF;
+debian/liboblong-a0/usr/lib/libA.so.0
+debian/liboblong-a-dev/usr/lib/libA.so
+debian/liboblong-b0/usr/lib/libB.so.0
+debian/liboblong-b-dev/usr/lib/libB.so
+debian/liboblong-c0/usr/lib/libC.so.0
+debian/liboblong-c-dev/usr/lib/libC.so
+EOF
+
+    if ( $files ne $files_should )
+    {
+      confess "Installed files mismatch. Should have had\n" . $files_should . "\n" .
+        "but instead got\n" . $files . "\n";
+    }
+    if ( $links ne $links_should )
+    {
+      confess "Installed links mismatch. Should have had\n" . $links_should . "\n" .
+        "but instead got\n" . $links . "\n";
+    }
+
+    # we just build dynamically-linked executables, so they should have been
+    # removed by make so that the user can't accidentally run them
+    foreach (qw(libA/utila libA/utila2 libB/utilb))
+    {
+      confess "Intermediate target $_ wasn't cleaned up" if -e $_;
+    }
+  }
   nextTest();
+  checkDtNeeded( 'debian', undef );
+
+
+
+  system( "rm -rf localinstall" );
+  ensure( "make localinstall" );
+  {
+    # make sure the right files got installed
+    my $files = ensure( "echo localinstall/**/*(.) | xargs -n1 | sort" );
+    my $links = ensure( "echo localinstall/**/*(@) | xargs -n1 | sort" );
+
+    my $files_should = <<EOF;
+localinstall/usr/bin/utila
+localinstall/usr/bin/utila2
+localinstall/usr/bin/utilb
+localinstall/usr/lib/libA.a
+localinstall/usr/lib/libA.so.0.5.6
+localinstall/usr/lib/libB.a
+localinstall/usr/lib/libB.so.0.5.6
+localinstall/usr/lib/libC.a
+localinstall/usr/lib/libC.so.0.5.6
+EOF
+
+    my $links_should = <<EOF;
+localinstall/usr/lib/libA.so
+localinstall/usr/lib/libA.so.0
+localinstall/usr/lib/libB.so
+localinstall/usr/lib/libB.so.0
+localinstall/usr/lib/libC.so
+localinstall/usr/lib/libC.so.0
+EOF
+
+    if ( $files ne $files_should )
+    {
+      confess "Local-installed files mismatch. Should have had\n" . $files_should . "\n" .
+        "but instead got\n" . $files . "\n";
+    }
+    if ( $links ne $links_should )
+    {
+      confess "Local-installed links mismatch. Should have had\n" . $links_should . "\n" .
+        "but instead got\n" . $links . "\n";
+    }
+
+    # localinstall-ed executables have static linking, so they aren't automatically deleted by make
+  }
+  nextTest();
+  # localinstall-ed executables have static linking, so ask for it here
+  checkDtNeeded( 'localinstall', 1 );
+
+
+
+
+
+
+  # makes sure all the dynamically-linked executables under $dir have the correct
+  # DT_NEEDED tags
+  sub checkDtNeeded
+  {
+    my $dir        = shift;
+    my $static_exe = shift;
+
+    check($dir, 'libA.so.0.5.6');
+    check($dir, 'libB.so.0.5.6');
+    check($dir, 'libC.so.0.5.6');
+    check($dir, 'utila', $static_exe );
+    check($dir, 'utila2',$static_exe );
+    check($dir, 'utilb', $static_exe );
+
+
+
+    sub check
+    {
+      my ($dir, $fil, $static_exe) = @_;
+      my @paths = split '\s+', ensure( "echo $dir/**/$fil" );
+      if ( @paths > 1 )
+      {
+        confess "was looking for a single $dir/**/$fil, but found multiple";
+      }
+      if ( @paths < 1)
+      {
+        confess "was looking for a single $dir/**/$fil, but found none";
+      }
+
+      my @needed = split "\n", ensure( "objdump -p $paths[0] | awk '/NEEDED/ {print \$2}'" );
+      my $lc = List::Compare->new(\@needed, [qw(libA.so.0 libB.so.0 libC.so.0)]);
+      my @intersection = $lc->get_intersection;
+
+      # libA should depend only on libB
+      # libB should depend only on libC
+      # libC should depend on none
+      if( $fil =~ /libA/ )
+      {
+        confess "Incorrect DT_NEEDED tag. libA should depend on libB" unless
+          @intersection == 1 && $intersection[0] eq 'libB.so.0';
+      }
+      if( $fil =~ /libB/ )
+      {
+        confess "Incorrect DT_NEEDED tag. libB should depend on libC" unless
+          @intersection == 1 && $intersection[0] eq 'libC.so.0';
+      }
+      if( $fil =~ /libC/ )
+      {
+        confess "Incorrect DT_NEEDED tag. libC should depend on no local libs" unless
+          @intersection == 0;
+      }
+
+      # executables should depend just on their local library, unless they're
+      # linked statically. Static linking says they depend on nothing, since the
+      # library is INSIDE the executable
+      if( $fil =~ /util[ab]/ )
+      {
+        if( $static_exe )
+        {
+          confess "$fil should have been linked statically, but instead it depends on '@intersection'" unless
+            @intersection == 0;
+        }
+        else
+        {
+          my $lib = $fil;
+          $lib =~ s/util([ab]).*/'lib' . uc($1) . '.so.0'/e;
+          confess "$fil should depend ONLY on $lib" unless
+            @intersection == 1 && $intersection[0] eq $lib;
+        }
+      }
+    }
+  }
+
 }
 
 
