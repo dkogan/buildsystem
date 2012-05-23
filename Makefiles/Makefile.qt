@@ -27,7 +27,6 @@ QT4_EXTRACLEAN := $(QT4_UI_HEADERS)
 QT4_MOCS_CPP    = $(addsuffix .cpp,$(QT4_MOCS_BASE))
 QT4_MOCS        = $(addsuffix .o,$(QT4_MOCS_BASE))
 QT4_EXTRACLEAN += $(addsuffix .*,$(QT4_MOCS_BASE))
-.SECONDARY: $(QT4_MOCS_CPP)
 $(dir)/moc_%.cpp: $(dir)/%.h
 	moc-qt4 $< > $@
 
