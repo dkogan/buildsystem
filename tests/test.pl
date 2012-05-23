@@ -20,9 +20,13 @@ say '##################### clean tests #######################';
   # First, I make sure I can clean out the tree without leaving any known cruft
   # behind
   ensure( 'make clean' );
+  cleanDebianDir();
   nextTest();
 
-  $leftovers = ensure( "find . -name debian -prune -o \\( -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' \\) -print" );
+  my $files = '**/*.(so*|dylib|a|o|d)';
+
+  $leftovers = ensure( "echo $files" );
+  chomp $leftovers;
   confess "'make clean' didn't clean out everything. Leftovers:\n" . $leftovers if $leftovers;
   nextTest();
 
@@ -35,23 +39,26 @@ say '##################### clean tests #######################';
 
 
 
+
+
   sub testCleanWithCmd
   {
     my $cleancmd = shift;
 
     ensure( 'make' );
-    my $shouldHaveA = ensure( "find libA -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' | sort" );
-    my $shouldHaveB = ensure( "find libB -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' | sort" );
-    my $shouldHaveC = ensure( "find libC -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' | sort" );
+    my $shouldHaveA = ensure( "echo libA/$files" );
+    my $shouldHaveB = ensure( "echo libB/$files" );
+    my $shouldHaveC = ensure( "echo libC/$files" );
 
     ensure( $cleancmd );
-    $leftovers = ensure( "find libA -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d'" );
+    $leftovers = ensure( "echo libA/$files" );
+    chomp $leftovers;
     confess "'$cleancmd' didn't clean out everything in libA. Leftovers:\n" . $leftovers if $leftovers;
 
-    ensure( "find libB -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' | sort" ) eq $shouldHaveB or
+    ensure( "echo libB/$files" ) eq $shouldHaveB or
       confess "'$cleancmd' cleaned out some stuff in libB!";
 
-    ensure( "find libC -name '*.so*' -o -name '*.dylib*' -o -name '*.a' -o -name '*.o' -o -name '*.d' | sort" ) eq $shouldHaveC or
+    ensure( "echo libC/$files" ) eq $shouldHaveC or
       confess "'$cleancmd' cleaned out some stuff in libC!";
   }
 }
@@ -342,7 +349,7 @@ sub ensure
   say "Running '$cmd'.$extramsg Says:";
 
   my $result;
-  my $success   = run ['bash', '-c', $cmd], \undef, \$result, '2>&1';
+  my $success   = run ['zsh', '--extendedglob', '--nullglob', '-c', $cmd], \undef, \$result, '2>&1';
   my $errorcode = $success || $?;
 
   say '====================================================';
@@ -414,6 +421,11 @@ sub getRebuiltTargets
   my $commands = shift;
 
   return ( $commands =~ /(?:-o|rcvu) +(\S+)/g );
+}
+
+sub cleanDebianDir
+{
+  ensure( 'rm -rf debian/*~debian/changelog~debian/control' );
 }
 
 __END__
