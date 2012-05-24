@@ -450,6 +450,32 @@ EOF
   nextTest();
   checkDtNeeded( 'debian', undef );
 
+  say '------ make sure the built exes break without LD_LIBRARY_PATH -------';
+  ensure( 'debian/liboblong-a0/usr/bin/utila',      'shouldfail' );
+  ensure( 'debian/liboblong-a0/usr/bin/utila2',     'shouldfail' );
+  ensure( 'debian/liboblong-b0/usr/bin/utilb',      'shouldfail' );
+  ensure( 'debian/oblong-test-utility/usr/bin/main','shouldfail' );
+
+  say '------ make sure the built exes run with LD_LIBRARY_PATH -------';
+  foreach ( ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/liboblong-a0/usr/bin/utila',      $utila_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/liboblong-a0/usr/bin/utila2',     $utila2_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/liboblong-b0/usr/bin/utilb',      $utilb_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/oblong-test-utility/usr/bin/main',$main_result_should] )
+  {
+    my ($cmd, $should) = @$_;
+
+    my $result  = ensure( $cmd );
+
+    if ( $result ne $should )
+    {
+      confess( "$cmd output is wrong. Should:\n" .
+               $should . "\n" .
+               "instead got\n" .
+               $result . "\n" );
+    }
+  }
+  say "\n";
+
 
 
   system( "rm -rf localinstall" );
@@ -497,6 +523,26 @@ EOF
   nextTest();
   # localinstall-ed executables have static linking, so ask for it here
   checkDtNeeded( 'localinstall', 1 );
+
+  say '------ make sure the localinstall exes run without LD_LIBRARY_PATH -------';
+  foreach ( ['localinstall/usr/bin/utila', $utila_result_should],
+            ['localinstall/usr/bin/utila2',$utila2_result_should],
+            ['localinstall/usr/bin/utilb', $utilb_result_should],
+            ['localinstall/usr/bin/main',  $main_result_should] )
+  {
+    my ($cmd, $should) = @$_;
+
+    my $result  = ensure( $cmd );
+
+    if ( $result ne $should )
+    {
+      confess( "$cmd output is wrong. Should:\n" .
+               $should . "\n" .
+               "instead got\n" .
+               $result . "\n" );
+    }
+  }
+
 
 
 
