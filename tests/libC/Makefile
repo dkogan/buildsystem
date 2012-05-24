@@ -6,6 +6,10 @@ CCXXFLAGS += -I$(ROOT)
 LIB_OBJECTS = c.o
 CCXXFLAGS += -DC
 
+# distribute ALL the headers
+DIST_HEADERS = *.h
+
+
 $(dir)/c.c: $(dir)/c.generated.h
 
 $(dir)/c.generated.h:

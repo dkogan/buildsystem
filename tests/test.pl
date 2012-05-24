@@ -17,6 +17,7 @@ b
 B2 defined
 C defined
 c
+gen: 5
 EOF
 
 my $utila2_result_should = <<EOF;
@@ -29,6 +30,7 @@ b
 B2 defined
 C defined
 c
+gen: 5
 EOF
 
 my $utilb_result_should = <<EOF;
@@ -37,6 +39,7 @@ b
 B2 defined
 C defined
 c
+gen: 5
 EOF
 
 my $main_result_should = <<EOF;
@@ -47,6 +50,7 @@ b
 B2 defined
 C defined
 c
+gen: 5
 EOF
 
 
@@ -58,18 +62,14 @@ EOF
 
 say '##################### clean tests #######################';
 {
-  my $leftovers;
-
   say '------ make sure I can clean out the tree without leaving any known cruft behind ------';
+  ensure( 'make' );
   ensure( 'make clean' );
   cleanDebianDir();
   system( 'rm -rf localinstall' );
   nextTest();
 
-  my $files = '**/*.(so*|dylib|a|o|d)';
-
-  $leftovers = ensure( "echo $files" );
-  chomp $leftovers;
+  my $leftovers = leftoverIn();
   confess "'make clean' didn't clean out everything. Leftovers:\n" . $leftovers if $leftovers;
   nextTest();
 
@@ -88,21 +88,41 @@ say '##################### clean tests #######################';
   {
     my $cleancmd = shift;
 
+    say "------- Making sure '$cleancmd' cleans out just what it should";
     ensure( 'make' );
-    my $shouldHaveA = ensure( "echo libA/$files" );
-    my $shouldHaveB = ensure( "echo libB/$files" );
-    my $shouldHaveC = ensure( "echo libC/$files" );
+    my $shouldHaveA    = leftoverIn('libA');
+    my $shouldHaveB    = leftoverIn('libB');
+    my $shouldHaveC    = leftoverIn('libC');
+    my $shouldHaveUtil = leftoverIn('util');
 
     ensure( $cleancmd );
-    $leftovers = ensure( "echo libA/$files" );
-    chomp $leftovers;
+    my $leftovers = leftoverIn('libA');
     confess "'$cleancmd' didn't clean out everything in libA. Leftovers:\n" . $leftovers if $leftovers;
 
-    ensure( "echo libB/$files" ) eq $shouldHaveB or
+    leftoverIn('libB') eq $shouldHaveB or
       confess "'$cleancmd' cleaned out some stuff in libB!";
 
-    ensure( "echo libC/$files" ) eq $shouldHaveC or
+    leftoverIn('libC') eq $shouldHaveC or
       confess "'$cleancmd' cleaned out some stuff in libC!";
+
+    leftoverIn('util') eq $shouldHaveUtil or
+      confess "'$cleancmd' cleaned out some stuff in util!";
+  }
+
+  sub leftoverIn
+  {
+    my $dir = shift;
+
+    # libC/c.*.h is for generated headers
+    my $files = '**/*.(so*|dylib|a|o|d) libC/c.*.h util/ma?n';
+
+    my @all = split '\s+', ensure( "echo $files" );
+    if( !defined $dir )
+    {
+      return join(' ', @all);
+    }
+
+    return join(' ', grep m{^$dir/}, @all);
   }
 }
 
@@ -412,6 +432,8 @@ debian/liboblong-b0/usr/bin/utilb
 debian/liboblong-b0/usr/lib/libB.so.0.5.6
 debian/liboblong-b-dev/usr/lib/libB.a
 debian/liboblong-c0/usr/lib/libC.so.0.5.6
+debian/liboblong-c-dev/usr/include/libC/c.generated.h
+debian/liboblong-c-dev/usr/include/libC/c.h
 debian/liboblong-c-dev/usr/lib/libC.a
 debian/oblong-test-utility/usr/bin/main
 EOF
@@ -490,6 +512,8 @@ localinstall/usr/bin/main
 localinstall/usr/bin/utila
 localinstall/usr/bin/utila2
 localinstall/usr/bin/utilb
+localinstall/usr/include/libC/c.generated.h
+localinstall/usr/include/libC/c.h
 localinstall/usr/lib/libA.a
 localinstall/usr/lib/libA.so.0.5.6
 localinstall/usr/lib/libB.a
