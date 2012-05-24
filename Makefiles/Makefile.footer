@@ -6,6 +6,9 @@
 # ROOT directory. In not, Makefile.header has already defined a
 # from-root sub-make that will do all the work, so we do nothing here
 ifeq ($(_make_will_recurse),)
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ not recursive build (full file)
+
+
 
 $(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): At top of the $(dir) Makefile))
 
@@ -18,25 +21,26 @@ IS_UNIT_TEST := $(filter %/tests,$(dir))
 # basic error checking
 ifeq ($(IS_UNIT_TEST),)
 
-ifneq ($(TARGET_NAME:lib%=lib),lib)
-ifneq ($(LIB_OBJECTS),)
-$(error Target "$(TARGET_NAME)" from dir '$(dir)' has LIB_OBJECTS, so it MUST start with "lib" ($(_when)))
-endif
-ifneq ($(DIST_HEADERS),)
-$(error Target "$(TARGET_NAME)" from dir '$(dir)' has DIST_HEADERS, so it MUST start with "lib"($(_when)))
-endif
-endif
-ifeq ($(TARGET_NAME:lib%=lib),lib)
-ifeq ($(LIB_OBJECTS),)
-$(error Target "$(TARGET_NAME)" from dir '$(dir)' starts with lib..., but has no LIB_OBJECTS! ($(_when)))
-endif
+  ifneq ($(TARGET_NAME:lib%=lib),lib)
+    ifneq ($(LIB_OBJECTS),)
+      $(error Target "$(TARGET_NAME)" from dir '$(dir)' has LIB_OBJECTS, so it MUST start with "lib" ($(_when)))
+    endif
+    ifneq ($(DIST_HEADERS),)
+      $(error Target "$(TARGET_NAME)" from dir '$(dir)' has DIST_HEADERS, so it MUST start with "lib"($(_when)))
+    endif
+  endif
+  ifeq ($(TARGET_NAME:lib%=lib),lib)
+    ifeq ($(LIB_OBJECTS),)
+      $(error Target "$(TARGET_NAME)" from dir '$(dir)' starts with lib..., but has no LIB_OBJECTS! ($(_when)))
+    endif
+  endif
+else # ifeq ($(IS_UNIT_TEST),)
+  ifneq ($(LIB_OBJECTS),)
+    $(error Unit tests '$(dir)' have LIB_OBJECTS. This is not allowed)
+  endif
 endif
 
-else # ifeq ($(IS_UNIT_TEST),)
-ifneq ($(LIB_OBJECTS),)
-$(error Unit tests '$(dir)' have LIB_OBJECTS. This is not allowed)
-endif
-endif
+
 
 #################### Shared object versioning #########################
 
@@ -321,4 +325,5 @@ $(eval $(persist-active-vars))
 $(eval $(poison-active-vars))
 
 
+#}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} not recursive build
 endif # ifeq ($(_make_will_recurse),)
