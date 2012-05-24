@@ -6,6 +6,7 @@ void funcc(void)
 #ifdef C
   printf("C defined\n");
 #endif
+  printf("GLOBAL_EXTRA: %d\n", GLOBAL_EXTRA);
   printf("c\n");
   printf("gen: %d\n", gen);
 }

@@ -16,6 +16,7 @@ B defined
 b
 B2 defined
 C defined
+GLOBAL_EXTRA: 3
 c
 gen: 5
 EOF
@@ -29,6 +30,7 @@ B defined
 b
 B2 defined
 C defined
+GLOBAL_EXTRA: 3
 c
 gen: 5
 EOF
@@ -38,6 +40,7 @@ B defined
 b
 B2 defined
 C defined
+GLOBAL_EXTRA: 3
 c
 gen: 5
 EOF
@@ -49,6 +52,7 @@ B defined
 b
 B2 defined
 C defined
+GLOBAL_EXTRA: 3
 c
 gen: 5
 EOF
@@ -312,7 +316,7 @@ say '##################### build flag checks #######################';
         {
           # compiling
 
-          my @options_should = qw(-DGLOBAL_EXTRA -Werror -Wall -I. -MMD -MP -g -c);
+          my @options_should = qw(-DGLOBAL_EXTRA=3 -Werror -Wall -I. -MMD -MP -g -c);
 
           push @options_should, '-IlibA' if $target =~ m{^libA/};
           push @options_should, "-D$1" if $target =~ m{^lib([ABC])/};
