@@ -732,36 +732,7 @@ __END__
 
 - make sure correct flags are used
   - user -O should replace other -O
-- rpath
 - modified CCXXFLAGS should still work
 - all the flags are now additive
-- look at the .so building. -fPIC flags
-
-
-
-dima@fatty:~/buildsystem/tests$ objdump -p libA/libA.so | grep NEEDED
-  NEEDED               libB.so.0
-  NEEDED               libstdc++.so.6
-  NEEDED               libm.so.6
-  NEEDED               libgcc_s.so.1
-  NEEDED               libc.so.6
-dima@fatty:~/buildsystem/tests$ objdump -p libB/libB.so | grep NEEDED
-  NEEDED               libC.so.0
-  NEEDED               libstdc++.so.6
-  NEEDED               libm.so.6
-  NEEDED               libgcc_s.so.1
-  NEEDED               libc.so.6
-dima@fatty:~/buildsystem/tests$ objdump -p libC/libC.so | grep NEEDED
-  NEEDED               libstdc++.so.6
-  NEEDED               libm.so.6
-  NEEDED               libgcc_s.so.1
-  NEEDED               libc.so.6
-
-
-
-DESTDIR=/tmp make  install
-
-
-
 
 should test qt things
