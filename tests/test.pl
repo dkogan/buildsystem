@@ -16,7 +16,8 @@ B defined
 b
 B2 defined
 C defined
-GLOBAL_EXTRA: 5
+GLOBAL_EXTRA: 7
+GLOBAL_EXTRA_OTHER: 55
 c
 gen: 5
 EOF
@@ -30,7 +31,8 @@ B defined
 b
 B2 defined
 C defined
-GLOBAL_EXTRA: 5
+GLOBAL_EXTRA: 7
+GLOBAL_EXTRA_OTHER: 55
 c
 gen: 5
 EOF
@@ -40,7 +42,8 @@ B defined
 b
 B2 defined
 C defined
-GLOBAL_EXTRA: 5
+GLOBAL_EXTRA: 7
+GLOBAL_EXTRA_OTHER: 55
 c
 gen: 5
 EOF
@@ -52,7 +55,8 @@ B defined
 b
 B2 defined
 C defined
-GLOBAL_EXTRA: 5
+GLOBAL_EXTRA: 7
+GLOBAL_EXTRA_OTHER: 55
 c
 gen: 5
 EOF
@@ -320,11 +324,13 @@ say '##################### build flag checks #######################';
 
           if( $target =~ m{^libC/} )
           {
-            push @options_should, '-DGLOBAL_EXTRA=5';
+            push @options_should, '-DGLOBAL_EXTRA=7';
+            push @options_should, '-DGLOBAL_EXTRA_OTHER=55';
           }
           else
           {
             push @options_should, '-DGLOBAL_EXTRA=3';
+            push @options_should, '-DGLOBAL_EXTRA_OTHER=33';
           }
           push @options_should, '-IlibA' if $target =~ m{^libA/};
           push @options_should, "-D$1" if $target =~ m{^lib([ABC])/};

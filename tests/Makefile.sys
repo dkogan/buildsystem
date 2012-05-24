@@ -4,4 +4,4 @@ CC        := gcc
 CXX       := g++
 CC_LINKER := $(CXX)
 
-CCXXFLAGS += -DGLOBAL_EXTRA=3 -Werror -Wall
+CCXXFLAGS += -DGLOBAL_EXTRA=3 -DGLOBAL_EXTRA_OTHER=33 -Werror -Wall
