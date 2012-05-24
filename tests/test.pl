@@ -8,6 +8,49 @@ use Data::Dumper;
 use List::Compare;
 use Cwd qw(abs_path);
 
+my $utila_result_should = <<EOF;
+a helper
+A defined
+a
+B defined
+b
+B2 defined
+C defined
+c
+EOF
+
+my $utila2_result_should = <<EOF;
+utila 2
+UTILA2 defined
+A defined
+a
+B defined
+b
+B2 defined
+C defined
+c
+EOF
+
+my $utilb_result_should = <<EOF;
+B defined
+b
+B2 defined
+C defined
+c
+EOF
+
+my $main_result_should = <<EOF;
+A defined
+a
+B defined
+b
+B2 defined
+C defined
+c
+EOF
+
+
+
 # The toy project is very simple: libA depends on libB depends on libC. The
 # libA/utila executable calls simple functions in each of the sub-libraries.
 # This is set up this way to make sure that the implicit dependency of libA on
@@ -85,55 +128,30 @@ say '##################### basic building/execution tests ######################
   testBuildWithTarget('make libA/utila', \@targets_should_base);
   nextTest();
 
-  testBuildWithTarget('make', [@targets_should_base, qw(libA/utila2.o libA/utila2 libB/utilb libB/utilb.o) ] );
+  testBuildWithTarget('make', [@targets_should_base, qw(libA/utila2.o libA/utila2 libB/utilb libB/utilb.o util/main util/main.o) ] );
   nextTest();
 
 
 
 
   say '------ making sure the built applications do the expected thing -------';
-  my $utila_result = ensure( 'libA/utila' );
-  my $utila_result_should = <<EOF;
-a helper
-A defined
-a
-B defined
-b
-B2 defined
-C defined
-c
-EOF
-
-  my $utila2_result = ensure( 'libA/utila2' );
-  my $utila2_result_should = <<EOF;
-utila 2
-UTILA2 defined
-A defined
-a
-B defined
-b
-B2 defined
-C defined
-c
-EOF
-
-  if ( $utila_result ne $utila_result_should )
+  foreach ( ['libA/utila', $utila_result_should],
+            ['libA/utila2',$utila2_result_should],
+            ['libB/utilb', $utilb_result_should],
+            ['util/main',  $main_result_should] )
   {
-    confess( "utila output is wrong. Should:\n" .
-             $utila_result_should . "\n" .
-             "instead got\n" .
-             $utila_result . "\n" );
+    my ($cmd, $should) = @$_;
+
+    my $result  = ensure( $cmd );
+
+    if ( $result ne $should )
+    {
+      confess( "$cmd output is wrong. Should:\n" .
+               $should . "\n" .
+               "instead got\n" .
+               $result . "\n" );
+    }
   }
-
-
-  if ( $utila2_result ne $utila2_result_should )
-  {
-    confess( "utila2 output is wrong. Should:\n" .
-             $utila2_result_should . "\n" .
-             "instead got\n" .
-             $utila2_result . "\n" );
-  }
-
 
 
 
@@ -342,19 +360,19 @@ say '##################### build flag checks #######################';
             }
           }
 
-          if( $target =~ /util/ )
+          if( $target =~ /util[ab]|main/ )
           {
             # utils in libA and libB need to depend on libC's LDLIBS
             push @options_should, '-lstdc++';
           }
-          if( $target =~ /utila/ )
+          if( $target =~ /utila|main/ )
           {
             # utils in libA also need to depend on libA's LDLIBS
             push @options_should, '-lm';
           }
           if( $target =~ /utila2/ )
           {
-            # liba2 also has it's own custom extra options
+            # utila2 also has it's own custom extra options
             push @options_should, '-Wl,--stats';
             push @options_should, '-lc';
           }
@@ -389,6 +407,7 @@ debian/liboblong-b0/usr/lib/libB.so.0.5.6
 debian/liboblong-b-dev/usr/lib/libB.a
 debian/liboblong-c0/usr/lib/libC.so.0.5.6
 debian/liboblong-c-dev/usr/lib/libC.a
+debian/oblong-test-utility/usr/bin/main
 EOF
 
     my $links_should = <<EOF;
@@ -413,10 +432,14 @@ EOF
 
     # we just build dynamically-linked executables, so they should have been
     # removed by make so that the user can't accidentally run them
-    foreach (qw(libA/utila libA/utila2 libB/utilb))
+    foreach (qw(libA/utila util/main libA/utila2 libB/utilb))
     {
       confess "Intermediate target $_ wasn't cleaned up" if -e $_;
     }
+
+    say '------ Making sure the installed executables run correctly -------';
+
+
   }
   nextTest();
   checkDtNeeded( 'debian', undef );
@@ -431,6 +454,7 @@ EOF
     my $links = ensure( "echo localinstall/**/*(@) | xargs -n1 | sort" );
 
     my $files_should = <<EOF;
+localinstall/usr/bin/main
 localinstall/usr/bin/utila
 localinstall/usr/bin/utila2
 localinstall/usr/bin/utilb
@@ -485,6 +509,7 @@ EOF
     check($dir, 'libA.so.0.5.6');
     check($dir, 'libB.so.0.5.6');
     check($dir, 'libC.so.0.5.6');
+    check($dir, 'main',  $static_exe );
     check($dir, 'utila', $static_exe );
     check($dir, 'utila2',$static_exe );
     check($dir, 'utilb', $static_exe );
