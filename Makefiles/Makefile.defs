@@ -105,7 +105,6 @@ $(LDFLAGS)
 # we're doing C or C++
 _CCXXFLAGS_SEARCH_DIRS = $(call _get_option_args,$(1),-I)
 _CCXXFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_compile) \
-$(if $(filter %-fPIC.o,$@),-fPIC) \
 $1 \
 $(if $(filter -O%,$1),,-O2)
 

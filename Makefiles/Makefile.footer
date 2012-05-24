@@ -111,6 +111,11 @@ CC_LINKER ?= $(CC)
 # bottom of this file
 CCXXFLAGS += -MMD -MP
 
+# all objects built for inclusion in shared libraries get -fPIC. This is
+# sub-optimal, since it adds the -fPIC overhead even if linking these
+# statically, but this will have to do for now
+$(LIB_OBJECTS): CCXXFLAGS += -fPIC
+
 # if we don't care how we link the code, use plain cc
 CC_LINKER ?= $(CC)
 
@@ -130,14 +135,6 @@ c_build_rule  = $(CC)  $(call _CCXXFLAGS_POSTPROCESS,$(CFLAGS) $(CCXXFLAGS)) -c 
 %.o:%.cpp
 	$(cc_build_rule)
 %.o:%.c
-	$(c_build_rule)
-%-fPIC.o:%.C
-	$(cc_build_rule)
-%-fPIC.o:%.cc
-	$(cc_build_rule)
-%-fPIC.o:%.cpp
-	$(cc_build_rule)
-%-fPIC.o:%.c
 	$(c_build_rule)
 %.o: %.S
 	$(CC) $(ASFLAGS) $(CPPFLAGS) -c -o $@ $<
@@ -191,7 +188,7 @@ else
 endif
 
 $(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(API_VERSION): | $(LIB_TARGET_SO)
-$(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS:%.o=%-fPIC.o)
+$(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 	$(CC_LINKER) $(_LDFLAGS_POSTPROCESS) $(filter %.o, $^) $(filter-out %.o, $^) $(LDLIBS_SYSTEM) -o $@
 	ln -fs $(notdir $@) $(LIB_TARGET_SO_BARE)
 	ln -fs $(notdir $@) $(LIB_TARGET_SO_BARE).$(API_VERSION)
@@ -270,7 +267,7 @@ endif
 clean_files := $(addprefix $(dir)/, *.a *.o *.$(SO) *.$(SO).*)
 clean_files += pod2htmi.tmp pod2htmd.tmp $(addprefix $(dir)/, *.1 *-man.html)
 
-clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN) $(LIB_OBJECTS) $(LIB_OBJECTS:%.o=%-fPIC.o) $(addsuffix .o,$(BIN_TARGET_ALL))
+clean_files += $(BIN_TARGET_ALL) $(EXTRACLEAN) $(LIB_OBJECTS) $(addsuffix .o,$(BIN_TARGET_ALL))
 
 # This is done with an eval to immediately evaluate the files-to-clean list
 define CLEAN_template
