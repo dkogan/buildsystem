@@ -38,5 +38,15 @@ include buildsystem/Makefile.qt
 # modification, if desired; thus I do this in the header instead of the footer
 $(eval $(apply-var-customizations))
 
+# used to make gcc output header dependency information. All source
+# files generated .d dependency definitions that are included at the
+# bottom of this file
+CCXXFLAGS += -MMD -MP
+
+# always building with debug information. This is stripped into the -dbg
+# packages by debhelper later
+CCXXFLAGS += -g
+
+
 #}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} top-level build
 endif # ifeq ($(dir),)

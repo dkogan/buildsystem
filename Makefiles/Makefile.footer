@@ -106,22 +106,10 @@ LDLIBS_PROJECT = $(_create_LDLIBS_PROJECT:%.so=%.$(SO))
 # if we don't care how we link the code, use plain cc
 CC_LINKER ?= $(CC)
 
-# used to make gcc output header dependency information. All source
-# files generated .d dependency definitions that are included at the
-# bottom of this file
-CCXXFLAGS += -MMD -MP
-
 # all objects built for inclusion in shared libraries get -fPIC. This is
 # sub-optimal, since it adds the -fPIC overhead even if linking these
 # statically, but this will have to do for now
 $(LIB_OBJECTS): CCXXFLAGS += -fPIC
-
-# if we don't care how we link the code, use plain cc
-CC_LINKER ?= $(CC)
-
-# always building with debug information. This is stripped into the -dbg
-# packages by debhelper later
-CCXXFLAGS += -g
 
 # define the compile rules. I need to redefine the rules here because my
 # C..FLAGS variables are simple (immediately evaluated), but the user
