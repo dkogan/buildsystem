@@ -333,6 +333,12 @@ say '##################### build flag checks #######################';
             push @options_should, '-DUTILA2';
           }
 
+          # shared library objects get -fPIC
+          if( $target =~ m{/[abc]2?\.o} )
+          {
+            push @options_should, '-fPIC';
+          }
+
           ensureUnorderedCompare(\@options_did, \@options_should)
         }
         else
