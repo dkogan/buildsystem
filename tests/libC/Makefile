@@ -17,6 +17,8 @@ $(dir)/c.generated.h:
 
 EXTRACLEAN += c.generated.h
 
+# override the Makefile.sys GLOBAL_EXTRA setting
+CCXXFLAGS := $(patsubst -DGLOBAL_EXTRA=%,-DGLOBAL_EXTRA=5,$(CCXXFLAGS))
 
 # just to test LDLIBS_SYSTEM
 LDLIBS = -lstdc++
