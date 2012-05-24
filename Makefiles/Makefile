@@ -58,6 +58,8 @@ $(foreach dirhere,$(DIRS),$(eval $(DIRS_template)))
 
 .DEFAULT_GOAL := all
 
+# any errors delete half-built targets
+.DELETE_ON_ERROR:
 
 #}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} have -Rr. Build!
 endif # ifeq ($(_make_will_recurse),)
