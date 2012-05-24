@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "libC/c.generated.h"
 
 void funcc(void)
 {
@@ -6,4 +7,5 @@ void funcc(void)
   printf("C defined\n");
 #endif
   printf("c\n");
+  printf("gen: %d\n", gen);
 }
