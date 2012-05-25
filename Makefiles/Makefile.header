@@ -47,6 +47,13 @@ CCXXFLAGS += -MMD -MP
 # packages by debhelper later
 CCXXFLAGS += -g
 
+# About to include the project Makefile. I save all the active variables so that
+# I can detect unwanted modifications. Unless ALLOW_OVERRIDE is set, project
+# Makefiles are ONLY allowed to append to the active variables
+ALLOW_OVERRIDE :=
+$(foreach v,$(ACTIVE_VARS),$(eval _ORIG_$v := $($v)))
+
+
 
 #}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} top-level build
 endif # ifeq ($(dir),)

@@ -8,9 +8,25 @@
 ifeq ($(_make_will_recurse),)
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ not recursive build (full file)
 
-
-
 $(if $(MAKE_DEBUG), $(info MAKE_DEBUG $(_when): At top of the $(dir) Makefile))
+
+
+# if variable overrides aren't allowed, all the active variables can ONLY have
+# been appended-to. No other modifications are allowed. The values of those
+# variables before the project Makefile are stored in $(_ORIG_varname)
+ifeq ($(ALLOW_OVERRIDE),)
+  define _check_modified_var
+    $(if $(_ORIG_$v),
+      $(if $(findstring $(wordlist 1,$(words $(_ORIG_$v)), $($v)),
+                        $(_ORIG_$v)),,
+        $(error Variable overrides not allowed, but $(dir)/Makefile tweaked $v.
+                Set ALLOW_OVERRIDES if you really want to do this)))
+  endef
+
+  $(foreach v,$(ACTIVE_VARS), $(eval $(_check_modified_var)))
+endif
+
+
 
 # if we don't already have a target name, use the directory. So code in the
 # libRetro directory would produce libRetro.so and libRetro.a. I can't use ?=
