@@ -283,6 +283,10 @@ say '##################### build flag checks #######################';
   ensure( "LDFLAGS='-L../asdf' make -n -C libA",        'shouldfail' );
 
 
+  say '------ making sure that the variable override is working ------';
+  ensure( "BLOCK_OVERRIDE=1 make -n -C libC",            'shouldfail' );
+
+
 
 
   sub ensureCommandlineOptions

@@ -24,6 +24,10 @@ EXTRACLEAN += c.generated.h
 #
 # GLOBAL_EXTRA_OTHER has a default of 33 (in Makefile.sys) and a per-project
 # override of 55
+ifeq ($(BLOCK_OVERRIDE),) # to test the override logic
+  ALLOW_OVERRIDE := 3
+endif
+
 CCXXFLAGS := $(patsubst -DGLOBAL_EXTRA=%,-DGLOBAL_EXTRA=5,$(CCXXFLAGS))
 CCXXFLAGS := $(patsubst -DGLOBAL_EXTRA_OTHER=%,-DGLOBAL_EXTRA_OTHER=55,$(CCXXFLAGS))
 $(dir)/c.o: CCXXFLAGS := $(patsubst -DGLOBAL_EXTRA=%,-DGLOBAL_EXTRA=7,$(CCXXFLAGS))
