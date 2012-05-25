@@ -20,6 +20,14 @@ GLOBAL_EXTRA: 7
 GLOBAL_EXTRA_OTHER: 55
 c
 gen: 5
+B defined
+b
+B2 defined
+C defined
+GLOBAL_EXTRA: 7
+GLOBAL_EXTRA_OTHER: 55
+c
+gen: 5
 EOF
 
 my $utila2_result_should = <<EOF;
@@ -269,6 +277,10 @@ say '##################### build flag checks #######################';
   ensureCommandlineOptions("CCXXFLAGS='-I../.. -I../libC' LDFLAGS='-L../.. -L../libC' make -C libA");
   nextTest();
 
+  cleanDebianDir();
+  ensureCommandlineOptions("DESTDIR=asdf make install");
+  nextTest();
+
   say '------ making sure that non-existent paths get picked up and flagged ------';
   ensure( 'make clean' );
   ensure( "CCXXFLAGS='-Iasdf' make -n",                 'shouldfail' );
@@ -394,6 +406,8 @@ say '##################### build flag checks #######################';
           $haveCopyDtNeeded = `ld --copy-dt-needed-entries 2>&1` !~ /unrecognized|unknown/ unless defined $haveCopyDtNeeded;
           push @options_should, '-Wl,--copy-dt-needed-entries' if $haveCopyDtNeeded;
 
+          my $installing = $makecmd =~ / install$/;
+
           # add all the non- -L flags
           if ( $LDFLAGS )
           {
@@ -414,15 +428,17 @@ say '##################### build flag checks #######################';
             }
           }
 
-          if( $target =~ /util[ab]|main/ )
+          my $LDLIBS_SYSTEM_libA = '-lm';
+          my $LDLIBS_SYSTEM_libC = '-lstdc++';
+          if( (!$installing && $target =~ /util[ab]|main/) || $target =~ m{libC/} )
           {
             # utils in libA and libB need to depend on libC's LDLIBS
-            push @options_should, '-lstdc++';
+            push @options_should, $LDLIBS_SYSTEM_libC;
           }
-          if( $target =~ /utila|main/ )
+          if( (!$installing && $target =~ /utila|main/)  || $target =~ m{libA/} )
           {
             # utils in libA also need to depend on libA's LDLIBS
-            push @options_should, '-lm';
+            push @options_should, $LDLIBS_SYSTEM_libA;
           }
           if( $target =~ /utila2/ )
           {
@@ -430,6 +446,24 @@ say '##################### build flag checks #######################';
             push @options_should, '-Wl,--stats';
             push @options_should, '-lc';
           }
+
+          if( $target =~ m{/(.*?\.so\.5\.6)\.7} )
+          {
+            my $soname = $1;
+            push @options_should, "-Wl,-soname,$soname";
+            push @options_should, '-fPIC';
+            push @options_should, '-shared';
+          }
+          elsif( $installing )
+          {
+            my $rplink_libA = '-Wl,-rpath-link,' . abs_path('./libA');
+            my $rplink_libB = '-Wl,-rpath-link,' . abs_path('./libB');
+            my $rplink_libC = '-Wl,-rpath-link,' . abs_path('./libC');
+            push @options_should, $rplink_libC;
+            push @options_should, $rplink_libB if $target =~ /libA|main/;
+            push @options_should, $rplink_libA if $target =~ /main/;
+          }
+
 
           ensureUnorderedCompare(\@options_did, \@options_should);
         }
@@ -633,9 +667,12 @@ EOF
         confess "was looking for a single $dir/**/$fil, but found none";
       }
 
+      say "------- Making sure that $paths[0] has correct DT_NEEDED flags ------";
+
+
       my @needed = split "\n", ensure( "objdump -p $paths[0] | awk '/NEEDED/ {print \$2}'" );
-      my $lc = List::Compare->new(\@needed, [qw(libA.so.5.6 libB.so.5.6 libC.so.5.6)]);
-      my @intersection = $lc->get_intersection;
+      my $lc1 = List::Compare->new(\@needed, [qw(libA.so.5.6 libB.so.5.6 libC.so.5.6)]);
+      my @intersection = $lc1->get_intersection;
 
       # libA should depend only on libB
       # libB should depend only on libC
@@ -656,8 +693,8 @@ EOF
           @intersection == 0;
       }
 
-      # executables should depend just on their local library, unless they're
-      # linked statically. Static linking says they depend on nothing, since the
+      # executables should depend on their local library, unless they're linked
+      # statically. Static linking says they depend on nothing, since the
       # library is INSIDE the executable
       if( $fil =~ /util[ab]/ )
       {
@@ -668,10 +705,14 @@ EOF
         }
         else
         {
-          my $lib = $fil;
-          $lib =~ s/util([ab]).*/'lib' . uc($1) . '.so.5.6'/e;
-          confess "$fil should depend ONLY on $lib" unless
-            @intersection == 1 && $intersection[0] eq $lib;
+          my $libthis = $fil;
+          $libthis =~ s/util([ab]).*/'lib' . uc($1) . '.so.5.6'/e;
+
+          my @depends_should = ($libthis);
+          push @depends_should, 'libB.so.5.6' if $fil eq 'utila';
+
+          my $lc2 = List::Compare->new(\@intersection, \@depends_should);
+          confess "Locally, $fil MUST depend EXACTLY on '@depends_should', but instead it depends on '@intersection'" unless $lc2->is_LequivalentR();
         }
       }
     }
