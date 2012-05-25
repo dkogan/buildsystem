@@ -8,7 +8,7 @@ Standards-Version: 3.8.4
 Package: oblong-buildsystem
 Section: non-free/oblong
 Architecture: all
-Depends: ${misc:Depends}, make
+Depends: ${misc:Depends}, make, gawk
 Description: Build/packaging system for Oblong code
  The system used in various Oblong software to enable builds and generation of
  Debian packages

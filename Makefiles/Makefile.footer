@@ -62,42 +62,60 @@ endif
 
 # none of this applies for unit tests
 ifeq ($(IS_UNIT_TEST),)
+  # the first time I see this, I read off all the version information.
 
-# I parse the version from debian/changelog. I look at the first line of that
-# file and get everything betwee '(' and the first '-'. These lines look like
-#
-# oblong-perception (3.11-dima-2) lucid; urgency=low
-#
-# debian has a dpkg-parsechangelog tool to do this for me, but it's
-# significantly slower than the awk version below, so I don't use it
-LPAREN := (
-RPAREN := )
-VERSION := $(or $(VERSION),$(strip $(shell awk '{ sub(".*\\$(LPAREN)",""); sub("[-$(RPAREN)~].*",""); print; exit}' debian/changelog)))
-$(if $(VERSION),,$(error "Couldn't parse version from debian/changelog"))
+  # The debian/changelog has the full version number that I use to version my
+  # .so files. So if I'm at version 3.2.5, my libraries will be libA.so.3.2.5
+  #
+  # I parse the version from debian/changelog. I look at the first line of that
+  # file and get everything between '(' and the first '-'. These lines look like
+  #
+  # oblong-perception (3.11-dima-2) lucid; urgency=low
+  #
+  # debian has a dpkg-parsechangelog tool to do this for me, but it's
+  # significantly slower than the gawk version below, so I don't use it
+  LPAREN := (
+  RPAREN := )
+  SO_VERSION :=													\
+    $(or $(SO_VERSION),												\
+         $(strip												\
+           $(shell												\
+             gawk '{ sub(".*\\$(LPAREN)",""); sub("[-$(RPAREN)~].*",""); print; exit}' debian/changelog)),	\
+         $(error Could not parse version from debian/changelog))
 
+  # At this time we are using the first two digits to indicate the ABI version,
+  # so in the above example, this is '3.2'. This implies a symlink libA.so.3.2
+  # -> libA.so.3.2.5. All the library packages must have the ABI version in
+  # their name, so the above implies that I have packages named liboblong-a3.2,
+  # liboblong-a3.2-dev and liboblong-a3.2-dbg. I ENFORCE those package names. If
+  # I see a package that isn't named in this way, I complain loudly.
+  #
+  # I do not assume the ABI version is two digits. Rather, I look at the
+  # 'Source' version in the debian/control. This should be '3.2', or at least
+  # some leading subset of '3.2.5'.
+  REPO_NAME_ABI_VERSIONED := $(or $(REPO_NAME_ABI_VERSIONED),			\
+         $(strip								\
+           $(shell								\
+             gawk '/Source:/ { print $$2; exit }' debian/control)),		\
+           $(error Could not parse Source: repo version from debian/control))
 
-# If I'm building a library, I grab its API version from the name of its debian
-# package. So for instance, if debian/control says that I'm building the
-# liboblong-retro1 package then the API version for libRetro is 1.
-ifneq ($(LIB_OBJECTS),)
+  ABI_VERSION :=									\
+    $(or $(ABI_VERSION),								\
+         $(strip									\
+           $(shell									\
+             echo $(REPO_NAME_ABI_VERSIONED) | grep -o '[0-9.]*$$')),			\
+           $(error Could not grab repo version from '$(REPO_NAME_ABI_VERSIONED)'.	\
+                   Trailing version REQUIRED. Example: 'g-speak3.2'.			\
+                   This comes from the 'Source:' field in debian/control))
 
-PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
-API_VERSION := $(shell awk '/Package:[ 	]*$(PACKAGENAME_BASE)[0-9]+[ 	]*$$/ { sub("Package:[ 	]*$(PACKAGENAME_BASE)",""); print; exit;}' debian/control)
-$(if $(API_VERSION),,$(error Couldn't parse API version for $(TARGET_NAME). Maybe the package isn't defined in debian/control?))
-
-else
-
-# not a library. but is a package defined?
-PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
-
-$(if $(shell grep 'Package:[ 	]*$(PACKAGENAME_BASE)[ 	]*$$' debian/control),, \
-  $(error No package defined for $(PACKAGENAME_BASE) ($(_when))))
-
-endif
-
-SO_VERSION := $(API_VERSION).$(VERSION)
+  $(if $(filter $(ABI_VERSION).%,$(SO_VERSION)),,				\
+       $(error Full version from debian/changelog ($(SO_VERSION)) MUST begin	\
+               with the Source version from debian/control ($(ABI_VERSION).)))
 
 endif # ifeq ($(IS_UNIT_TEST),)
+
+
+
 
 #################### variable setup ###################################
 
@@ -173,7 +191,7 @@ $(call _ensure_custom_dirs_exist,$(CFLAGS) $(CXXFLAGS) $(CCXXFLAGS))
 # distribution
 $(dir)/%.1: $(dir)/%.pod
 	podchecker $<
-	pod2man --center "Oblong Industries" --release "$(TARGET_NAME) $(VERSION)" $< $@
+	pod2man --center "Oblong Industries" --release "$(TARGET_NAME) $(SO_VERSION)" $< $@
 
 $(dir)/%-man.html: $(dir)/%.pod
 	pod2html $< > $@
@@ -192,14 +210,14 @@ $(LIB_TARGET_A): $(LIB_OBJECTS) | $(LDLIBS_PROJECT:%.$(SO)=%.a)
 ifneq ($(COND_DARWIN),)
   $(LIB_TARGET_SO): LDFLAGS += -dynamiclib -flat_namespace -fPIC
 else
-  $(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
+  $(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(ABI_VERSION)
 endif
 
-$(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(API_VERSION): | $(LIB_TARGET_SO)
+$(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(ABI_VERSION): | $(LIB_TARGET_SO)
 $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 	$(CC_LINKER) $(_LDFLAGS_POSTPROCESS) $(filter %.o, $^) $(filter-out %.o, $^) $(LDLIBS_SYSTEM) -o $@
 	ln -fs $(notdir $@) $(LIB_TARGET_SO_BARE)
-	ln -fs $(notdir $@) $(LIB_TARGET_SO_BARE).$(API_VERSION)
+	ln -fs $(notdir $@) $(LIB_TARGET_SO_BARE).$(ABI_VERSION)
 
 # I'm using $$ here to delay the variable expansion until later, so that the
 # rules are generated keeping the variable references intact. For instance, the

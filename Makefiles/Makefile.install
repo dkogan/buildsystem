@@ -18,7 +18,7 @@ ifneq ($(filter $(MAKECMDGOALS),install),)
 #{{{{{{{{{{{{{{ 'make install'
 
   # If the TARGET_NAME starts with 'lib', it's a library. Otherwise it's
-  # binaries. Libraries have -dev versions of their packages, have API_VERSIONs,
+  # binaries. Libraries have -dev versions of their packages, have ABI_VERSIONs,
   # and are allowed to have headers, .so, .a, etc. For each library I have 3
   # packages:
   #
@@ -28,14 +28,12 @@ ifneq ($(filter $(MAKECMDGOALS),install),)
 
   ifeq ($(TARGET_NAME:lib%=lib),lib)
   #{{{{{{{{{{{{{{ library
-    PACKAGENAME_BASE := $(PACKAGENAME_BASE_LIB)
-    PACKAGENAME      := $(PACKAGENAME_BASE)$(API_VERSION)
-    $(dir)/install: DESTDIR_DEV := debian/$(PACKAGENAME_BASE)-dev
+    PACKAGENAME      := $(PACKAGENAME_BASE_LIB)$(ABI_VERSION)
+    $(dir)/install: DESTDIR_DEV := debian/$(PACKAGENAME)-dev
   #}}}}}}}}}}}}}}
   else
   #{{{{{{{{{{{{{{ binary package
-   PACKAGENAME_BASE := $(PACKAGENAME_BASE_BIN)
-   PACKAGENAME      := $(PACKAGENAME_BASE)
+    PACKAGENAME      := $(PACKAGENAME_BASE_BIN)
   #}}}}}}}}}}}}}}
   endif
 
@@ -87,23 +85,24 @@ endif
 #{{{{{{{{{{{{{{ header path stuff
 
 # the headers are installed into
-#   /usr/include/$(HEADER_PATH)/$(HEADER_SUBPATH)
+#   /usr/include/$(REPO_NAME_ABI_VERSIONED)/$(HEADER_PATH)/$(HEADER_SUBPATH)
 
 # Here the HEADER_PATH holds all of this project's headers, and if the
 # project has sub-path headers, they go into subdirectories. The
 # HEADER_PATH defaults to the location of the project in the source
-# tree, unless explicitly overwridden in the project Makefile. Example:
+# tree, unless explicitly overridden in the project Makefile. Example:
 # project lives in $(ROOT)/libXXX. It's trying to install a.h, d/b.h.
 # These will be installed to
-#   /usr/include/libXXX/a.h
-#   /usr/include/libXXX/d/b.h
+#   /usr/include/repo3.2/libXXX/a.h
+#   /usr/include/repo3.2/libXXX/d/b.h
+INCLUDE_DIR = $(DESTDIR_DEV)/usr/include/$(REPO_NAME_ABI_VERSIONED)
 ifneq ($(DIST_HEADERS),)
 
 _dir_rel          = $(patsubst %/,%,$(dir $@))
 _DIST_HEADER_DIRS = $(sort $(dir $(DIST_HEADERS)))
 
 define _install_header
-cp -P $h $(DESTDIR_DEV)/usr/include/$(or $(HEADER_PATH),$(_dir_rel))/$(patsubst $(_dir_rel)/%,%,$h)
+cp -P $h $(INCLUDE_DIR)/$(or $(HEADER_PATH),$(_dir_rel))/$(patsubst $(_dir_rel)/%,%,$h)
 
 endef
 
@@ -117,7 +116,7 @@ endif
 
 # using 'cp -P' instead of 'install' because the latter follows links unconditionally
 # BIN_TARGET is incorporated in DIST_BINS
-$(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(API_VERSION) $(DIST_ALL)
+$(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(ABI_VERSION) $(DIST_ALL)
 
 # must have DESTDIR if we're doing an "install"
 ifneq ($(filter $(MAKECMDGOALS),install),)
@@ -130,12 +129,12 @@ endif
 endif
 ifeq ($(TARGET_NAME:lib%=lib),lib)
 	mkdir -p $(DESTDIR_MAIN)/usr/lib
-	mkdir -p $(DESTDIR_DEV)/usr/lib
+	mkdir -p $(DESTDIR_DEV)/usr/lib/$(REPO_NAME_ABI_VERSIONED)
 
 	cp -P $(LIB_TARGET_SO)  $(DESTDIR_MAIN)/usr/lib
-	cp -P $(LIB_TARGET_A)   $(DESTDIR_DEV)/usr/lib
-	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_MAIN)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE)).$(API_VERSION)
-	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_DEV)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE))
+	cp -P $(LIB_TARGET_A)   $(DESTDIR_DEV)/usr/lib/$(REPO_NAME_ABI_VERSIONED)
+	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_MAIN)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE)).$(ABI_VERSION)
+	ln -fs ../$(notdir $(LIB_TARGET_SO)) $(DESTDIR_DEV)/usr/lib/$(REPO_NAME_ABI_VERSIONED)/$(notdir $(LIB_TARGET_SO_BARE))
 endif
 ifneq ($(DIST_BINS),)
 	mkdir -p $(DESTDIR_MAIN)/usr/bin
@@ -146,9 +145,9 @@ ifneq ($(DIST_HEADERS),)
   # header in the tree, OR based on the HEADER_PATH variable. See
   # comments above
   ifneq ($(HEADER_PATH),)
-	mkdir -p $(addprefix $(DESTDIR_DEV)/usr/include/,$(patsubst $(_dir_rel)%,$(HEADER_PATH)%,$(_DIST_HEADER_DIRS)))
+	mkdir -p $(addprefix $(INCLUDE_DIR)/,$(patsubst $(_dir_rel)%,$(HEADER_PATH)%,$(_DIST_HEADER_DIRS)))
   else
-	mkdir -p $(addprefix $(DESTDIR_DEV)/usr/include/,$(_DIST_HEADER_DIRS))
+	mkdir -p $(addprefix $(INCLUDE_DIR)/,$(_DIST_HEADER_DIRS))
   endif
 	$(foreach h,$(DIST_HEADERS),$(_install_header))
 endif
