@@ -250,6 +250,12 @@ $(LIB_TARGET_SO): $(LDLIBS_PROJECT) $(LIB_OBJECTS)
 # LDLIBS_SYSTEM.
 #
 # Here I can have linking duplicates, but ld is smart enough to throw those out
+#
+# dynamic libaaa/bbb executables link ONLY with libaaa/libaaa.so from the
+# project, since libaaa.so has DT_NEEDED tags to pull in all the other
+# LDLIBS_PROJECT libraries. On the other hand, dynamic util/bbb executables DO
+# link with their LDLIBS_PROJECT, since they don't have an anchor DSO. This is
+# the reason for '$$(if $$(LIB_OBJECTS),,$$(LDLIBS_PROJECT))'.
 $(dir)_LDLIBS_SYSTEM  := $(LDLIBS_SYSTEM)
 $(dir)_LDLIBS_PROJECT := $(LDLIBS_PROJECT:%.$(SO)=%.a)
 
@@ -268,9 +274,9 @@ $(1): $(1).o $(LIB_TARGET_A) $$(LDLIBS_PROJECT:%.$(SO)=%.a)
 endef
 
 define BIN_TARGET_template_dynamic
-$(1): $(1).o $(LIB_TARGET_SO) $$(LDLIBS_PROJECT)
-	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(call _rpath-link_dirs_from_libs, $$($$(dir)_CHILDREN_LDLIBS_PROJECT))	\
-		$$(filter %.o, $$^) $$(filter-out %.o, $$^)								\
+$(1): $(1).o $(LIB_TARGET_SO) $$(if $$(LIB_OBJECTS),,$$(LDLIBS_PROJECT))
+	$$(CC_LINKER) $$(_LDFLAGS_POSTPROCESS) $$(call _rpath-link_dirs_from_libs, $$($$(dir)_CHILDREN_LDLIBS_PROJECT) $$($$(dir)_LDLIBS_PROJECT))	\
+		$$(filter %.o, $$^) $$(filter-out %.o, $$^)												\
 		$$(LDLIBS_SYSTEM) -o $$@
 .PHONY:        $(1)
 .INTERMEDIATE: $(1)
