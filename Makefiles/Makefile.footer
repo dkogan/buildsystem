@@ -20,7 +20,7 @@ ifeq ($(ALLOW_OVERRIDE),)
       $(if $(findstring $(wordlist 1,$(words $(_ORIG_$v)), $($v)),
                         $(_ORIG_$v)),,
         $(error Variable overrides not allowed, but $(dir)/Makefile tweaked $v.
-                Set ALLOW_OVERRIDES if you really want to do this)))
+                Set ALLOW_OVERRIDE if you really want to do this)))
   endef
 
   $(foreach v,$(ACTIVE_VARS), $(eval $(_check_modified_var)))
