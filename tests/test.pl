@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use feature qw(say);
+use feature qw(say state);
 use IPC::Run qw(run);
 use Carp qw(confess);
 use Data::Dumper;
@@ -387,6 +387,12 @@ say '##################### build flag checks #######################';
         {
           # linking
           my @options_should = ();
+
+          # First, figure out if the linker has --copy-dt-needed-entries, to
+          # know if I should look for it in the flags
+          state $haveCopyDtNeeded;
+          $haveCopyDtNeeded = `ld --copy-dt-needed-entries 2>&1` !~ /unrecognized|unknown/ unless defined $haveCopyDtNeeded;
+          push @options_should, '-Wl,--copy-dt-needed-entries' if $haveCopyDtNeeded;
 
           # add all the non- -L flags
           if ( $LDFLAGS )
