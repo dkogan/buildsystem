@@ -446,27 +446,27 @@ say '##################### installation checks #######################';
     my $links = ensure( "echo debian/**/*(@) | xargs -n1 | sort" );
 
     my $files_should = <<EOF;
-debian/liboblong-a0/usr/bin/utila
-debian/liboblong-a0/usr/bin/utila2
-debian/liboblong-a0/usr/lib/libA.so.0.5.6
-debian/liboblong-a-dev/usr/lib/libA.a
-debian/liboblong-b0/usr/bin/utilb
-debian/liboblong-b0/usr/lib/libB.so.0.5.6
-debian/liboblong-b-dev/usr/lib/libB.a
-debian/liboblong-c0/usr/lib/libC.so.0.5.6
-debian/liboblong-c-dev/usr/include/libC/c.generated.h
-debian/liboblong-c-dev/usr/include/libC/c.h
-debian/liboblong-c-dev/usr/lib/libC.a
+debian/liboblong-a5.6-dev/usr/lib/buildsystem-unittests5.6/libA.a
+debian/liboblong-a5.6/usr/bin/utila
+debian/liboblong-a5.6/usr/bin/utila2
+debian/liboblong-a5.6/usr/lib/libA.so.5.6.7
+debian/liboblong-b5.6-dev/usr/lib/buildsystem-unittests5.6/libB.a
+debian/liboblong-b5.6/usr/bin/utilb
+debian/liboblong-b5.6/usr/lib/libB.so.5.6.7
+debian/liboblong-c5.6-dev/usr/include/buildsystem-unittests5.6/libC/c.generated.h
+debian/liboblong-c5.6-dev/usr/include/buildsystem-unittests5.6/libC/c.h
+debian/liboblong-c5.6-dev/usr/lib/buildsystem-unittests5.6/libC.a
+debian/liboblong-c5.6/usr/lib/libC.so.5.6.7
 debian/oblong-test-utility/usr/bin/main
 EOF
 
     my $links_should = <<EOF;
-debian/liboblong-a0/usr/lib/libA.so.0
-debian/liboblong-a-dev/usr/lib/libA.so
-debian/liboblong-b0/usr/lib/libB.so.0
-debian/liboblong-b-dev/usr/lib/libB.so
-debian/liboblong-c0/usr/lib/libC.so.0
-debian/liboblong-c-dev/usr/lib/libC.so
+debian/liboblong-a5.6-dev/usr/lib/buildsystem-unittests5.6/libA.so
+debian/liboblong-a5.6/usr/lib/libA.so.5.6
+debian/liboblong-b5.6-dev/usr/lib/buildsystem-unittests5.6/libB.so
+debian/liboblong-b5.6/usr/lib/libB.so.5.6
+debian/liboblong-c5.6-dev/usr/lib/buildsystem-unittests5.6/libC.so
+debian/liboblong-c5.6/usr/lib/libC.so.5.6
 EOF
 
     if ( $files ne $files_should )
@@ -495,16 +495,16 @@ EOF
   checkDtNeeded( 'debian', undef );
 
   say '------ make sure the built exes break without LD_LIBRARY_PATH -------';
-  ensure( 'debian/liboblong-a0/usr/bin/utila',      'shouldfail' );
-  ensure( 'debian/liboblong-a0/usr/bin/utila2',     'shouldfail' );
-  ensure( 'debian/liboblong-b0/usr/bin/utilb',      'shouldfail' );
+  ensure( 'debian/liboblong-a5.6/usr/bin/utila',      'shouldfail' );
+  ensure( 'debian/liboblong-a5.6/usr/bin/utila2',     'shouldfail' );
+  ensure( 'debian/liboblong-b5.6/usr/bin/utilb',      'shouldfail' );
   ensure( 'debian/oblong-test-utility/usr/bin/main','shouldfail' );
 
   say '------ make sure the built exes run with LD_LIBRARY_PATH -------';
-  foreach ( ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/liboblong-a0/usr/bin/utila',      $utila_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/liboblong-a0/usr/bin/utila2',     $utila2_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/liboblong-b0/usr/bin/utilb',      $utilb_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a0/usr/lib:$PWD/debian/liboblong-b0/usr/lib:$PWD/debian/liboblong-c0/usr/lib debian/oblong-test-utility/usr/bin/main',$main_result_should] )
+  foreach ( ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila',      $utila_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila2',     $utila2_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-b5.6/usr/bin/utilb',      $utilb_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/oblong-test-utility/usr/bin/main',$main_result_should] )
   {
     my ($cmd, $should) = @$_;
 
@@ -534,23 +534,23 @@ localinstall/usr/bin/main
 localinstall/usr/bin/utila
 localinstall/usr/bin/utila2
 localinstall/usr/bin/utilb
-localinstall/usr/include/libC/c.generated.h
-localinstall/usr/include/libC/c.h
-localinstall/usr/lib/libA.a
-localinstall/usr/lib/libA.so.0.5.6
-localinstall/usr/lib/libB.a
-localinstall/usr/lib/libB.so.0.5.6
-localinstall/usr/lib/libC.a
-localinstall/usr/lib/libC.so.0.5.6
+localinstall/usr/include/buildsystem-unittests5.6/libC/c.generated.h
+localinstall/usr/include/buildsystem-unittests5.6/libC/c.h
+localinstall/usr/lib/buildsystem-unittests5.6/libA.a
+localinstall/usr/lib/buildsystem-unittests5.6/libB.a
+localinstall/usr/lib/buildsystem-unittests5.6/libC.a
+localinstall/usr/lib/libA.so.5.6.7
+localinstall/usr/lib/libB.so.5.6.7
+localinstall/usr/lib/libC.so.5.6.7
 EOF
 
     my $links_should = <<EOF;
-localinstall/usr/lib/libA.so
-localinstall/usr/lib/libA.so.0
-localinstall/usr/lib/libB.so
-localinstall/usr/lib/libB.so.0
-localinstall/usr/lib/libC.so
-localinstall/usr/lib/libC.so.0
+localinstall/usr/lib/buildsystem-unittests5.6/libA.so
+localinstall/usr/lib/buildsystem-unittests5.6/libB.so
+localinstall/usr/lib/buildsystem-unittests5.6/libC.so
+localinstall/usr/lib/libA.so.5.6
+localinstall/usr/lib/libB.so.5.6
+localinstall/usr/lib/libC.so.5.6
 EOF
 
     if ( $files ne $files_should )
@@ -604,9 +604,9 @@ EOF
 
     say "------- Making sure that the libraries, executables in '$dir' have correct DT_NEEDED flags ------";
 
-    check($dir, 'libA.so.0.5.6');
-    check($dir, 'libB.so.0.5.6');
-    check($dir, 'libC.so.0.5.6');
+    check($dir, 'libA.so.5.6.7');
+    check($dir, 'libB.so.5.6.7');
+    check($dir, 'libC.so.5.6.7');
     check($dir, 'main',  $static_exe );
     check($dir, 'utila', $static_exe );
     check($dir, 'utila2',$static_exe );
@@ -628,7 +628,7 @@ EOF
       }
 
       my @needed = split "\n", ensure( "objdump -p $paths[0] | awk '/NEEDED/ {print \$2}'" );
-      my $lc = List::Compare->new(\@needed, [qw(libA.so.0 libB.so.0 libC.so.0)]);
+      my $lc = List::Compare->new(\@needed, [qw(libA.so.5.6 libB.so.5.6 libC.so.5.6)]);
       my @intersection = $lc->get_intersection;
 
       # libA should depend only on libB
@@ -637,12 +637,12 @@ EOF
       if( $fil =~ /libA/ )
       {
         confess "Incorrect DT_NEEDED tag. libA should depend on libB" unless
-          @intersection == 1 && $intersection[0] eq 'libB.so.0';
+          @intersection == 1 && $intersection[0] eq 'libB.so.5.6';
       }
       if( $fil =~ /libB/ )
       {
         confess "Incorrect DT_NEEDED tag. libB should depend on libC" unless
-          @intersection == 1 && $intersection[0] eq 'libC.so.0';
+          @intersection == 1 && $intersection[0] eq 'libC.so.5.6';
       }
       if( $fil =~ /libC/ )
       {
@@ -663,7 +663,7 @@ EOF
         else
         {
           my $lib = $fil;
-          $lib =~ s/util([ab]).*/'lib' . uc($1) . '.so.0'/e;
+          $lib =~ s/util([ab]).*/'lib' . uc($1) . '.so.5.6'/e;
           confess "$fil should depend ONLY on $lib" unless
             @intersection == 1 && $intersection[0] eq $lib;
         }
