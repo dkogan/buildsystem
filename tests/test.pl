@@ -8,6 +8,14 @@ use Data::Dumper;
 use List::Compare;
 use Cwd qw(abs_path);
 
+# debhelper likes to turn on some Make flags when building packages, but these
+# confuse the tests, so I turn these off here
+for my $k(keys %ENV)
+{
+  delete $ENV{$k} if $k =~ /FLAGS/;
+}
+
+
 my $utila_result_should = <<EOF;
 a helper
 A defined
