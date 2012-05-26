@@ -55,6 +55,25 @@ endif
 
 
 
+
+# make sure the package names defined in debian/control have the necessary
+# embedded version numbers. I only do this during 'make install' for efficiency
+ifneq ($(filter $(MAKECMDGOALS),install),)
+ifeq ($(_CHECKED_DEBIAN_CONTROL_VERSIONS),)
+  _CHECKED_DEBIAN_CONTROL_VERSIONS := 1
+
+  _DEBIAN_CONTROL_CHECK_RESULT := $(shell perl buildsystem/checkPackageNames.pl $(REPO_NAME_ABI_VERSIONED) 2>&1)
+  $(if $(_DEBIAN_CONTROL_CHECK_RESULT),			\
+       $(error debian/control failed checks:		\
+               $(_DEBIAN_CONTROL_CHECK_RESULT)))
+endif
+endif
+
+
+
+endif
+
+
 # If I have a DAEMON_COMMAND, I define an upstart configuration
 ifneq ($(DAEMON_COMMAND),)
 
