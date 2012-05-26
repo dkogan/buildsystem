@@ -208,7 +208,7 @@ $(LIB_TARGET_A): $(LIB_OBJECTS) | $(LDLIBS_PROJECT:%.$(SO)=%.a)
 ifneq ($(COND_DARWIN),)
   $(LIB_TARGET_SO): LDFLAGS += -dynamiclib -flat_namespace -fPIC
 else
-  $(LIB_TARGET_SO): LDFLAGS += -shared -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(ABI_VERSION)
+  $(LIB_TARGET_SO): LDFLAGS += -shared -Wl,--default-symver -fPIC -Wl,-soname,$(notdir $(LIB_TARGET_SO_BARE)).$(ABI_VERSION)
 endif
 
 $(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(ABI_VERSION): | $(LIB_TARGET_SO)

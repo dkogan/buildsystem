@@ -451,6 +451,7 @@ say '##################### build flag checks #######################';
           {
             my $soname = $1;
             push @options_should, "-Wl,-soname,$soname";
+            push @options_should, "-Wl,--default-symver";
             push @options_should, '-fPIC';
             push @options_should, '-shared';
           }
