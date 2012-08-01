@@ -836,5 +836,6 @@ __END__
   - user -O should replace other -O
 - modified CCXXFLAGS should still work
 - all the flags are now additive
+- make sure checkPackageNames.pl does the right thing; make some wrongly-versioned package names
 
 should test qt things
