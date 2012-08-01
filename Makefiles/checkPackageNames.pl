@@ -13,12 +13,12 @@ while(<CONTROL>)
 {
   my @F = split;
 
-  if( my ($saw) = /^Source:\s*(.*?)$/ )
+  if( my ($saw) = /^Source:\s*(.*?)[0-9\.]*$/ )
   {
-    if( $REPO_NAME_ABI_VERSIONED ne $saw )
+    if( $REPO_NAME ne $saw )
     {
       die "Saw incorrect Source version in debian/control.\n" .
-        "Wanted '$REPO_NAME_ABI_VERSIONED', but saw '$saw'";
+        "Wanted '$REPO_NAME', but saw '$saw'";
     }
   }
 

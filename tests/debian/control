@@ -1,4 +1,4 @@
-Source: buildsystem-unittests5.6
+Source: buildsystem-unittests
 Section: extra
 Priority: extra
 Maintainer: Dima Kogan <dima@oblong.com>
