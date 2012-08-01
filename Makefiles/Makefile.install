@@ -71,7 +71,6 @@ endif
 
 
 
-endif
 
 
 # If I have a DAEMON_COMMAND, I define an upstart configuration
@@ -87,11 +86,11 @@ define _install_upstart_daemon
            s{\@NAME\@}{$(TARGET_NAME)}g; \
            s{\@UPSTART_STANZAS\@}{$$ENV{UPSTART_STANZAS}}g; \
            s{\@COMMAND\@}{$(DAEMON_COMMAND)}g;' \
-	appliance/template.upstart.conf > \
+	buildsystem/templates/template.upstart.conf > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
 
-test -e $(DESTDIR_MAIN).prerm    || cp appliance/template.maintainerscript.header $(DESTDIR_MAIN).prerm
-test -e $(DESTDIR_MAIN).postinst || cp appliance/template.maintainerscript.header $(DESTDIR_MAIN).postinst
+test -e $(DESTDIR_MAIN).prerm    || cp buildsystem/templates/template.maintainerscript.header $(DESTDIR_MAIN).prerm
+test -e $(DESTDIR_MAIN).postinst || cp buildsystem/templates/template.maintainerscript.header $(DESTDIR_MAIN).postinst
 @perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/prerm-upstart    >> $(DESTDIR_MAIN).prerm
 @perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/postinst-upstart >> $(DESTDIR_MAIN).postinst
 
