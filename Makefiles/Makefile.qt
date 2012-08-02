@@ -27,6 +27,14 @@ QT4_EXTRACLEAN := $(QT4_UI_HEADERS)
 QT4_MOCS_CPP    = $(addsuffix .cpp,$(QT4_MOCS_BASE))
 QT4_MOCS        = $(addsuffix .o,$(QT4_MOCS_BASE))
 QT4_EXTRACLEAN += $(addsuffix .*,$(QT4_MOCS_BASE))
+
+# I don't want to blow away the temporary moc_*.cpp files, so I mark them as
+# secondary. I only to this if I have any of these files; otherwise, make blows
+# away ALL the intermediate files
+ifneq (,$(QT4_MOCS_CPP))
+  .SECONDARY: $(QT4_MOCS_CPP)
+endif
+
 $(dir)/moc_%.cpp: $(dir)/%.h
 	moc-qt4 $< > $@
 
