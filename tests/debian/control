@@ -9,6 +9,7 @@ Standards-Version: 3.8.4
 Package: liboblong-a5.6
 Section: extra
 Architecture: any
+Provides: liboblong-a
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: liba
  unit test library a
@@ -16,6 +17,7 @@ Description: liba
 Package: liboblong-a5.6-dbg
 Section: debug
 Architecture: any
+Provides: liboblong-a-dbg
 Depends: ${misc:Depends}
 Description: liba debug symbols
  unit test library a - debug symbols
@@ -23,6 +25,7 @@ Description: liba debug symbols
 Package: liboblong-a5.6-dev
 Section: libdevel
 Architecture: any
+Provides: liboblong-a-dev
 Depends: ${misc:Depends},
          liboblong-a5.6 (= ${binary:Version})
 Description: liba dev
@@ -31,6 +34,7 @@ Description: liba dev
 Package: liboblong-b5.6
 Section: extra
 Architecture: any
+Provides: liboblong-b
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: libb
  unit test library b
@@ -38,6 +42,7 @@ Description: libb
 Package: liboblong-b5.6-dbg
 Section: debug
 Architecture: any
+Provides: liboblong-b-dbg
 Depends: ${misc:Depends}
 Description: libb debug symbols
  unit test library b - debug symbols
@@ -45,6 +50,7 @@ Description: libb debug symbols
 Package: liboblong-b5.6-dev
 Section: libdevel
 Architecture: any
+Provides: liboblong-b-dev
 Depends: ${misc:Depends},
          liboblong-b5.6 (= ${binary:Version})
 Description: libb dev
@@ -53,6 +59,7 @@ Description: libb dev
 Package: liboblong-c5.6
 Section: extra
 Architecture: any
+Provides: liboblong-c
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: libc
  unit test library c
@@ -60,6 +67,7 @@ Description: libc
 Package: liboblong-c5.6-dbg
 Section: debug
 Architecture: any
+Provides: liboblong-c-dbg
 Depends: ${misc:Depends}
 Description: libc debug symbols
  unit test library c - debug symbols
@@ -67,6 +75,7 @@ Description: libc debug symbols
 Package: liboblong-c5.6-dev
 Section: libdevel
 Architecture: any
+Provides: liboblong-c-dev
 Depends: ${misc:Depends},
          liboblong-c5.6 (= ${binary:Version})
 Description: libc dev
