@@ -88,7 +88,7 @@ ifeq ($(IS_UNIT_TEST),)
     # enforced during the 'make install'. It'd be nice to be able to report
     # failures about this earlier, but I don't want to add that extra task to
     # every single invocation of Make. Thus these checks are done later by
-    # checkPackageNames.pl
+    # debianizationValidate.pl
 
     # debian has a dpkg-parsechangelog tool to parse the changelog, but it's
     # significantly slower than the gawk version below, so I don't use it

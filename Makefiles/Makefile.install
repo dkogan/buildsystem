@@ -62,7 +62,7 @@ ifneq ($(filter $(MAKECMDGOALS),install),)
 ifeq ($(_CHECKED_DEBIAN_CONTROL_VERSIONS),)
   _CHECKED_DEBIAN_CONTROL_VERSIONS := 1
 
-  _DEBIAN_CONTROL_CHECK_RESULT := $(shell perl buildsystem/checkPackageNames.pl $(REPO_NAME_ABI_VERSIONED) 2>&1)
+  _DEBIAN_CONTROL_CHECK_RESULT := $(shell perl buildsystem/debianizationValidate.pl $(REPO_NAME_ABI_VERSIONED) 2>&1)
   $(if $(_DEBIAN_CONTROL_CHECK_RESULT),			\
        $(error debian/control failed checks:		\
                $(_DEBIAN_CONTROL_CHECK_RESULT)))
