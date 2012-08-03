@@ -78,12 +78,14 @@ for my $pkgname($pkgs->Keys)
 }
 
 
-# Now make sure that each library has a base a -dev and a -dbg, and that
-# each non-library has a base and a -dbg
+# Now make sure that each library has a base a -dev and a -dbg, and that each
+# non-library has a base and a -dbg. Generally all packages should provide a
+# -dbg, but I only require this for libraries, since non-libraries may not have
+# any compiled code in them (could be settings, for instance)
 foreach my $name (keys %modules)
 {
   die "Module $name is missing the base package" if !$modules{$name}{base};
-  die "Module $name is missing the -dbg package" if !$modules{$name}{dbg};
+  die "Module $name is missing the -dbg package" if !$modules{$name}{dbg} && $name =~ /^lib/;;
   die "Module $name is missing the -dev package" if !$modules{$name}{dev} && $name =~ /^lib/;
 }
 
