@@ -52,6 +52,12 @@ ifeq ($(SO_VERSION),)
   $(eval $(_read_repo_version))
 endif
 
+# make available the version of this source tree to the source itself
+_GIT_VERSION := $(or $(_GIT_VERSION),$(strip $(or    \
+   $(shell git describe 2>/dev/null),                \
+   Non-git build for $(REPO_NAME_ABI_VERSIONED))))
+CCXXFLAGS += -D_GIT_VERSION="\"$(_GIT_VERSION)\""
+
 
 # I want to copy the DT_NEEDED tags. Older ld implementations do this by
 # default. Newer ones (such as that in Debian/unstable 2012/2) need to

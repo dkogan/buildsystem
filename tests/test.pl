@@ -336,9 +336,10 @@ say '##################### build flag checks #######################';
         my ($target) = @rebuilt;
         say "Checking build flags for $target";
 
-        # extract the options, leaving out the '-o'
-        my @options_did = grep !/^-o$/, $cmd =~ /-\S+/g;
-
+        # extract the options, leaving out the '-o' and the -D_GIT_VERSION=...
+        my @options_did = $cmd =~ /-\S+/g;                     # all options ...
+        @options_did = grep !/^-o$/, @options_did ;            # ... except for -o...
+        @options_did = grep !/^-D_GIT_VERSION/, @options_did ; # ... and -D_GIT_VERSION
 
         if ( $cmd =~ /\s-c/ )
         {
