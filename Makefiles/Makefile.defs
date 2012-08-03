@@ -144,7 +144,7 @@ relocate-vars = $(foreach v,$(USER_RELATIVE_VARS),$(eval $v := $(addprefix $(dir
 
 
 
-# 
+#
 # basic functional stuff. These are a perl-style grep and map. You call these like
 #
 # $(call grep,cond,list)
@@ -191,7 +191,7 @@ _filter-out-intree-predicate = $(filter-out $(ROOT_ABS)%,$(abspath $(1)))
 _filter-intree     = $(call grep,_filter-intree-predicate,$(1))
 _filter-out-intree = $(call grep,_filter-out-intree-predicate,$(1))
 #
-# this makes paths such as '/libRetro' or ''. 
+# this makes paths such as '/libRetro' or ''.
 relpath-withinitial-slash = $(if $(call _filter-intree,$(1)),$(patsubst $(ROOT_ABS)%,%,$(abspath $(1))), \
 	$(error out-of-tree path given: '$(1)' $(_when)))
 # this converts it to 'libRetro' or '.'
