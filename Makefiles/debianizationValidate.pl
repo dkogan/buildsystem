@@ -104,11 +104,11 @@ for my $pkg($pkgs->Values)
         $unversioned .= "-$type";
       }
 
-      die "$name: -dev packages must be in Section libdevel"
-        if $type && $type eq 'dev' && $pkg->Section ne 'libdevel';
+      die "$name: -dev packages must be in Section non-free/libdevel"
+        if $type && $type eq 'dev' && $pkg->Section ne 'non-free/libdevel';
 
-      die "$name: -dbg packages must be in Section debug"
-        if $type && $type eq 'dbg' && $pkg->Section ne 'debug';
+      die "$name: -dbg packages must be in Section non-free/debug"
+        if $type && $type eq 'dbg' && $pkg->Section ne 'non-free/debug';
 
       my %provides = map {$_ => 1} @{$pkg->Provides()};
       die "$name: Each versioned library must Provide the unversioned name"
