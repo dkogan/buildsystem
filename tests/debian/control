@@ -1,5 +1,5 @@
 Source: buildsystem-unittests
-Section: extra
+Section: non-free/extra
 Priority: extra
 Maintainer: Dima Kogan <dima@oblong.com>
 Build-Depends: debhelper (>= 7.0.50~)
@@ -7,7 +7,7 @@ Standards-Version: 3.8.4
 
 
 Package: liboblong-a5.6
-Section: extra
+Section: non-free/extra
 Architecture: any
 Provides: liboblong-a
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -15,7 +15,7 @@ Description: liba
  unit test library a
 
 Package: liboblong-a5.6-dbg
-Section: debug
+Section: non-free/debug
 Architecture: any
 Provides: liboblong-a-dbg
 Depends: ${misc:Depends}
@@ -23,7 +23,7 @@ Description: liba debug symbols
  unit test library a - debug symbols
 
 Package: liboblong-a5.6-dev
-Section: libdevel
+Section: non-free/libdevel
 Architecture: any
 Provides: liboblong-a-dev
 Depends: ${misc:Depends},
@@ -32,7 +32,7 @@ Description: liba dev
  unit test library a - dev
 
 Package: liboblong-b5.6
-Section: extra
+Section: non-free/extra
 Architecture: any
 Provides: liboblong-b
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -40,7 +40,7 @@ Description: libb
  unit test library b
 
 Package: liboblong-b5.6-dbg
-Section: debug
+Section: non-free/debug
 Architecture: any
 Provides: liboblong-b-dbg
 Depends: ${misc:Depends}
@@ -48,7 +48,7 @@ Description: libb debug symbols
  unit test library b - debug symbols
 
 Package: liboblong-b5.6-dev
-Section: libdevel
+Section: non-free/libdevel
 Architecture: any
 Provides: liboblong-b-dev
 Depends: ${misc:Depends},
@@ -57,7 +57,7 @@ Description: libb dev
  unit test library b - dev
 
 Package: liboblong-c5.6
-Section: extra
+Section: non-free/extra
 Architecture: any
 Provides: liboblong-c
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -65,7 +65,7 @@ Description: libc
  unit test library c
 
 Package: liboblong-c5.6-dbg
-Section: debug
+Section: non-free/debug
 Architecture: any
 Provides: liboblong-c-dbg
 Depends: ${misc:Depends}
@@ -73,7 +73,7 @@ Description: libc debug symbols
  unit test library c - debug symbols
 
 Package: liboblong-c5.6-dev
-Section: libdevel
+Section: non-free/libdevel
 Architecture: any
 Provides: liboblong-c-dev
 Depends: ${misc:Depends},
@@ -82,14 +82,14 @@ Description: libc dev
  unit test library c - dev
 
 Package: oblong-test-utility
-Section: extra
+Section: non-free/extra
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: test utility
  unit test utility
 
 Package: oblong-test-utility-dbg
-Section: debug
+Section: non-free/debug
 Architecture: any
 Depends: ${misc:Depends}
 Description: test utility
