@@ -47,6 +47,12 @@ CCXXFLAGS += -MMD -MP
 # packages by debhelper later
 CCXXFLAGS += -g
 
+# make SO_VERSION, ABI_VERSION, REPO_NAME, REPO_NAME_ABI_VERSIONED
+ifeq ($(SO_VERSION),)
+  $(eval $(_read_repo_version))
+endif
+
+
 # I want to copy the DT_NEEDED tags. Older ld implementations do this by
 # default. Newer ones (such as that in Debian/unstable 2012/2) need to
 # be explicitly turned on. I check to see if the option exists, and turn

@@ -314,6 +314,56 @@ unexport $(1:_CUSTOMIZED_%=%)
 endef
 
 
+# function to read off repo name, version number
+define _read_repo_version
+  # The debian/changelog has the repository name and the full version number
+  # that I use to version my .so files. So if I'm at version 3.2.5, my
+  # libraries will be libA.so.3.2.5. The ABI version is the leading part of
+  # this full version number. I assume that all-but-the-last digit are the ABI
+  # version, so in the example above, the ABI version is "3.2". Furthermore, I
+  # only look at leading digits and decimal points. So for instance, the
+  # latest debian/changelog entry can be
+  #
+  # oblong-perception (3.11.6-dima-2) lucid; urgency=low
+  #
+  # This would imply
+  #   SO_VERSION              = '3.11.6'
+  #   ABI_VERSION             = '3.11'
+  #   REPO_NAME               = 'oblong-perception'
+  #   REPO_NAME_ABI_VERSIONED = 'oblong-perception3.11'
+  #
+  # The 'Source:' field in debian/control must match $(REPO_NAME). This is
+  # enforced during the 'make install' step. Furthermore, all libxxx and
+  # libxxx-dev packages MUST have the ABI_VERSION in their name, so they would
+  # be called liboblong-xxx3.11 and liboblong-xxx3.11-dev. This is also
+  # enforced during the 'make install'. It'd be nice to be able to report
+  # failures about this earlier, but I don't want to add that extra task to
+  # every single invocation of Make. Thus these checks are done later by
+  # debianizationValidate.pl
+
+  # debian has a dpkg-parsechangelog tool to parse the changelog, but it's
+  # significantly slower than the gawk version below, so I don't use it
+  LPAREN := (
+  RPAREN := )
+
+  _ALL_FIELDS :=                                                         \
+    $$(or $$(strip                                                       \
+      $$(shell                                                           \
+        gawk '{ reponame = $$$$1;                                        \
+                sub(".*\\$$(LPAREN)",""); sub("[-$$(RPAREN)~].*","");    \
+                fullversion = $$$$0;                                     \
+                sub("\\.[0-9]+$$$$","");                                 \
+                print reponame, fullversion, $$$$0;                      \
+                exit}' debian/changelog)),                               \
+      $$(error Could not parse versions from debian/changelog))
+
+  REPO_NAME   := $$(word 1,$$(_ALL_FIELDS))
+  SO_VERSION  := $$(word 2,$$(_ALL_FIELDS))
+  ABI_VERSION := $$(word 3,$$(_ALL_FIELDS))
+
+  REPO_NAME_ABI_VERSIONED := $$(REPO_NAME)$$(ABI_VERSION)
+endef
+
 
 
 
