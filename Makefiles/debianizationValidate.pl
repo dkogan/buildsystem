@@ -110,7 +110,12 @@ for my $pkg($pkgs->Values)
       die "$name: -dbg packages must be in Section non-free/debug"
         if $type && $type eq 'dbg' && $pkg->Section ne 'non-free/debug';
 
-      my %provides = map {$_ => 1} @{$pkg->Provides()};
+      # $pkg->Provides() is a list-ref or a single element. If it's a lone
+      # element, I convert it to a list-ref (this is consistent in
+      # Debian/unstable, but has the dual behavior in Ubuntu/lucid)
+      my $provides = $pkg->Provides();
+      $provides = [$provides] unless ref $provides;
+      my %provides = map {$_ => 1} @$provides;
       die "$name: Each versioned library must Provide the unversioned name"
         unless $provides{$unversioned};
     }
