@@ -6,11 +6,12 @@ use Debian::Control;
 
 # This script checks the debian/control and debian/changelog files for
 # self-consistency. It also makes sure that the packages defined in
-# debian/control follow the guidelines mandated by the build system.
+# debian/control follow the guidelines mandated by the build system. The ONLY
+# output of this script is the true/false exit value
 
 
 my $repo_name_versioned = shift
-  or die "Must get versioned repo name on the commandline";
+  or die "Must get versioned repo name on the commandline, such as 'gspeak3.2'";
 
 my ($repo_name, $pkg_version, $abi_version) = getVersionFromChangelog()
   or die "Couldn't parse versions from debian/changelog";
@@ -24,8 +25,11 @@ EOF
 
 my ($sourcepkg, $pkgs) = parseControl();
 
-die "debian/control and debian/changelog disagree about the repo name"
-  if $sourcepkg->Source ne $repo_name;
+if( $sourcepkg->Source ne $repo_name )
+{
+  die "debian/control and debian/changelog disagree about the repo name:\n" .
+    "'$sourcepkg->Source' vs '$repo_name'";
+}
 
 
 
@@ -37,7 +41,7 @@ for my $pkgname($pkgs->Keys)
   if( $pkgname =~ /^lib/ )
   {
     my $errormsg_base =
-      "Package '$pkgname' doesn't conform to our naming convention of 'liboblong-\$NAME\$ABIVERSION(-dbg|-dev)?':\n";
+      "Package '$pkgname' in debian/control doesn't conform to our naming convention of 'liboblong-\$NAME\$ABIVERSION(-dbg|-dev)?':\n";
 
     die $errormsg_base . "Library packages must be named 'liboblong-..."
       unless $pkgname =~ /^liboblong-(.*)/;
@@ -48,7 +52,9 @@ for my $pkgname($pkgs->Keys)
     $type ||= 'base';
 
     my ($name) = $name_ver =~ /(.*)$abi_version$/
-      or die $errormsg_base . "Couldn't find abi_version";
+      or die $errormsg_base .
+        "Couldn't find abi_version. I think abi_version is '$abi_version'.\n" .
+        "It should be the last piece of '$name_ver'";
 
     $name = "lib$name";
 
@@ -104,10 +110,10 @@ for my $pkg($pkgs->Values)
         $unversioned .= "-$type";
       }
 
-      die "$name: -dev packages must be in Section non-free/libdevel"
+      die "Package $name: -dev packages must be in Section non-free/libdevel in debian/control"
         if $type && $type eq 'dev' && $pkg->Section ne 'non-free/libdevel';
 
-      die "$name: -dbg packages must be in Section non-free/debug"
+      die "Package $name: -dbg packages must be in Section non-free/debug in debian/control"
         if $type && $type eq 'dbg' && $pkg->Section ne 'non-free/debug';
 
       # $pkg->Provides() is a list-ref or a single element. If it's a lone
@@ -116,8 +122,14 @@ for my $pkg($pkgs->Values)
       my $provides = $pkg->Provides() // [];
       $provides = [$provides] unless ref $provides;
       my %provides = map {$_ => 1} @$provides;
-      die "$name: Each versioned library must Provide the unversioned name"
-        unless $provides{$unversioned};
+
+      unless( $provides{$unversioned} )
+      {
+        die
+          "$name: Each versioned library must Provide the unversioned name.\n" .
+          "debian/control stanza for Package '$name' MUST have a line that says\n" .
+          "'Provides: $unversioned'";
+      }
     }
     else
     {
