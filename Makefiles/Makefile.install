@@ -71,10 +71,8 @@ endif
 
 
 
-
-
 # If I have a DAEMON_COMMAND, I define an upstart configuration
-ifneq ($(DAEMON_COMMAND),)
+ifneq ($(strip $(DAEMON_COMMAND)),)
 
 # the upstart stanzas can be multiline, so I export them to the
 # environment and have perl pick them up from there
@@ -114,7 +112,7 @@ endif
 #   /usr/include/repo3.2/libXXX/a.h
 #   /usr/include/repo3.2/libXXX/d/b.h
 INCLUDE_DIR = $(DESTDIR_DEV)/usr/include/$(REPO_NAME_ABI_VERSIONED)
-ifneq ($(DIST_HEADERS),)
+ifneq ($(strip $(DIST_HEADERS)),)
 
 _dir_rel          = $(patsubst %/,%,$(dir $@))
 _DIST_HEADER_DIRS = $(sort $(dir $(DIST_HEADERS)))
@@ -138,7 +136,7 @@ $(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE) $(LIB_TAR
 
 # must have DESTDIR if we're doing an "install"
 ifneq ($(filter $(MAKECMDGOALS),install),)
-ifeq  ($(DESTDIR),)
+ifeq  ($(strip $(DESTDIR)),)
 	@echo Tried to make install without having DESTDIR defined
 	@echo "make install" is ONLY for the debian package.
 	@echo What are you trying to do?
@@ -154,41 +152,41 @@ ifeq ($(TARGET_NAME:lib%=lib),lib)
 	ln -fs $(notdir $(LIB_TARGET_SO)) $(DESTDIR_MAIN)/usr/lib/$(notdir $(LIB_TARGET_SO_BARE)).$(ABI_VERSION)
 	ln -fs ../$(notdir $(LIB_TARGET_SO)) $(DESTDIR_DEV)/usr/lib/$(REPO_NAME_ABI_VERSIONED)/$(notdir $(LIB_TARGET_SO_BARE))
 endif
-ifneq ($(DIST_BINS),)
+ifneq ($(strip $(DIST_BINS)),)
 	mkdir -p $(DESTDIR_MAIN)/usr/bin
 	install -m 0755 $(DIST_BINS) $(DESTDIR_MAIN)/usr/bin/
 endif
-ifneq ($(DIST_HEADERS),)
+ifneq ($(strip $(DIST_HEADERS)),)
   # headers are installed into a directory based on the path of the
   # header in the tree, OR based on the HEADER_PATH variable. See
   # comments above
-  ifneq ($(HEADER_PATH),)
+  ifneq ($(strip $(HEADER_PATH)),)
 	mkdir -p $(addprefix $(INCLUDE_DIR)/,$(patsubst $(_dir_rel)%,$(HEADER_PATH)%,$(_DIST_HEADER_DIRS)))
   else
 	mkdir -p $(addprefix $(INCLUDE_DIR)/,$(_DIST_HEADER_DIRS))
   endif
 	$(foreach h,$(DIST_HEADERS),$(_install_header))
 endif
-ifneq ($(DIST_ETC_OBLONG),)
+ifneq ($(strip $(DIST_ETC_OBLONG)),)
 	mkdir -p $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
 	cp -Pr $(DIST_ETC_OBLONG) $(DESTDIR_MAIN)/etc/oblong/$(TARGET_NAME)
 endif
-ifneq ($(DIST_SHARE_OBLONG),)
+ifneq ($(strip $(DIST_SHARE_OBLONG)),)
 	mkdir -p $(DESTDIR_MAIN)/usr/share/oblong/$(TARGET_NAME)
 	cp -Pr $(DIST_SHARE_OBLONG) $(DESTDIR_MAIN)/usr/share/oblong/$(TARGET_NAME)
 endif
-ifneq ($(DIST_UPSTART),)
+ifneq ($(strip $(DIST_UPSTART)),)
 # This should use dh_installinit, but I think that only works with a single upstart file...
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
 	cp -Pr $(DIST_UPSTART) $(DESTDIR_MAIN)/etc/init/oblong
 endif
-ifneq ($(DIST_DOCS),)
+ifneq ($(strip $(DIST_DOCS)),)
 	echo $(DIST_DOCS) | xargs -n1 > debian/$(PACKAGENAME).docs
 endif
-ifneq ($(DIST_MANS),)
+ifneq ($(strip $(DIST_MANS)),)
 	echo $(DIST_MANS) | xargs -n1 > debian/$(PACKAGENAME).manpages
 endif
-ifneq ($(DAEMON_COMMAND),)
+ifneq ($(strip $(DAEMON_COMMAND)),)
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
 	$(_install_upstart_daemon)
 endif
