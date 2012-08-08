@@ -254,6 +254,7 @@ $(eval $(CLEAN_template))
 $(dir)/all: $(LIB_TARGET_A) $(BIN_TARGET_ALL)
 
 clean: $(dir)/clean
+distclean: clean
 
 # don't build unit tests unless asked
 ifeq ($(IS_UNIT_TEST),)
