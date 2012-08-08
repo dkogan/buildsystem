@@ -78,6 +78,7 @@ ifneq ($(strip $(DAEMON_COMMAND)),)
 # environment and have perl pick them up from there
 export UPSTART_STANZAS
 
+DIST_ETC_OBLONG :=$(strip $(DIST_ETC_OBLONG))
 #{{{{{{{{{{{{{{ making upstart conf
 define _install_upstart_daemon
 @perl -pe 's{^###.*}{}g; \
