@@ -261,7 +261,7 @@ ifeq ($(IS_UNIT_TEST),)
 all:   $(dir)/all
 endif # ifeq ($(IS_UNIT_TEST),)
 
-.PHONY: clean all $(dir)/clean $(dir)/all
+.PHONY: distclean clean all $(dir)/clean $(dir)/all
 
 
 
@@ -285,7 +285,9 @@ $(eval $(_read_subsets))
 #################### unit tests #######################################
 
 check: $(dir)/check
-.PHONY: $(dir)/check check
+test: check
+$(dir)/test: $(dir)/check
+.PHONY: $(dir)/check $(dir)/test check test
 
 
 
