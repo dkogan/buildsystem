@@ -71,29 +71,47 @@ _ensure_custom_dirs_exist_link =										\
   $(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L)
 
 
-# If the user customized the LDFLAGS with -L, I want to make this
-# directory selection propagate to later links (runtime, etc). I thus
-# set RPATH to the same directory.
+# linker search paths given with -L require special attention. If a linker path
+# is given that is not in the standard system library paths, I add an RPATH. If
+# we do this while building packages, I throw an error: don't want packages to
+# refer to external, RPATHed libraries.
 #
-# If there's a -L, disallow package building. This is to make sure that
-# generated packages will work.
+# a -L library in the standard hierarchy is assumed to 'just work'. The normal
+# case here is that I have a library such as /usr/lib/libLoam.so.3.2.0 with
+# symlinks at /usr/lib/g-speak3.2/libLoam.so and /usr/lib/libLoam.so.3.2, and an
+# SONAME of libLoam.so.3.2. The "normal" way to link with this is
+# '-L/usr/lib/g-speak3.2 -lLoam'. At link-time, the libLoam.so symlink is used;
+# at run-time the libLoam.so.3.2 symlink is used. Note that not only is an
+# RPATH=/usr/lib/g-speak3.2 unnecessary, it also wouldn't do any good, since the
+# SONAME-named library is in /usr/lib. I thus simply assume that if we're asked
+# to look for libraries somewhere in the standard hierarchy, then all the
+# symlinks and such are set up correctly. With correctly-packaged depencies,
+# this should be a good assumption.
 #
-# Some things to worry about: -L logically must reside in LDFLAGS. If
-# somebody puts it in LDLIBS, I'll complain about it. Also, gcc accepts
-# both '-L dir' and '-Ldir'. I like the no-spaces version so I need to
-# detect and convert the with-spaces version.
+# Non-standard paths such as /opt/..... will generate an RPATH if we're
+# building, and an error if we're packaging.
+#
+# Some more things to worry about: -L logically must reside in LDFLAGS. If
+# somebody puts it in LDLIBS, I'll complain about it. Also, gcc accepts both '-L
+# dir' and '-Ldir'. I like the no-spaces version so I need to detect and convert
+# the with-spaces version.
 #
 # This function must be deferred so that it can see the per-target
 # LDFLAGS and LDLIBS variables
 _LDFLAGS_SEARCH_DIRS = $(call _get_option_args,$1,-L)
-# makes sure we're using LDFLAGS; makes sure -L dirs exist, adds RPATH for every -L directory
-comma :=,
-_LDFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_link)							\
-  $(if $(filter -L%,$1),											\
-    $(if $(filter $(MAKECMDGOALS),install),									\
-      $(error When building packages ALL libraries must be in a package; -L not allowed. Error $(_when))))	\
-  $(addprefix -Wl$(comma)-rpath$(comma),$(abspath $(_LDFLAGS_SEARCH_DIRS)))					\
+
+SYSTEM_LINKER_PATHS := /usr/lib /lib
+SYSTEM_LINKER_PATHS += $(addsuffix /%,$(SYSTEM_LINKER_PATHS))
+
+_LDFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_link)								\
+  $(foreach d,														\
+    $(filter-out $(SYSTEM_LINKER_PATHS), $(_LDFLAGS_SEARCH_DIRS)),							\
+    $(if $(filter $(MAKECMDGOALS),install),										\
+      $(error When building packages ALL system libraries must be in a standard location (presumably from a package);	\
+              -L not allowed for $d. Error $(_when)))									\
+    -Wl$(comma)-rpath$(comma)$(abspath $d))										\
   $1
+
 
 
 # make sure any -I directories exist
