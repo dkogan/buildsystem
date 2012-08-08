@@ -63,11 +63,12 @@ _assert_alldirs_exist = $(foreach d,$(1),$(if $(wildcard $d),,$(error $(2) given
 # These check our custom directories for existence. Note that the
 # compile version must be called with $(call) because only the caller
 # knows if we're looking at CFLAGS or CXXFLAGS
-_ensure_custom_dirs_exist_compile =\
- $(call _assert_alldirs_exist,$(_CCXXFLAGS_SEARCH_DIRS),-I)
-_ensure_custom_dirs_exist_link =\
- $(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L $(_when). This must be in LDFLAGS instead)) \
- $(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L)
+_ensure_custom_dirs_exist_compile =				\
+  $(call _assert_alldirs_exist,$(_CCXXFLAGS_SEARCH_DIRS),-I)
+
+_ensure_custom_dirs_exist_link =										\
+  $(if $(filter -L%,$(LDLIBS)), $(error LDLIBS '$(LDLIBS)' has -L $(_when). This must be in LDFLAGS instead))	\
+  $(call _assert_alldirs_exist,$(_LDFLAGS_SEARCH_DIRS),-L)
 
 
 # If the user customized the LDFLAGS with -L, I want to make this
@@ -87,12 +88,12 @@ _ensure_custom_dirs_exist_link =\
 _LDFLAGS_SEARCH_DIRS = $(call _get_option_args,$1,-L)
 # makes sure we're using LDFLAGS; makes sure -L dirs exist, adds RPATH for every -L directory
 comma :=,
-_LDFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_link) \
-$(if $(filter -L%,$1),\
-  $(if $(filter $(MAKECMDGOALS),install), \
-    $(error When building packages ALL libraries must be in a package; -L not allowed. Error $(_when)))) \
-$(addprefix -Wl$(comma)-rpath$(comma),$(abspath $(_LDFLAGS_SEARCH_DIRS))) \
-$1
+_LDFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_link)							\
+  $(if $(filter -L%,$1),											\
+    $(if $(filter $(MAKECMDGOALS),install),									\
+      $(error When building packages ALL libraries must be in a package; -L not allowed. Error $(_when))))	\
+  $(addprefix -Wl$(comma)-rpath$(comma),$(abspath $(_LDFLAGS_SEARCH_DIRS)))					\
+  $1
 
 
 # make sure any -I directories exist
@@ -103,9 +104,9 @@ $1
 # but when compiling we look at a different flag depending on whether
 # we're doing C or C++
 _CCXXFLAGS_SEARCH_DIRS = $(call _get_option_args,$1,-I)
-_CCXXFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_compile) \
-$1 \
-$(if $(filter -O%,$1),,-O2)
+_CCXXFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_compile)	\
+  $1								\
+  $(if $(filter -O%,$1),,-O2)
 
 
 # takes a list of project library files, extracts all their directories
@@ -127,8 +128,8 @@ poison-active-vars = $(foreach v,$(ACTIVE_VARS),$(eval $v := $(v)_poison))
 #
 # This is done for all var/target combinations. This is a bit overkill, since all
 # recipes don't need all the variables, but it doesn't hurt
-TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(dir)/%.1 \
-  $$(LIB_TARGET_SO) $$(LIB_TARGET_SO_BARE) $$(LIB_TARGET_A) \
+TARGETS_NEED_PERSISTENT_ACTIVE_VARS := $$(dir)/%.o $$(dir)/%.1	\
+  $$(LIB_TARGET_SO) $$(LIB_TARGET_SO_BARE) $$(LIB_TARGET_A)	\
   $$(BIN_TARGET_ALL) $$(dir)/check $$(dir)/install
 
 
