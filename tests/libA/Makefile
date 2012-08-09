@@ -21,12 +21,6 @@ $(dir)/utila2: LDFLAGS += -L/usr/lib/devscripts/
 # -lm to test LDLIBS_SYSTEM
 LDLIBS += ../libB/libB.so -lm
 
-
-$(dir)/generated.pod: $(dir)/generated.pod.src
-	cp $< $@
-
-EXTRACLEAN += generated.pod
-
 PODS += *.pod
 
 DIST_BINS = exe.pl
