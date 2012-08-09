@@ -21,4 +21,22 @@ $(dir)/utila2: LDFLAGS += -L/usr/lib/devscripts/
 # -lm to test LDLIBS_SYSTEM
 LDLIBS += ../libB/libB.so -lm
 
+
+$(dir)/generated.pod: $(dir)/generated.pod.src
+	cp $< $@
+
+EXTRACLEAN += generated.pod
+
+PODS += *.pod
+
+DIST_BINS = exe.pl
+
+DAEMON_COMMAND = utila
+define UPSTART_STANZAS
+liba upstart stanza
+endef
+
+DIST_ETC_OBLONG = *.conf
+
+
 include $(ROOT)/buildsystem/Makefile.footer
