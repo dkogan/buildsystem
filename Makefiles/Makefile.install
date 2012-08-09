@@ -53,7 +53,12 @@ endif
 
 .PHONY: $(dir)/install
 
-
+# get the template filenames. If we don't have the upstart template in the
+# system (because we're running Debian, say) then use the local one
+TEMPLATE_MAINTAINER       ?= buildsystem/templates/maintainerscript.header
+TEMPLATE_UPSTART_PRERM    ?= $(or $(wildcard /usr/share/debhelper/autoscripts/prerm-upstart),buildsystem/templates/prerm-upstart)
+TEMPLATE_UPSTART_POSTINST ?= $(or $(wildcard /usr/share/debhelper/autoscripts/postinst-upstart),buildsystem/templates/postinst-upstart)
+TEMPLATE_UPSTART_CONF     ?= buildsystem/templates/upstart.conf
 
 
 # make sure the package names defined in debian/control have the necessary
@@ -85,13 +90,13 @@ define _install_upstart_daemon
            s{\#NAME\#}{$(TARGET_NAME)}g; \
            s{\#UPSTART_STANZAS\#}{$$ENV{UPSTART_STANZAS}}g; \
            s{\#COMMAND\#}{$(DAEMON_COMMAND)}g;' \
-	buildsystem/templates/template.upstart.conf > \
+	$(TEMPLATE_UPSTART_CONF) > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
 
-test -e $(DESTDIR_MAIN).prerm    || cp buildsystem/templates/template.maintainerscript.header $(DESTDIR_MAIN).prerm
-test -e $(DESTDIR_MAIN).postinst || cp buildsystem/templates/template.maintainerscript.header $(DESTDIR_MAIN).postinst
-@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/prerm-upstart    >> $(DESTDIR_MAIN).prerm
-@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' /usr/share/debhelper/autoscripts/postinst-upstart >> $(DESTDIR_MAIN).postinst
+test -e $(DESTDIR_MAIN).prerm    || cp $(TEMPLATE_MAINTAINER) $(DESTDIR_MAIN).prerm
+test -e $(DESTDIR_MAIN).postinst || cp $(TEMPLATE_MAINTAINER) $(DESTDIR_MAIN).postinst
+@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_PRERM)    >> $(DESTDIR_MAIN).prerm
+@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_POSTINST) >> $(DESTDIR_MAIN).postinst
 
 endef
 #}}}}}}}}}}}}}}
