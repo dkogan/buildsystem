@@ -285,6 +285,10 @@ say '##################### build flag checks #######################';
   ensureCommandlineOptions("CCXXFLAGS='-I../.. -I../libC' LDFLAGS='-L../.. -L../libC' make -C libA");
   nextTest();
 
+  # /usr/lib/... paths shouldn't create RPATHs
+  ensureCommandlineOptions("CCXXFLAGS='-I../.. -I../libC' LDFLAGS='-L../.. -L/usr/lib/perl5/ -L /usr/lib/perl -L/usr/lib/' make -C libA");
+  nextTest();
+
   cleanDebianDir();
   ensureCommandlineOptions("DESTDIR=asdf make install");
   nextTest();
@@ -325,6 +329,20 @@ say '##################### build flag checks #######################';
 
     ensure( 'make clean' );
     my $commands = ensure( $makecmd );
+
+    # cut off the spaces between -I/-L and their argument, remove trailing /, if there is one
+    $LDFLAGS   =~ s{ -L
+                     \s*
+                     (\S+?)
+                     (?:/)?
+                     (\s | $)}
+                   {-L$1$2}gx;
+    $CCXXFLAGS =~ s{ -I
+                     \s*
+                     (\S+?)
+                     (?:/)?
+                     (\s | $)}
+                   {-I$1$2}gx;
 
     foreach my $cmd (split "\n", $commands)
     {
@@ -381,9 +399,9 @@ say '##################### build flag checks #######################';
 
           foreach my $Idir ($CCXXFLAGS =~ /-I\s*(\S+)/g)
           {
-            if( my ($subdir) = $makecmd =~ /make -C (\S+)/ )
+            if( my ($subdir) = $makecmd =~ /make -C (\S+)/ and $Idir !~ m{^/} )
             {
-              push @options_should, '-I' . abs_path("$subdir/$Idir")
+              push @options_should, '-I' . abs_path("$subdir/$Idir");
             }
             else
             {
@@ -425,16 +443,20 @@ say '##################### build flag checks #######################';
 
           foreach my $Ldir ($LDFLAGS =~ /-L\s*(\S+)/g)
           {
-            if( my ($subdir) = $makecmd =~ /make -C (\S+)/ )
+            my $path;
+
+            if( my ($subdir) = $makecmd =~ /make -C (\S+)/ and $Ldir !~ m{^/} )
             {
-              push @options_should, '-L'          . abs_path("$subdir/$Ldir");
-              push @options_should, '-Wl,-rpath,' . abs_path("$subdir/$Ldir");
+              $path = abs_path("$subdir/$Ldir");
+              push @options_should, "-L$path";
             }
             else
             {
-              push @options_should, '-L'          . $Ldir;
-              push @options_should, '-Wl,-rpath,' . abs_path($Ldir);
+              $path = abs_path($Ldir);
+              push @options_should, "-L$Ldir";
             }
+
+            push @options_should, "-Wl,-rpath,$path" unless isBeneathSystemLibHierarchy($path);
           }
 
           my $LDLIBS_SYSTEM_libA = '-lm';
@@ -825,6 +847,15 @@ sub getRebuiltTargets
 sub cleanDebianDir
 {
   ensure( 'rm -rf debian/*~debian/changelog~debian/control' );
+}
+
+sub isBeneathSystemLibHierarchy
+{
+  my $path = shift;
+
+  return $path =~ m{^ (?:/usr)?   # optional /usr at start
+                    /lib          # then /lib
+                    (?: / | $)}x; # end or /...
 }
 
 __END__
