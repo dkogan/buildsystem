@@ -8,6 +8,6 @@ CCXXFLAGS += -I$(ROOT)
 BIN_TARGET = main
 LDLIBS += ../libA/libA.so
 
-DAEMON_COMMAND = tuner --restore
+DAEMON_COMMAND = util
 
 include $(ROOT)/buildsystem/Makefile.footer
