@@ -82,9 +82,9 @@ DIST_ETC_OBLONG :=$(strip $(DIST_ETC_OBLONG))
 #{{{{{{{{{{{{{{ making upstart conf
 define _install_upstart_daemon
 @perl -pe 's{^###.*}{}g; \
-           s{\@NAME\@}{$(TARGET_NAME)}g; \
-           s{\@UPSTART_STANZAS\@}{$$ENV{UPSTART_STANZAS}}g; \
-           s{\@COMMAND\@}{$(DAEMON_COMMAND)}g;' \
+           s{\#NAME\#}{$(TARGET_NAME)}g; \
+           s{\#UPSTART_STANZAS\#}{$$ENV{UPSTART_STANZAS}}g; \
+           s{\#COMMAND\#}{$(DAEMON_COMMAND)}g;' \
 	buildsystem/templates/template.upstart.conf > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
 

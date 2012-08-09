@@ -1,0 +1,4 @@
+if [ -e "/etc/init/#JOB#.conf" ]; then
+        # start fails if already running
+        start #JOB# || :
+fi
