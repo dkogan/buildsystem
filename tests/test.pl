@@ -597,6 +597,167 @@ EOF
                $result . "\n" );
     }
   }
+
+  say '------ make sure manpages are generated, installed correctly -------';
+  {
+    ensureFileHas( 'debian/liboblong-a5.6.manpages', <<EOF );
+libA/liba.1
+EOF
+    ensureFileHas( 'libA/liba.1', <<EOF, 'regex' );
+unit test pod
+EOF
+    ensureFileHas( 'debian/liboblong-a5.6.docs', <<EOF );
+libA/liba-man.html
+EOF
+    ensureFileHas( 'libA/liba-man.html', <<EOF, 'regex' );
+unit test pod
+EOF
+  }
+
+  say '------ make sure the maintainer scripts are generated correctly -------';
+  {
+    ensureFileHas( 'debian/liboblong-a5.6.prerm', <<EOF);
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+if [ -e "/etc/init/oblong/libA.conf" ]; then
+        # stop fails if not running
+        stop oblong/libA || :
+fi
+EOF
+
+    ensureFileHas( 'debian/liboblong-a5.6.postinst', <<EOF);
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+if [ -e "/etc/init/oblong/libA.conf" ]; then
+        # start fails if already running
+        start oblong/libA || :
+fi
+EOF
+
+    ensureFileHas( 'debian/liboblong-b5.6.prerm', <<EOF);
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+if [ -e "/etc/init/oblong/libB.conf" ]; then
+        # stop fails if not running
+        stop oblong/libB || :
+fi
+EOF
+
+    ensureFileHas( 'debian/liboblong-b5.6.postinst', <<EOF);
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+if [ -e "/etc/init/oblong/libB.conf" ]; then
+        # start fails if already running
+        start oblong/libB || :
+fi
+EOF
+
+    ensureFileHas( 'debian/oblong-test-utility.prerm', <<EOF);
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+if [ -e "/etc/init/oblong/test-utility.conf" ]; then
+        # stop fails if not running
+        stop oblong/test-utility || :
+fi
+EOF
+
+    ensureFileHas( 'debian/oblong-test-utility.postinst', <<EOF);
+#!/bin/sh
+set -e
+
+#DEBHELPER#
+if [ -e "/etc/init/oblong/test-utility.conf" ]; then
+        # start fails if already running
+        start oblong/test-utility || :
+fi
+EOF
+
+  }
+
+  say '------ make sure the upstart configurations are generated correctly -------';
+  {
+    ensureFileHas( 'debian/liboblong-a5.6/etc/init/oblong/libA.conf', <<EOF);
+description "Oblong upstart script"
+
+# If it dies right on start, will not respawn (& that's fine -- a big error)
+respawn
+
+# remove later
+env OB_POOLS_DIR=/var/ob/pools
+
+liba upstart stanza
+
+pre-start script
+  mkdir -p /var/log/oblong
+end script
+
+script
+  exec >> /var/log/oblong/libA.log 2>&1
+
+
+  utila
+
+end script
+EOF
+    ensureFileHas( 'debian/liboblong-b5.6/etc/init/oblong/libB.conf', <<EOF);
+description "Oblong upstart script"
+
+# If it dies right on start, will not respawn (& that's fine -- a big error)
+respawn
+
+# remove later
+env OB_POOLS_DIR=/var/ob/pools
+
+libb upstart stanza
+
+pre-start script
+  mkdir -p /var/log/oblong
+end script
+
+script
+  exec >> /var/log/oblong/libB.log 2>&1
+
+
+
+  utilb
+
+end script
+EOF
+    ensureFileHas( 'debian/oblong-test-utility/etc/init/oblong/test-utility.conf', <<EOF);
+description "Oblong upstart script"
+
+# If it dies right on start, will not respawn (& that's fine -- a big error)
+respawn
+
+# remove later
+env OB_POOLS_DIR=/var/ob/pools
+
+
+
+pre-start script
+  mkdir -p /var/log/oblong
+end script
+
+script
+  exec >> /var/log/oblong/test-utility.log 2>&1
+
+
+
+  util
+
+end script
+EOF
+  }
   say "\n";
 
 
@@ -830,6 +991,38 @@ sub ensureUnorderedCompare
     }
     $h1{$_}--;
   }
+}
+
+# makes sure a particular file has particular contents
+sub ensureFileHas
+{
+  my $filename = shift;
+  my $want     = shift;
+  my $isregex  = shift;
+
+  open F, '<', $filename or confess "File '$filename' couldn't be opened for reading";
+
+  my $saw;
+  {
+    local $/ = undef;
+    $saw = <F>;
+    close F;
+  }
+
+  return if !$isregex && $saw eq $want;
+
+  chomp $want;
+  return if $isregex && $saw =~ qr/$want/;
+
+  confess
+    "File $filename doesn't have the expected contents. Wanted:\n" .
+      "--------------------\n" .
+      $want .
+      "--------------------\n" .
+      "but saw\n" .
+      "--------------------\n" .
+      $saw .
+      "--------------------\n";
 }
 
 sub nextTest
