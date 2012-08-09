@@ -86,17 +86,17 @@ export UPSTART_STANZAS
 DIST_ETC_OBLONG :=$(strip $(DIST_ETC_OBLONG))
 #{{{{{{{{{{{{{{ making upstart conf
 define _install_upstart_daemon
-@perl -pe 's{^###.*}{}g; \
-           s{\#NAME\#}{$(TARGET_NAME)}g; \
-           s{\#UPSTART_STANZAS\#}{$$ENV{UPSTART_STANZAS}}g; \
-           s{\#COMMAND\#}{$(DAEMON_COMMAND)}g;' \
+perl -pe 's{^###.*}{}g; \
+          s{\#NAME\#}{$(TARGET_NAME)}g; \
+          s{\#UPSTART_STANZAS\#}{$$ENV{UPSTART_STANZAS}}g; \
+          s{\#COMMAND\#}{$(DAEMON_COMMAND)}g;' \
 	$(TEMPLATE_UPSTART_CONF) > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
 
 test -e $(DESTDIR_MAIN).prerm    || cp $(TEMPLATE_MAINTAINER) $(DESTDIR_MAIN).prerm
 test -e $(DESTDIR_MAIN).postinst || cp $(TEMPLATE_MAINTAINER) $(DESTDIR_MAIN).postinst
-@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_PRERM)    >> $(DESTDIR_MAIN).prerm
-@perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_POSTINST) >> $(DESTDIR_MAIN).postinst
+perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_PRERM)    >> $(DESTDIR_MAIN).prerm
+perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_POSTINST) >> $(DESTDIR_MAIN).postinst
 
 endef
 #}}}}}}}}}}}}}}
