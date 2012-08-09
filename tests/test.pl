@@ -525,16 +525,29 @@ say '##################### installation checks #######################';
 
     my @files_should = split("\n", <<EOF);
 debian/liboblong-a5.6-dev/usr/lib/buildsystem-unittests5.6/libA.a
+debian/liboblong-a5.6.docs
+debian/liboblong-a5.6/etc/init/oblong/libA.conf
+debian/liboblong-a5.6/etc/oblong/libA/test.conf
+debian/liboblong-a5.6.manpages
+debian/liboblong-a5.6.postinst
+debian/liboblong-a5.6.prerm
+debian/liboblong-a5.6/usr/bin/exe.pl
 debian/liboblong-a5.6/usr/bin/utila
 debian/liboblong-a5.6/usr/bin/utila2
 debian/liboblong-a5.6/usr/lib/libA.so.5.6.7
 debian/liboblong-b5.6-dev/usr/lib/buildsystem-unittests5.6/libB.a
+debian/liboblong-b5.6/etc/init/oblong/libB.conf
+debian/liboblong-b5.6.postinst
+debian/liboblong-b5.6.prerm
 debian/liboblong-b5.6/usr/bin/utilb
 debian/liboblong-b5.6/usr/lib/libB.so.5.6.7
 debian/liboblong-c5.6-dev/usr/include/buildsystem-unittests5.6/libC/c.generated.h
 debian/liboblong-c5.6-dev/usr/include/buildsystem-unittests5.6/libC/c.h
 debian/liboblong-c5.6-dev/usr/lib/buildsystem-unittests5.6/libC.a
 debian/liboblong-c5.6/usr/lib/libC.so.5.6.7
+debian/oblong-test-utility/etc/init/oblong/test-utility.conf
+debian/oblong-test-utility.postinst
+debian/oblong-test-utility.prerm
 debian/oblong-test-utility/usr/bin/main
 EOF
 
@@ -608,6 +621,11 @@ localinstall/usr/lib/buildsystem-unittests5.6/libC.a
 localinstall/usr/lib/libA.so.5.6.7
 localinstall/usr/lib/libB.so.5.6.7
 localinstall/usr/lib/libC.so.5.6.7
+localinstall/etc/init/oblong/libA.conf
+localinstall/etc/init/oblong/libB.conf
+localinstall/etc/init/oblong/test-utility.conf
+localinstall/etc/oblong/libA/test.conf
+localinstall/usr/bin/exe.pl
 EOF
 
     my @links_should = split("\n", <<EOF);
