@@ -477,6 +477,10 @@ say '##################### build flag checks #######################';
             push @options_should, '-Wl,--stats';
             push @options_should, '-lc';
           }
+          if( $target =~ m{utila2} )
+          {
+            push @options_should, '-L/usr/lib/devscripts/';
+          }
 
           if( $target =~ m{/(.*?\.so\.5\.6)\.7} )
           {

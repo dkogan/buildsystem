@@ -16,6 +16,7 @@ $(dir)/utila2.o: CCXXFLAGS += -DUTILA2
 # just an arbitrary option to test the build system's handling of such things
 $(dir)/utila2: LDFLAGS += -Wl,--stats
 $(dir)/utila2: LDLIBS  += -lc
+$(dir)/utila2: LDFLAGS += -L/usr/lib/devscripts/
 
 # -lm to test LDLIBS_SYSTEM
 LDLIBS += ../libB/libB.so -lm
