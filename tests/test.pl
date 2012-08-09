@@ -536,10 +536,6 @@ EOF
     {
       confess "Intermediate target $_ wasn't cleaned up" if -e $_;
     }
-
-    say '------ Making sure the installed executables run correctly -------';
-
-
   }
   nextTest();
   checkDtNeeded( 'debian', undef );
