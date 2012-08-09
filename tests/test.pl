@@ -516,6 +516,7 @@ say '##################### installation checks #######################';
 
   say '------ make sure an install succeeds otherwise -------';
   cleanDebianDir();
+  ensure( 'make clean' );
   ensure( "DESTDIR=asdf make install" );
   {
     say '------- make sure the right files got installed ------';
