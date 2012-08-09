@@ -567,9 +567,9 @@ EOF
   ensure( 'debian/oblong-test-utility/usr/bin/main','shouldfail' );
 
   say '------ make sure the built exes run with LD_LIBRARY_PATH -------';
-  foreach ( ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila',      $utila_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila2',     $utila2_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-b5.6/usr/bin/utilb',      $utilb_result_should],
+  foreach ( ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila',    $utila_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila2',   $utila2_result_should],
+            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-b5.6/usr/bin/utilb',    $utilb_result_should],
             ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/oblong-test-utility/usr/bin/main',$main_result_should] )
   {
     my ($cmd, $should) = @$_;
