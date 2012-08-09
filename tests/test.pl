@@ -520,10 +520,10 @@ say '##################### installation checks #######################';
   ensure( "DESTDIR=asdf make install" );
   {
     say '------- make sure the right files got installed ------';
-    my $files = ensure( "echo debian/**/*~debian/changelog~debian/control(.) | xargs -n1 | sort" );
-    my $links = ensure( "echo debian/**/*(@) | xargs -n1 | sort" );
+    my @files = split("\n", ensure( "echo debian/**/*~debian/changelog~debian/control(.) | xargs -n1 | sort" ));
+    my @links = split("\n", ensure( "echo debian/**/*(@) | xargs -n1 | sort" ));
 
-    my $files_should = <<EOF;
+    my @files_should = split("\n", <<EOF);
 debian/liboblong-a5.6-dev/usr/lib/buildsystem-unittests5.6/libA.a
 debian/liboblong-a5.6/usr/bin/utila
 debian/liboblong-a5.6/usr/bin/utila2
@@ -538,7 +538,7 @@ debian/liboblong-c5.6/usr/lib/libC.so.5.6.7
 debian/oblong-test-utility/usr/bin/main
 EOF
 
-    my $links_should = <<EOF;
+    my @links_should = split("\n", <<EOF);
 debian/liboblong-a5.6-dev/usr/lib/buildsystem-unittests5.6/libA.so
 debian/liboblong-a5.6/usr/lib/libA.so.5.6
 debian/liboblong-b5.6-dev/usr/lib/buildsystem-unittests5.6/libB.so
@@ -547,16 +547,8 @@ debian/liboblong-c5.6-dev/usr/lib/buildsystem-unittests5.6/libC.so
 debian/liboblong-c5.6/usr/lib/libC.so.5.6
 EOF
 
-    if ( $files ne $files_should )
-    {
-      confess "Installed files mismatch. Should have had\n" . $files_should . "\n" .
-        "but instead got\n" . $files . "\n";
-    }
-    if ( $links ne $links_should )
-    {
-      confess "Installed links mismatch. Should have had\n" . $links_should . "\n" .
-        "but instead got\n" . $links . "\n";
-    }
+    ensureUnorderedCompare( \@files, \@files_should );
+    ensureUnorderedCompare( \@links, \@links_should );
 
     # we just build dynamically-linked executables, so they should have been
     # removed by make so that the user can't accidentally run them
@@ -600,10 +592,10 @@ EOF
   ensure( "make localinstall" );
   {
     say '------- localinstall: make sure the right files got installed ------';
-    my $files = ensure( "echo localinstall/**/*(.) | xargs -n1 | sort" );
-    my $links = ensure( "echo localinstall/**/*(@) | xargs -n1 | sort" );
+    my @files = split("\n", ensure( "echo localinstall/**/*(.) | xargs -n1 | sort" ));
+    my @links = split("\n", ensure( "echo localinstall/**/*(@) | xargs -n1 | sort" ));
 
-    my $files_should = <<EOF;
+    my @files_should = split("\n", <<EOF);
 localinstall/usr/bin/main
 localinstall/usr/bin/utila
 localinstall/usr/bin/utila2
@@ -618,7 +610,7 @@ localinstall/usr/lib/libB.so.5.6.7
 localinstall/usr/lib/libC.so.5.6.7
 EOF
 
-    my $links_should = <<EOF;
+    my @links_should = split("\n", <<EOF);
 localinstall/usr/lib/buildsystem-unittests5.6/libA.so
 localinstall/usr/lib/buildsystem-unittests5.6/libB.so
 localinstall/usr/lib/buildsystem-unittests5.6/libC.so
@@ -627,16 +619,8 @@ localinstall/usr/lib/libB.so.5.6
 localinstall/usr/lib/libC.so.5.6
 EOF
 
-    if ( $files ne $files_should )
-    {
-      confess "Local-installed files mismatch. Should have had\n" . $files_should . "\n" .
-        "but instead got\n" . $files . "\n";
-    }
-    if ( $links ne $links_should )
-    {
-      confess "Local-installed links mismatch. Should have had\n" . $links_should . "\n" .
-        "but instead got\n" . $links . "\n";
-    }
+    ensureUnorderedCompare( \@files, \@files_should );
+    ensureUnorderedCompare( \@links, \@links_should );
 
     # localinstall-ed executables have static linking, so they aren't automatically deleted by make
   }
