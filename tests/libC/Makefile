@@ -6,8 +6,8 @@ CCXXFLAGS += -I$(ROOT)
 LIB_OBJECTS = c.o
 CCXXFLAGS += -DC
 
-# distribute ALL the headers
-DIST_HEADERS = *.h
+# distribute ALL the headers. Install-time wildcards do not work at this time
+DIST_HEADERS = *.h c.generated.h
 
 
 $(dir)/c.c: $(dir)/c.generated.h
