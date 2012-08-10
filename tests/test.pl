@@ -1014,10 +1014,25 @@ sub ensureFileHas
     close F;
   }
 
-  return if !$isregex && $saw eq $want;
+  if( !$isregex )
+  {
+    return if $saw eq $want;
+  }
+  else
+  {
+    chomp $want;
+    return if $saw =~ qr/$want/;
 
-  chomp $want;
-  return if $isregex && $saw =~ qr/$want/;
+    confess
+      "File $filename doesn't have the expected contents. Expected to match regex:\n" .
+        "--------------------\n" .
+        $want .
+        "--------------------\n" .
+        "but saw\n" .
+        "--------------------\n" .
+        $saw .
+        "--------------------\n";
+  }
 
   confess
     "File $filename doesn't have the expected contents. Wanted:\n" .
