@@ -116,10 +116,22 @@ for my $pkg($pkgs->Values)
       die "Package $name: -dbg packages must be in Section non-free/debug in debian/control"
         if $type && $type eq 'dbg' && $pkg->Section ne 'non-free/debug';
 
-      # $pkg->Provides() is a list-ref or a single element. If it's a lone
-      # element, I convert it to a list-ref (this is consistent in
-      # Debian/unstable, but has the dual behavior in Ubuntu/lucid)
-      my $provides = $pkg->Provides() // [];
+
+      # The Debian::Control module in ubuntu/lucid returns a comma-separated
+      # list, while the one in debian/unstable (much more recent) returns
+      # list-refs. I have some logic here to work with both
+      my $provides = $pkg->Provides();
+      if( !defined $provides )
+      {
+        $provides = [];
+      }
+      elsif( !ref $provides )
+      {
+        $provides = [split '\s*,\s*', $provides];
+      }
+
+
+
       $provides = [$provides] unless ref $provides;
       my %provides = map {$_ => 1} @$provides;
 
@@ -174,14 +186,15 @@ sub getVersionFromChangelog
 
 sub parseControl
 {
-  # There's an issue with Debian::Control where comments in debian/control
-  # confuse it. I thus read the file myself, strip the comments, and pass that
-  # data on to Debian::Control
+  # Here I read and parse debian/control using Debian::Control (which uses
+  # Parse::DebControl internally). Those CPAN modules have various bugs in
+  # ubuntu/lucid, which requires workarounds. Here I manually strip away
+  # comments and Breaks tags to make the older parsers happy
   open F, '<', 'debian/control' or die "Couldn't open debian/control";
   my @lines = <F>;
   close F;
 
-  my $control = join('', grep !/^#/, @lines);
+  my $control = join('', grep !/^(?:#|Breaks)/, @lines);
 
   my $c = Debian::Control->new;;
   eval { $c->read( \$control ) };
