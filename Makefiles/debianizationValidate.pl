@@ -174,6 +174,10 @@ sub getVersionFromChangelog
   my $name        = $1;
   my $pkg_version = $2;
 
+  # strip out any trailing non-numbers, non-periods. This allows versions such
+  # as 3.2ubuntu1 or 3.2~ubuntu1 to be treated simply as '3.2'.
+  $pkg_version =~ s/(^[0-9\.]+).*/$1/;
+
   # version number is some number of tokens separated by '.', for example:
   # a.b.c.d.e.f
   # All but the last token are treated as the ABI version, so in this case,
