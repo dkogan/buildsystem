@@ -172,7 +172,7 @@ say '##################### basic building/execution tests ######################
   testBuildWithTarget('make libA/utila', \@targets_should_base);
   nextTest();
 
-  testBuildWithTarget('make', [@targets_should_base, qw(libA/utila2.o libA/utila2 libB/utilb libB/utilb.o util/main util/main.o) ] );
+  testBuildWithTarget('make', [@targets_should_base, qw(libA/utila2.o libA/utila2 libB/utilb libB/utilb.o util/main util/main.o util/lib_embeddedutil.o util/libtest-utility.a) ] );
   nextTest();
 
 
@@ -415,7 +415,7 @@ say '##################### build flag checks #######################';
           }
 
           # shared library objects get -fPIC
-          if( $target =~ m{/[abc]2?\.o} )
+          if( $target =~ m{/[abc]2?\.o | embeddedutil}x  )
           {
             push @options_should, '-fPIC';
           }
@@ -549,6 +549,7 @@ debian/oblong-test-utility/etc/init/oblong/test-utility.conf
 debian/oblong-test-utility.postinst
 debian/oblong-test-utility.prerm
 debian/oblong-test-utility/usr/bin/main
+debian/oblong-test-utility/usr/lib/libtest-utility.so.5.6.7
 EOF
 
     my @links_should = split("\n", <<EOF);
@@ -558,6 +559,7 @@ debian/liboblong-b5.6-dev/usr/lib/buildsystem-unittests5.6/libB.so
 debian/liboblong-b5.6/usr/lib/libB.so.5.6
 debian/liboblong-c5.6-dev/usr/lib/buildsystem-unittests5.6/libC.so
 debian/liboblong-c5.6/usr/lib/libC.so.5.6
+debian/oblong-test-utility/usr/lib/libtest-utility.so.5.6
 EOF
 
     ensureUnorderedCompare( \@files, \@files_should );
@@ -580,10 +582,11 @@ EOF
   ensure( 'debian/oblong-test-utility/usr/bin/main','shouldfail' );
 
   say '------ make sure the built exes run with LD_LIBRARY_PATH -------';
-  foreach ( ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila',    $utila_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-a5.6/usr/bin/utila2',   $utila2_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/liboblong-b5.6/usr/bin/utilb',    $utilb_result_should],
-            ['LD_LIBRARY_PATH=$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib debian/oblong-test-utility/usr/bin/main',$main_result_should] )
+  my $libpath = '$PWD/debian/liboblong-a5.6/usr/lib:$PWD/debian/liboblong-b5.6/usr/lib:$PWD/debian/oblong-test-utility/usr/lib:$PWD/debian/liboblong-c5.6/usr/lib';
+  foreach ( ["LD_LIBRARY_PATH=$libpath debian/liboblong-a5.6/usr/bin/utila",    $utila_result_should],
+            ["LD_LIBRARY_PATH=$libpath debian/liboblong-a5.6/usr/bin/utila2",   $utila2_result_should],
+            ["LD_LIBRARY_PATH=$libpath debian/liboblong-b5.6/usr/bin/utilb",    $utilb_result_should],
+            ["LD_LIBRARY_PATH=$libpath debian/oblong-test-utility/usr/bin/main",$main_result_should] )
   {
     my ($cmd, $should) = @$_;
 
@@ -787,6 +790,7 @@ localinstall/etc/init/oblong/libB.conf
 localinstall/etc/init/oblong/test-utility.conf
 localinstall/etc/oblong/libA/test.conf
 localinstall/usr/bin/exe.pl
+localinstall/usr/lib/libtest-utility.so.5.6.7
 EOF
 
     my @links_should = split("\n", <<EOF);
@@ -796,6 +800,7 @@ localinstall/usr/lib/buildsystem-unittests5.6/libC.so
 localinstall/usr/lib/libA.so.5.6
 localinstall/usr/lib/libB.so.5.6
 localinstall/usr/lib/libC.so.5.6
+localinstall/usr/lib/libtest-utility.so.5.6
 EOF
 
     ensureUnorderedCompare( \@files, \@files_should );
