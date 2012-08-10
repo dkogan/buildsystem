@@ -38,9 +38,6 @@ IS_UNIT_TEST := $(filter %/tests,$(dir))
 ifeq ($(IS_UNIT_TEST),)
 
   ifneq ($(TARGET_NAME:lib%=lib),lib)
-    ifneq ($(LIB_OBJECTS),)
-      $(error Target "$(TARGET_NAME)" from dir '$(dir)' has LIB_OBJECTS, so it MUST start with "lib" ($(_when)))
-    endif
     ifneq ($(DIST_HEADERS),)
       $(error Target "$(TARGET_NAME)" from dir '$(dir)' has DIST_HEADERS, so it MUST start with "lib"($(_when)))
     endif
@@ -70,9 +67,12 @@ SO := $(if $(COND_DARWIN),dylib,so)
 
 # if we have libraries, define their names
 ifneq ($(LIB_OBJECTS),)
-LIB_TARGET_SO_BARE := $(dir)/$(TARGET_NAME).$(SO)
+
+# if the TARGET_NAME is lib..., LIB_NAME is the same, otherwise prepend 'lib'
+LIB_NAME           := $(if $(filter lib%,$(TARGET_NAME)),,lib)$(TARGET_NAME)
+LIB_TARGET_SO_BARE := $(dir)/$(LIB_NAME).$(SO)
 LIB_TARGET_SO	   := $(LIB_TARGET_SO_BARE).$(SO_VERSION)
-LIB_TARGET_A       := $(dir)/$(TARGET_NAME).a
+LIB_TARGET_A       := $(dir)/$(LIB_NAME).a
 endif
 
 
