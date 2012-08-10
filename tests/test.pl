@@ -1016,6 +1016,10 @@ sub ensureFileHas
 
   if( !$isregex )
   {
+    # I want to ignore whitespace differences, so I collapse all consecutive
+    # spaces to a single space
+    $saw  =~ s/\s+/ /g;
+    $want =~ s/\s+/ /g;
     return if $saw eq $want;
   }
   else
