@@ -10,3 +10,4 @@ test:
 
 clean:
 	rm -rf $(DOC)
+	make -C tests clean
