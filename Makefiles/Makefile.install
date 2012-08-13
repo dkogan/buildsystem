@@ -95,8 +95,8 @@ perl -pe 's{^###.*}{}g; \
 
 test -e $(DESTDIR_MAIN).prerm    || cp $(TEMPLATE_MAINTAINER) $(DESTDIR_MAIN).prerm
 test -e $(DESTDIR_MAIN).postinst || cp $(TEMPLATE_MAINTAINER) $(DESTDIR_MAIN).postinst
-perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_PRERM)    >> $(DESTDIR_MAIN).prerm
-perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g;' $(TEMPLATE_UPSTART_POSTINST) >> $(DESTDIR_MAIN).postinst
+perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g; s{\#ERROR_HANDLER\#}{false}g;' $(TEMPLATE_UPSTART_PRERM)    >> $(DESTDIR_MAIN).prerm
+perl -pe 's{\#JOB\#}{oblong/$(TARGET_NAME)}g; s{\#ERROR_HANDLER\#}{false}g;' $(TEMPLATE_UPSTART_POSTINST) >> $(DESTDIR_MAIN).postinst
 
 endef
 #}}}}}}}}}}}}}}
