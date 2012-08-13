@@ -479,7 +479,7 @@ say '##################### build flag checks #######################';
           }
           if( $target =~ m{utila2} )
           {
-            push @options_should, '-L/usr/lib/devscripts/';
+            push @options_should, '-L/usr/lib/awk/';
           }
 
           if( $target =~ m{/(.*?\.so\.5\.6)\.7} )
