@@ -427,11 +427,15 @@ say '##################### build flag checks #######################';
           # linking
           my @options_should = ();
 
-          # First, figure out if the linker has --copy-dt-needed-entries, to
-          # know if I should look for it in the flags
+          # First, figure out if the linker has --copy-dt-needed-entries and
+          # --no-as-needed, to know if I should look for these in the flags
           state $haveCopyDtNeeded;
           $haveCopyDtNeeded = `ld --copy-dt-needed-entries 2>&1` !~ /unrecognized|unknown/ unless defined $haveCopyDtNeeded;
           push @options_should, '-Wl,--copy-dt-needed-entries' if $haveCopyDtNeeded;
+
+          state $haveNoAsNeeded;
+          $haveNoAsNeeded = `ld --no-as-needed 2>&1` !~ /unrecognized|unknown/ unless defined $haveNoAsNeeded;
+          push @options_should, '-Wl,--no-as-needed' if $haveNoAsNeeded;
 
           my $installing = $makecmd =~ / install$/;
 

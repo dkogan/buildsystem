@@ -71,6 +71,13 @@ LDFLAGS_COPY_DTNEEDED := $(if $(shell ld --copy-dt-needed-entries 2>&1 | egrep '
 endif
 LDFLAGS += $(LDFLAGS_COPY_DTNEEDED)
 
+# ubuntu 12.04 flipped the default setting of --as-needed, so I explicitly set it back here
+ifeq ($(LDFLAGS_NO_AS_NEEDED_CHECKED),)
+LDFLAGS_NO_AS_NEEDED_CHECKED := 1
+LDFLAGS_NO_AS_NEEDED := $(if $(shell ld --no-as-needed 2>&1 | egrep 'unrecognized|unknown'),,-Wl,--no-as-needed)
+endif
+LDFLAGS += $(LDFLAGS_NO_AS_NEEDED)
+
 # About to include the project Makefile. I save all the active variables so that
 # I can detect unwanted modifications. Unless ALLOW_OVERRIDE is set, project
 # Makefiles are ONLY allowed to append to the active variables
