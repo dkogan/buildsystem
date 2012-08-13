@@ -607,23 +607,23 @@ EOF
 
   say '------ make sure manpages are generated, installed correctly -------';
   {
-    ensureFileHas( 'debian/liboblong-a5.6.manpages', <<EOF );
+    ensureFileHas( 'debian/liboblong-a5.6.manpages', <<'EOF' );
 libA/liba.1
 EOF
-    ensureFileHas( 'libA/liba.1', <<EOF, 'regex' );
+    ensureFileHas( 'libA/liba.1', <<'EOF', 'regex' );
 unit test pod
 EOF
-    ensureFileHas( 'debian/liboblong-a5.6.docs', <<EOF );
+    ensureFileHas( 'debian/liboblong-a5.6.docs', <<'EOF' );
 libA/liba-man.html
 EOF
-    ensureFileHas( 'libA/liba-man.html', <<EOF, 'regex' );
+    ensureFileHas( 'libA/liba-man.html', <<'EOF', 'regex' );
 unit test pod
 EOF
   }
 
   say '------ make sure the maintainer scripts are generated correctly -------';
   {
-    ensureFileHas( 'debian/liboblong-a5.6.prerm', <<EOF);
+    ensureFileHas( 'debian/liboblong-a5.6.prerm', <<'EOF');
 #!/bin/sh
 set -e
 
@@ -634,7 +634,7 @@ if [ -e "/etc/init/oblong/libA.conf" ]; then
 fi
 EOF
 
-    ensureFileHas( 'debian/liboblong-a5.6.postinst', <<EOF);
+    ensureFileHas( 'debian/liboblong-a5.6.postinst', <<'EOF');
 #!/bin/sh
 set -e
 
@@ -645,7 +645,7 @@ if [ -e "/etc/init/oblong/libA.conf" ]; then
 fi
 EOF
 
-    ensureFileHas( 'debian/liboblong-b5.6.prerm', <<EOF);
+    ensureFileHas( 'debian/liboblong-b5.6.prerm', <<'EOF');
 #!/bin/sh
 set -e
 
@@ -656,7 +656,7 @@ if [ -e "/etc/init/oblong/libB.conf" ]; then
 fi
 EOF
 
-    ensureFileHas( 'debian/liboblong-b5.6.postinst', <<EOF);
+    ensureFileHas( 'debian/liboblong-b5.6.postinst', <<'EOF');
 #!/bin/sh
 set -e
 
@@ -667,7 +667,7 @@ if [ -e "/etc/init/oblong/libB.conf" ]; then
 fi
 EOF
 
-    ensureFileHas( 'debian/oblong-test-utility.prerm', <<EOF);
+    ensureFileHas( 'debian/oblong-test-utility.prerm', <<'EOF');
 #!/bin/sh
 set -e
 
@@ -678,7 +678,7 @@ if [ -e "/etc/init/oblong/test-utility.conf" ]; then
 fi
 EOF
 
-    ensureFileHas( 'debian/oblong-test-utility.postinst', <<EOF);
+    ensureFileHas( 'debian/oblong-test-utility.postinst', <<'EOF');
 #!/bin/sh
 set -e
 
@@ -716,7 +716,7 @@ script
 
 end script
 EOF
-    ensureFileHas( 'debian/liboblong-b5.6/etc/init/oblong/libB.conf', <<EOF);
+    ensureFileHas( 'debian/liboblong-b5.6/etc/init/oblong/libB.conf', <<'EOF');
 description "Oblong upstart script"
 
 # If it dies right on start, will not respawn (& that's fine -- a big error)
@@ -740,7 +740,7 @@ script
 
 end script
 EOF
-    ensureFileHas( 'debian/oblong-test-utility/etc/init/oblong/test-utility.conf', <<EOF);
+    ensureFileHas( 'debian/oblong-test-utility/etc/init/oblong/test-utility.conf', <<'EOF');
 description "Oblong upstart script"
 
 # If it dies right on start, will not respawn (& that's fine -- a big error)
@@ -776,7 +776,7 @@ EOF
     my @files = split("\n", ensure( "echo localinstall/**/*(.) | xargs -n1 | sort" ));
     my @links = split("\n", ensure( "echo localinstall/**/*(@) | xargs -n1 | sort" ));
 
-    my @files_should = split("\n", <<EOF);
+    my @files_should = split("\n", <<'EOF');
 localinstall/usr/bin/main
 localinstall/usr/bin/utila
 localinstall/usr/bin/utila2
@@ -797,7 +797,7 @@ localinstall/usr/bin/exe.pl
 localinstall/usr/lib/libtest-utility.so.5.6.7
 EOF
 
-    my @links_should = split("\n", <<EOF);
+    my @links_should = split("\n", <<'EOF');
 localinstall/usr/lib/buildsystem-unittests5.6/libA.so
 localinstall/usr/lib/buildsystem-unittests5.6/libB.so
 localinstall/usr/lib/buildsystem-unittests5.6/libC.so
