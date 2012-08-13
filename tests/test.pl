@@ -623,69 +623,63 @@ EOF
 
   say '------ make sure the maintainer scripts are generated correctly -------';
   {
-    ensureFileHas( 'debian/liboblong-a5.6.prerm', <<'EOF');
-#!/bin/sh
+    ensureFileHas( 'debian/liboblong-a5.6.prerm', <<'EOF', 'regex');
+(?s)#!/bin/sh
 set -e
 
 #DEBHELPER#
-if [ -e "/etc/init/oblong/libA.conf" ]; then
-        # stop fails if not running
-        stop oblong/libA || :
+if \[ -e "/etc/init/oblong/libA.conf" \]; then
+.*?stop.*?
 fi
 EOF
 
-    ensureFileHas( 'debian/liboblong-a5.6.postinst', <<'EOF');
-#!/bin/sh
+    ensureFileHas( 'debian/liboblong-a5.6.postinst', <<'EOF', 'regex');
+(?s)#!/bin/sh
 set -e
 
 #DEBHELPER#
-if [ -e "/etc/init/oblong/libA.conf" ]; then
-        # start fails if already running
-        start oblong/libA || :
+if \[ -e "/etc/init/oblong/libA.conf" \]; then
+.*?start.*?
 fi
 EOF
 
-    ensureFileHas( 'debian/liboblong-b5.6.prerm', <<'EOF');
-#!/bin/sh
+    ensureFileHas( 'debian/liboblong-b5.6.prerm', <<'EOF', 'regex');
+(?s)#!/bin/sh
 set -e
 
 #DEBHELPER#
-if [ -e "/etc/init/oblong/libB.conf" ]; then
-        # stop fails if not running
-        stop oblong/libB || :
+if \[ -e "/etc/init/oblong/libB.conf" \]; then
+.*?stop.*?
 fi
 EOF
 
-    ensureFileHas( 'debian/liboblong-b5.6.postinst', <<'EOF');
-#!/bin/sh
+    ensureFileHas( 'debian/liboblong-b5.6.postinst', <<'EOF', 'regex');
+(?s)#!/bin/sh
 set -e
 
 #DEBHELPER#
-if [ -e "/etc/init/oblong/libB.conf" ]; then
-        # start fails if already running
-        start oblong/libB || :
+if \[ -e "/etc/init/oblong/libB.conf" \]; then
+.*?start.*?
 fi
 EOF
 
-    ensureFileHas( 'debian/oblong-test-utility.prerm', <<'EOF');
-#!/bin/sh
+    ensureFileHas( 'debian/oblong-test-utility.prerm', <<'EOF', 'regex');
+(?s)#!/bin/sh
 set -e
 
 #DEBHELPER#
-if [ -e "/etc/init/oblong/test-utility.conf" ]; then
-        # stop fails if not running
-        stop oblong/test-utility || :
+if \[ -e "/etc/init/oblong/test-utility.conf" \]; then
+.*?stop.*?
 fi
 EOF
 
-    ensureFileHas( 'debian/oblong-test-utility.postinst', <<'EOF');
-#!/bin/sh
+    ensureFileHas( 'debian/oblong-test-utility.postinst', <<'EOF', 'regex');
+(?s)#!/bin/sh
 set -e
 
 #DEBHELPER#
-if [ -e "/etc/init/oblong/test-utility.conf" ]; then
-        # start fails if already running
-        start oblong/test-utility || :
+if \[ -e "/etc/init/oblong/test-utility.conf" \]; then
+.*?start.*?
 fi
 EOF
 
