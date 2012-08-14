@@ -380,6 +380,10 @@ define _read_repo_version
   ABI_VERSION := $$(word 3,$$(_ALL_FIELDS))
 
   REPO_NAME_ABI_VERSIONED := $$(REPO_NAME)$$(ABI_VERSION)
+  $$(if $$(MAKE_DEBUG), $$(info MAKE_DEBUG $$(_when): REPO_NAME is $$(REPO_NAME)))
+  $$(if $$(MAKE_DEBUG), $$(info MAKE_DEBUG $$(_when): SO_VERSION is $$(SO_VERSION)))
+  $$(if $$(MAKE_DEBUG), $$(info MAKE_DEBUG $$(_when): ABI_VERSION is $$(ABI_VERSION)))
+
 endef
 
 
