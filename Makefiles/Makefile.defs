@@ -361,14 +361,11 @@ define _read_repo_version
 
   # debian has a dpkg-parsechangelog tool to parse the changelog, but it's
   # significantly slower than the gawk version below, so I don't use it
-  LPAREN := (
-  RPAREN := )
-
   _ALL_FIELDS :=                                                         \
     $$(or $$(strip                                                       \
       $$(shell                                                           \
         gawk '{ reponame = $$$$1;                                        \
-                sub(".*\\$$(LPAREN)",""); sub("[-$$(RPAREN)~].*","");    \
+                $$$$0 = gensub(".*\\(([0-9\\.]+).*?\\).*", "\\1", "g");  \
                 fullversion = $$$$0;                                     \
                 sub("\\.[0-9]+$$$$","");                                 \
                 print reponame, fullversion, $$$$0;                      \
