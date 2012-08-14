@@ -107,8 +107,8 @@ _LDFLAGS_POSTPROCESS = $(_ensure_custom_dirs_exist_link)								\
   $(foreach d,														\
     $(filter-out $(SYSTEM_LINKER_PATHS), $(_LDFLAGS_SEARCH_DIRS)),							\
     $(if $(filter $(MAKECMDGOALS),install),										\
-      $(error When building packages ALL system libraries must be in a standard location (presumably from a package);	\
-              -L not allowed for $d. Error $(_when)))									\
+      $(warning When building packages, system libraries should be in a standard location (presumably from a package);	\
+              -L strongly discouraged; a package with an RPATH will result for $d. Warning $(_when)))			\
     -Wl$(comma)-rpath$(comma)$(abspath $d))										\
   $1
 
