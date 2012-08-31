@@ -483,7 +483,7 @@ say '##################### build flag checks #######################';
           }
           if( $target =~ m{utila2} )
           {
-            push @options_should, '-L/usr/lib/awk/';
+            push @options_should, '-L/lib/modules/';
           }
 
           if( $target =~ m{/(.*?\.so\.5\.6)\.7} )
