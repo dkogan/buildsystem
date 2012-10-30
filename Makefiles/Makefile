@@ -31,6 +31,12 @@ $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval $v :=)))
 include Makefile.sys
 $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval _CUSTOMIZED_$v += $($v))))
 
+# default compilers, linkers
+CC        ?= gcc
+CXX       ?= g++
+CC_LINKER ?= $(CC)
+
+
 
 $(eval $(_read_subsets))
 

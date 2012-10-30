@@ -82,10 +82,6 @@ LDLIBS_SYSTEM  = $(_create_LDLIBS_SYSTEM)
 LDLIBS_PROJECT = $(_create_LDLIBS_PROJECT:%.so=%.$(SO))
 
 
-
-# if we don't care how we link the code, use plain cc
-CC_LINKER ?= $(CC)
-
 # all objects built for inclusion in shared libraries get -fPIC. This is
 # sub-optimal, since it adds the -fPIC overhead even if linking these
 # statically, but this will have to do for now
