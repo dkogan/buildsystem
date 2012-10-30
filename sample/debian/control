@@ -1,0 +1,48 @@
+Source: sample
+Section: non-free/extra
+Priority: extra
+Maintainer: Dima Kogan <dima@oblong.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+
+
+Package: liboblong-aaa0
+Section: non-free/extra
+Architecture: any
+Provides: liboblong-aaa
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libAAA
+ sample libAAA
+
+Package: liboblong-aaa0-dbg
+Section: non-free/debug
+Architecture: any
+Provides: liboblong-aaa-dbg
+Depends: ${misc:Depends},
+         liboblong-aaa0 (= ${binary:Version})
+Description: libAAA debug symbols
+ sample libAAA - dbg
+
+Package: liboblong-aaa0-dev
+Section: non-free/libdevel
+Architecture: any
+Provides: liboblong-aaa-dev
+Depends: ${misc:Depends},
+         liboblong-aaa0 (= ${binary:Version})
+Description: libAAA dev
+ sample libAAA - dev
+
+Package: oblong-dofrobnicate
+Section: non-free/extra
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: sample frobnicator
+ frobnicates things
+
+Package: oblong-dofrobnicate-dbg
+Section: non-free/debug
+Architecture: any
+Depends: ${misc:Depends},
+         oblong-dofrobnicate (= ${binary:Version})
+Description: sample frobnicator
+ frobnicates things - debug symbols

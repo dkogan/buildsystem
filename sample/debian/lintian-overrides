@@ -1,0 +1,13 @@
+# Add lintian overrides here. PLEASE PLEASE PLEASE try to fix the issues lintian
+# is complaining about instead of just silencing the complaints here. The
+# overrides are just for false positives. The following three overrides are
+# generally desired.
+
+# my sonames are libBlah, but package names are liboblong-blah. So I silence lintian here
+package-name-doesnt-match-sonames
+
+# I'm using section 'oblong' for my packages, so it's ok if lintian doesn't know about it
+unknown-section
+
+# Not a problem that debconf messages are only available in English
+not-using-po-debconf

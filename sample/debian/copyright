@@ -1,0 +1,8 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: Oblong git repo: sample
+Upstream-Contact: Dima Kogan, <dima@oblong.com>
+Upstream-Name: sample
+
+Files: *
+Copyright: 2011, Dima Kogan <dima@oblong.com>
+License: Oblong proprietary

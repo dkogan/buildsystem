@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# The build system is robust, so it imposes no real concurrency limit
+%:
+	dh $@  --parallel
+
+# find all the ...-dbg packages, and use dh_strip to separate out their debug
+# symbols into the debug package. dh_strip should really be doing this itself
+override_dh_strip:
+	perl -ne 'print "$$1\n" if /^Package:\s*(\S+)-dbg/' debian/control | xargs -n1 -I{} dh_strip -p{} --dbg-package={}-dbg
+
+# apply the lintian-overrides to ALL the packages
+override_dh_lintian:
+	perl -ne 'print "$$1\n" if /^Package:\s*(\S+)/' debian/control | xargs -n1 -I{} bash -c 'cat debian/lintian-overrides >> debian/{}.lintian-overrides'
+	cp debian/lintian-overrides debian/source.lintian-overrides
+	dh_lintian
