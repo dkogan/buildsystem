@@ -43,6 +43,9 @@ ifneq ($(filter $(MAKECMDGOALS),install),)
 #}}}}}}}}}}}}}} 'make install'
 else
 #{{{{{{{{{{{{{{ 'make localinstall'
+
+  PACKAGENAME := localinstall
+
   localinstall: DESTDIR_DEV  := localinstall
   localinstall: DESTDIR_MAIN := localinstall
 
