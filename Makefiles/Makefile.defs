@@ -401,8 +401,11 @@ $$(sort $$(MAKECMDGOALS) all): _recursive_rebuild_everything_target
 # I redo this make from the ROOT, re-pathing everything. I use an extra PHONY
 # target in order to build ALL my desired targets with a single sub-make
 # invocation
+#
+# Note that if we're inside emacs, I print the directory changes. This is done
+# so that the compile-mode error navigation works
 _recursive_rebuild_everything_target:
-	@$$(MAKE) -rR --no-print-directory -C $$(ROOT) $$(call relpath,$$(GOALSHERE))
+	@$$(MAKE) -rR $(if $(INSIDE_EMACS),,--no-print-directory) -C $$(ROOT) $$(call relpath,$$(GOALSHERE))
 
 .PHONY: $$(MAKECMDGOALS) all _recursive_rebuild_everything_target
 
