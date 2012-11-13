@@ -36,6 +36,8 @@ CC        ?= gcc
 CXX       ?= g++
 CC_LINKER ?= $(CC)
 
+COND_DARWIN := $(if $(findstring Darwin,$(shell uname -a)),1)
+
 
 
 $(eval $(_read_subsets))
