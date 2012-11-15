@@ -22,6 +22,8 @@ else
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ have -Rr. Build!
 
 
+COND_DARWIN := $(if $(findstring Darwin,$(shell uname -a)),1)
+
 include Makefile.projectdefs
 
 # include the system-dependent variables and anything oblong-specific. I clear
@@ -36,7 +38,6 @@ CC        ?= gcc
 CXX       ?= g++
 CC_LINKER ?= $(CC)
 
-COND_DARWIN := $(if $(findstring Darwin,$(shell uname -a)),1)
 
 
 
