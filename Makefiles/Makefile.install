@@ -46,8 +46,8 @@ else
 
   PACKAGENAME := localinstall
 
-  localinstall: DESTDIR_DEV  := localinstall
-  localinstall: DESTDIR_MAIN := localinstall
+  localinstall: DESTDIR_DEV  := $(or $(DESTDIR),localinstall)
+  localinstall: DESTDIR_MAIN := $(or $(DESTDIR),localinstall)
 
   localinstall: $(dir)/install
   .PHONY: localinstall
