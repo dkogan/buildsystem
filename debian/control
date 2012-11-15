@@ -2,13 +2,13 @@ Source: oblong-buildsystem
 Section: non-free/oblong
 Priority: extra
 Maintainer: Dima Kogan <dima@oblong.com>
-Build-Depends: debhelper (>= 7.0.50~), org-mode, liblist-compare-perl, zsh, perl(>=5.10), dh-make-perl, libipc-run-perl, gawk
+Build-Depends: debhelper (>= 7.0.50~), org-mode, liblist-compare-perl, zsh, perl(>=5.10), dh-make-perl, libipc-run-perl, gawk, gmsl
 Standards-Version: 3.8.4
 
 Package: oblong-buildsystem
 Section: non-free/oblong
 Architecture: all
-Depends: ${misc:Depends}, make, gawk, perl(>=5.10), dh-make-perl
+Depends: ${misc:Depends}, make, gawk, perl(>=5.10), dh-make-perl, gmsl
 Description: Build/packaging system for Oblong code
  The system used in various Oblong software to enable builds and generation of
  Debian packages
