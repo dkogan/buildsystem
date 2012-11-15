@@ -1,5 +1,7 @@
 # -*- Makefile -*-
 
+include /usr/share/gmsl/gmsl
+
 # various useful definitions for the build system. This file contains
 # the definitions, but has NO rules itself.
 # THIS FILE IS INCLUDED ONCE, BY THE TOP-LEVEL.
@@ -280,8 +282,8 @@ endef
 
 
 # base package names from TARGET_NAMEs
-PACKAGENAME_BASE_LIB = liboblong-$(shell echo $(TARGET_NAME) | sed 's/^lib//' | tr A-Z a-z)
-PACKAGENAME_BASE_BIN = oblong-$(shell echo $(TARGET_NAME) | tr A-Z a-z | tr _ -)
+PACKAGENAME_BASE_LIB = $(call tr,_,-,$(call lc,liboblong-$(TARGET_NAME:lib%=%)))
+PACKAGENAME_BASE_BIN = $(call tr,_,-,$(call lc,oblong-$(TARGET_NAME)))
 
 
 
