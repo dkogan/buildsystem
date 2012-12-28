@@ -3,6 +3,7 @@ include $(ROOT)/buildsystem/Makefile.header
 
 TARGET_NAME := test-utility
 
+CFLAGS += -DCFLAGS
 CCXXFLAGS += -I$(ROOT)
 
 BIN_TARGET = main

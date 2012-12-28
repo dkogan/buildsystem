@@ -414,6 +414,11 @@ say '##################### build flag checks #######################';
             push @options_should, '-DUTILA2';
           }
 
+          if( $target =~ m{^util/} )
+          {
+            push @options_should, '-DCFLAGS';
+          }
+
           # shared library objects get -fPIC
           if( $target =~ m{/[abc]2?\.o | embeddedutil}x  )
           {
