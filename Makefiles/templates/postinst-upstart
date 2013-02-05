@@ -1,3 +1,5 @@
+# This template is from the Ubuntu 10.04 debhelper
+
 if [ -e "/etc/init/#JOB#.conf" ]; then
         # start fails if already running
         start #JOB# || :

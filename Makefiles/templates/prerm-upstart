@@ -1,3 +1,5 @@
+# This template is from the Ubuntu 10.04 debhelper
+
 if [ -e "/etc/init/#JOB#.conf" ]; then
         # stop fails if not running
         stop #JOB# || :

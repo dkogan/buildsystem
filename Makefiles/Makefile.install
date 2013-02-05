@@ -59,8 +59,8 @@ endif
 # get the template filenames. If we don't have the upstart template in the
 # system (because we're running Debian, say) then use the local one
 TEMPLATE_MAINTAINER       ?= buildsystem/templates/maintainerscript.header
-TEMPLATE_UPSTART_PRERM    ?= $(or $(wildcard /usr/share/debhelper/autoscripts/prerm-upstart),buildsystem/templates/prerm-upstart)
-TEMPLATE_UPSTART_POSTINST ?= $(or $(wildcard /usr/share/debhelper/autoscripts/postinst-upstart),buildsystem/templates/postinst-upstart)
+TEMPLATE_UPSTART_PRERM    ?= buildsystem/templates/prerm-upstart
+TEMPLATE_UPSTART_POSTINST ?= buildsystem/templates/postinst-upstart
 TEMPLATE_UPSTART_CONF     ?= buildsystem/templates/upstart.conf
 
 

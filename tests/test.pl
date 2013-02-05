@@ -633,6 +633,7 @@ EOF
 set -e
 
 #DEBHELPER#
+(?:#.*|\n*)
 if \[ -e "/etc/init/oblong/libA.conf" \]; then
 .*?stop.*?
 fi
@@ -643,6 +644,7 @@ EOF
 set -e
 
 #DEBHELPER#
+(?:#.*|\n*)
 if \[ -e "/etc/init/oblong/libA.conf" \]; then
 .*?start.*?
 fi
@@ -653,6 +655,7 @@ EOF
 set -e
 
 #DEBHELPER#
+(?:#.*|\n*)
 if \[ -e "/etc/init/oblong/libB.conf" \]; then
 .*?stop.*?
 fi
@@ -663,6 +666,7 @@ EOF
 set -e
 
 #DEBHELPER#
+(?:#.*|\n*)
 if \[ -e "/etc/init/oblong/libB.conf" \]; then
 .*?start.*?
 fi
@@ -673,6 +677,7 @@ EOF
 set -e
 
 #DEBHELPER#
+(?:#.*|\n*)
 if \[ -e "/etc/init/oblong/test-utility.conf" \]; then
 .*?stop.*?
 fi
@@ -683,6 +688,7 @@ EOF
 set -e
 
 #DEBHELPER#
+(?:#.*|\n*)
 if \[ -e "/etc/init/oblong/test-utility.conf" \]; then
 .*?start.*?
 fi
