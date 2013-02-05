@@ -298,6 +298,19 @@ test: check
 $(dir)/test: $(dir)/check
 .PHONY: $(dir)/check $(dir)/test check test
 
+# unit tests are in ..../tests. If I'm trying to test a project, make sure to
+# build it first
+ifneq ($(IS_UNIT_TEST),)
+$(dir)/check: $(call relpath,$(dir)/../all)
+endif
+
+# a 'make check' in a directory should run unit tests, if they exist
+ifeq  ($(IS_UNIT_TEST),)
+ifneq ($(wildcard $(dir)/tests),)
+$(dir)/check: $(dir)/tests/check
+endif
+endif
+
 
 
 
