@@ -92,7 +92,8 @@ define _install_upstart_daemon
 perl -pe 's{^###.*}{}g; \
           s{\#NAME\#}{$(TARGET_NAME)}g; \
           s{\#UPSTART_STANZAS\#}{$$ENV{UPSTART_STANZAS}}g; \
-          s{\#COMMAND\#}{$(DAEMON_COMMAND)}g;' \
+          s{\#COMMAND\#}{$(DAEMON_COMMAND)}g; \
+          s{\#PACKAGENAME\#}{$(PACKAGENAME)}g;' \
 	$(TEMPLATE_UPSTART_CONF) > \
   $(DESTDIR_MAIN)/etc/init/oblong/$(TARGET_NAME).conf
 

@@ -698,8 +698,8 @@ EOF
 
   say '------ make sure the upstart configurations are generated correctly -------';
   {
-    ensureFileHas( 'debian/liboblong-a5.6/etc/init/oblong/libA.conf', <<EOF);
-description "Oblong upstart script"
+    ensureFileHas( 'debian/liboblong-a5.6/etc/init/oblong/libA.conf', <<'EOF');
+description "Oblong upstart script for libA"
 
 # If it dies right on start, will not respawn (& that's fine -- a big error)
 respawn
@@ -716,13 +716,25 @@ end script
 script
   exec >> /var/log/oblong/libA.log 2>&1
 
+  echo ''
+  echo '===================== Starting daemon libA ===================='
+  echo package: liboblong-a5.6
+  lsb_release -a
+  echo uname: `uname -a`
+  dpkg-query -W -f 'Package version: ${Version}\n' liboblong-a5.6
+  debsums -s    liboblong-a5.6 2>&1 || echo 'INSTALLED FILES DIFFER FROM PACKAGE!!!'
+  debsums -s -e liboblong-a5.6 2>&1 || echo 'Warning: installed config files differ from package'
+  echo 'Dependent packages:'
+  dpkg-query --list `dpkg-query -W -f '${Depends}' pdl | awk 'BEGIN{RS="[,||]"} {print $1}'`
+  echo '   === starting daemon now ==='
+
 
   utila
 
 end script
 EOF
     ensureFileHas( 'debian/liboblong-b5.6/etc/init/oblong/libB.conf', <<'EOF');
-description "Oblong upstart script"
+description "Oblong upstart script for libB"
 
 # If it dies right on start, will not respawn (& that's fine -- a big error)
 respawn
@@ -739,6 +751,18 @@ end script
 script
   exec >> /var/log/oblong/libB.log 2>&1
 
+  echo ''
+  echo '===================== Starting daemon libB ===================='
+  echo package: liboblong-b5.6
+  lsb_release -a
+  echo uname: `uname -a`
+  dpkg-query -W -f 'Package version: ${Version}\n' liboblong-b5.6
+  debsums -s    liboblong-b5.6 2>&1 || echo 'INSTALLED FILES DIFFER FROM PACKAGE!!!'
+  debsums -s -e liboblong-b5.6 2>&1 || echo 'Warning: installed config files differ from package'
+  echo 'Dependent packages:'
+  dpkg-query --list `dpkg-query -W -f '${Depends}' pdl | awk 'BEGIN{RS="[,||]"} {print $1}'`
+  echo '   === starting daemon now ==='
+
 
 
   utilb
@@ -746,7 +770,7 @@ script
 end script
 EOF
     ensureFileHas( 'debian/oblong-test-utility/etc/init/oblong/test-utility.conf', <<'EOF');
-description "Oblong upstart script"
+description "Oblong upstart script for test-utility"
 
 # If it dies right on start, will not respawn (& that's fine -- a big error)
 respawn
@@ -762,6 +786,18 @@ end script
 
 script
   exec >> /var/log/oblong/test-utility.log 2>&1
+
+  echo ''
+  echo '===================== Starting daemon test-utility ===================='
+  echo package: oblong-test-utility
+  lsb_release -a
+  echo uname: `uname -a`
+  dpkg-query -W -f 'Package version: ${Version}\n' oblong-test-utility
+  debsums -s    oblong-test-utility 2>&1 || echo 'INSTALLED FILES DIFFER FROM PACKAGE!!!'
+  debsums -s -e oblong-test-utility 2>&1 || echo 'Warning: installed config files differ from package'
+  echo 'Dependent packages:'
+  dpkg-query --list `dpkg-query -W -f '${Depends}' pdl | awk 'BEGIN{RS="[,||]"} {print $1}'`
+  echo '   === starting daemon now ==='
 
 
 
