@@ -725,7 +725,7 @@ script
   debsums -s    liboblong-a5.6 || echo 'INSTALLED FILES DIFFER FROM PACKAGE!!!'
   debsums -s -e liboblong-a5.6 || echo 'Warning: installed config files differ from package'
   echo 'Dependent packages:'
-  dpkg-query --list `dpkg-query -W -f '${Depends}' pdl | awk 'BEGIN{RS="[,||]"} {print $1}'`
+  dpkg-query --list `dpkg-query -W -f '${Depends}' liboblong-a5.6 | awk 'BEGIN{RS="[,||]"} {print $1}'`
   echo '   === starting daemon now ==='
 
 
@@ -760,7 +760,7 @@ script
   debsums -s    liboblong-b5.6 || echo 'INSTALLED FILES DIFFER FROM PACKAGE!!!'
   debsums -s -e liboblong-b5.6 || echo 'Warning: installed config files differ from package'
   echo 'Dependent packages:'
-  dpkg-query --list `dpkg-query -W -f '${Depends}' pdl | awk 'BEGIN{RS="[,||]"} {print $1}'`
+  dpkg-query --list `dpkg-query -W -f '${Depends}' liboblong-b5.6 | awk 'BEGIN{RS="[,||]"} {print $1}'`
   echo '   === starting daemon now ==='
 
 
@@ -796,7 +796,7 @@ script
   debsums -s    oblong-test-utility || echo 'INSTALLED FILES DIFFER FROM PACKAGE!!!'
   debsums -s -e oblong-test-utility || echo 'Warning: installed config files differ from package'
   echo 'Dependent packages:'
-  dpkg-query --list `dpkg-query -W -f '${Depends}' pdl | awk 'BEGIN{RS="[,||]"} {print $1}'`
+  dpkg-query --list `dpkg-query -W -f '${Depends}' oblong-test-utility | awk 'BEGIN{RS="[,||]"} {print $1}'`
   echo '   === starting daemon now ==='
 
 
