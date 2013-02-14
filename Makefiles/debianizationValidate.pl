@@ -6,8 +6,9 @@ use Debian::Control;
 
 # This script checks the debian/control and debian/changelog files for
 # self-consistency. It also makes sure that the packages defined in
-# debian/control follow the guidelines mandated by the build system. The ONLY
-# output of this script is the true/false exit value
+# debian/control follow the guidelines mandated by the build system. This script
+# returns a true/false exit value. On error, messages are printed to the console
+# also
 
 
 my $repo_name_versioned = shift
