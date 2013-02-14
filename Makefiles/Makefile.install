@@ -201,4 +201,5 @@ endif
 ifneq ($(strip $(DAEMON_COMMAND)),)
 	mkdir -p $(DESTDIR_MAIN)/etc/init/oblong
 	$(_install_upstart_daemon)
+	perl buildsystem/debianizationValidate.pl $(REPO_NAME_ABI_VERSIONED) --uses-debsums $(PACKAGENAME)
 endif
