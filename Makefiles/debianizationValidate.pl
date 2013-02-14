@@ -34,7 +34,13 @@ elsif( @ARGV == 3 )
   }
 
   my ($package_name) = $ARGV[2];
-  installTimeChecks_usesdebsums($package_name);
+
+  # if this isn't a real packaging, but rather a local install, then there are
+  # not dependencies being satisfied, so we don't need this check
+  if( $package_name ne 'localinstall' )
+  {
+    installTimeChecks_usesdebsums($package_name);
+  }
 }
 else
 {
