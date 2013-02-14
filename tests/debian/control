@@ -10,7 +10,7 @@ Package: liboblong-a5.6
 Section: non-free/extra
 Architecture: any
 Provides: liboblong-a
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, debsums
 Description: liba
  unit test library a
 
@@ -36,7 +36,7 @@ Package: liboblong-b5.6
 Section: non-free/extra
 Architecture: any
 Provides: liboblong-b
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, debsums
 Description: libb
  unit test library b
 
@@ -87,7 +87,7 @@ Description: libc dev
 Package: oblong-test-utility
 Section: non-free/extra
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, debsums
 Description: test utility
  unit test utility
 
