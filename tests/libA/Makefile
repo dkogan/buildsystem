@@ -21,8 +21,6 @@ $(dir)/utila2: LDFLAGS += -L/lib/modules/
 # -lm to test LDLIBS_SYSTEM
 LDLIBS += ../libB/libB.so -lm
 
-PODS += *.pod
-
 DIST_BINS = exe.pl
 
 DAEMON_COMMAND = utila
