@@ -29,7 +29,7 @@ include Makefile.projectdefs
 # include the system-dependent variables and anything oblong-specific. I clear
 # out all the customizable variables first, and then absorb the new
 # customizations
-$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval $v :=)))
+$(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(eval $v :=))
 include Makefile.sys
 $(foreach v,$(ACTIVE_VARS_CUSTOMIZABLE),$(if $($v),$(eval _CUSTOMIZED_$v += $($v))))
 
