@@ -10,7 +10,7 @@ CCXXFLAGS += -DC
 DIST_HEADERS = *.h c.generated.h
 
 
-$(dir)/c.c: $(dir)/c.generated.h
+$(dir)/c.o: $(dir)/c.generated.h
 
 $(dir)/c.generated.h:
 	echo 'static int gen = 5;' > $@
