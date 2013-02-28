@@ -1,12 +1,16 @@
 # -*- Makefile -*-
 
-# define compilers, linkers here. If using gcc, these can be omitted
+# define compilers, linkers here. The commented-out settings below are the
+# defaults
+#
 # CC        := gcc
 # CXX       := g++
-# CC_LINKER := $(CXX)
+# CC_LINKER := $(CC)
 
 # Various build flags to apply to this project. Things like global warning
-# settings and g-speak paths go here.
-# CCXXFLAGS += -Werror -Wall -DENCAPSULATION_IS_GOOD
-# CCXXFLAGS += -I/opt/oblong/g-speak3.0/include
-# LDFLAGS   += -L/opt/oblong/g-speak3.0/lib
+# settings and various paths go here. Any global pkgconfig calls can go here as
+# well:
+# CCXXFLAGS := `pkg-config --cflags somelib`
+# LDLAGS    := `pkg-config --libs   somelib`
+#
+# CCXXFLAGS := -Werror -Wall

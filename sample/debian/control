@@ -2,7 +2,8 @@ Source: sample
 Section: non-free/extra
 Priority: extra
 Maintainer: Dima Kogan <dima@oblong.com>
-Build-Depends: debhelper (>= 7.0.50~)
+Build-Depends: debhelper (>= 7.0.50~),
+               oblong-buildsystem1
 Standards-Version: 3.8.4
 
 

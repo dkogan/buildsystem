@@ -12,6 +12,10 @@ CCXXFLAGS += -I$(ROOT)
 BIN_TARGET = dofrobnicate
 LDLIBS += ../libAAA/libAAA.so
 
-DAEMON_COMMAND = dofrobnicate
+DAEMON_COMMAND = dofrobnicate --thusly
+
+define UPSTART_STANZAS
+start on start-frobnicating-signal
+endef
 
 include $(ROOT)/buildsystem/Makefile.footer
