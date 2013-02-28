@@ -3,3 +3,13 @@
 
 %:
 	dh $@
+
+# this moves around the symlinks in the sample app, which I do not want. It's
+# not doing anything else here, so I simply disable it wholesale
+override_dh_link:
+	true
+
+# sample should be able to work right after it's copied, so don't compress its
+# changelog
+override_dh_compress:
+	dh_compress -Xsample/debian/changelog
