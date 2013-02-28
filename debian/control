@@ -1,5 +1,5 @@
 Source: oblong-buildsystem
-Section: non-free/oblong
+Section: devel
 Priority: extra
 Maintainer: Dima Kogan <dima@oblong.com>
 Build-Depends: debhelper (>= 7.0.50~), org-mode, liblist-compare-perl, zsh, perl(>=5.10), dh-make-perl, libipc-run-perl, gawk, gmsl
@@ -8,7 +8,7 @@ Vcs-Browser: http://www.github.com/dkogan/buildsystem
 Vcs-Git: git://github.com/dkogan/buildsystem.git
 
 Package: oblong-buildsystem1
-Section: non-free/oblong
+Section: devel
 Architecture: all
 Depends: ${misc:Depends}, make, gawk, perl(>=5.10), dh-make-perl, gmsl
 Description: Oblong Industries' build/packaging system
