@@ -14,7 +14,7 @@ $(foreach t,$(DIST_TYPES),$(eval $t := $(call soft-wildcard, $($t))))
 # them all together into a single directory. The only difference is the
 # DESTDIR_DEV and DESTDIR_MAIN directories.
 
-ifneq ($(filter $(MAKECMDGOALS),install),)
+ifneq ($(filter install,$(MAKECMDGOALS)),)
 #{{{{{{{{{{{{{{ 'make install'
 
   # If the TARGET_NAME starts with 'lib', it's a library. Otherwise it's
@@ -66,7 +66,7 @@ TEMPLATE_UPSTART_CONF     ?= buildsystem/templates/upstart.conf
 
 # make sure the package names defined in debian/control have the necessary
 # embedded version numbers. I only do this during 'make install' for efficiency
-ifneq ($(filter $(MAKECMDGOALS),install),)
+ifneq ($(filter install,$(MAKECMDGOALS)),)
 ifeq ($(_CHECKED_DEBIAN_CONTROL_VERSIONS),)
   _CHECKED_DEBIAN_CONTROL_VERSIONS := 1
 
@@ -145,7 +145,7 @@ endif
 $(dir)/install: $(LIB_TARGET_A) $(LIB_TARGET_SO) $(LIB_TARGET_SO_BARE) $(LIB_TARGET_SO_BARE).$(ABI_VERSION) $(DIST_ALL)
 
 # must have DESTDIR if we're doing an "install"
-ifneq ($(filter $(MAKECMDGOALS),install),)
+ifneq ($(filter install,$(MAKECMDGOALS)),)
 ifeq  ($(strip $(DESTDIR)),)
 	@echo Tried to make install without having DESTDIR defined
 	@echo "make install" is ONLY for the debian package.
